@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
-import store from '../redux/store';
 import { getExperiments, createExperiment, deleteExperiment, fetchExperiment } from '../redux/ducks/experiments';
 import { getTests, createTest, deleteTest } from '../redux/ducks/tests';
 import TestList from '../components/test';
@@ -11,23 +10,23 @@ class TestListContainer extends Component {
   
   onAddExperiment = () => {
     let exp = {text: 'Lulzi'};
-    store.dispatch(createExperiment(exp));
+    this.props.dispatch(createExperiment({experiment: exp}));
   }
 
   onDeleteExperiment = (experimentId) => {
-    store.dispatch(deleteExperiment(experimentId));
+    this.props.dispatch(deleteExperiment({id: experimentId}));
   }
 
   onAddTest = (experimentId) => {
     let test = {text: 'Luls', experimentId: experimentId};
-    store.dispatch(createTest(test));
-    store.dispatch(fetchExperiment(experimentId));
+    this.props.dispatch(createTest({test}));
+    this.props.dispatch(fetchExperiment({id: experimentId}));
   }
 
   onDeleteTest = (testId) => {
     let experimentId = this.props.tests[testId].experimentId;
-    store.dispatch(deleteTest(testId));
-    store.dispatch(fetchExperiment(experimentId));
+    this.props.dispatch(deleteTest({id: testId}));
+    this.props.dispatch(fetchExperiment({id: experimentId}));
   }
 
   render() {

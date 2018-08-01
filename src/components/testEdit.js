@@ -10,9 +10,8 @@ import Typography from '@material-ui/core/Typography';
 
 import { renderFormFields } from '../utils/formGenerator';
 
-class ExperimentEdit extends Component {
+class TestEdit extends Component {
 
-  handleInputChange;
   renderFormFields;
 
   constructor(props) {
@@ -21,9 +20,8 @@ class ExperimentEdit extends Component {
   }
 
   render() {
-    let title = this.props.create ? 'Create new experiment' : 'Edit experiment';
+    let title = this.props.create ? 'Create new test' : 'Edit experiment';
     let formFields = this.renderFormFields();
-    console.log("EXPERIMENT: ", this.props.experiment);
     return (
       <Card elevation={1}>
         <form onSubmit={this.props.handleSubmit}>
@@ -44,5 +42,5 @@ class ExperimentEdit extends Component {
 }
 
 export default reduxForm({
-  form: 'experimentEdit'
-})(ExperimentEdit);
+  form: 'testEdit'
+})(TestEdit);

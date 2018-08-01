@@ -17,19 +17,24 @@ function set(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-
 export function createExperiment(experiment) {
-  let expId = parseInt(get('expId'));
+  let expId = parseInt(get('expId'), 10);
   let db = get('db');
-  console.log("CREATE_SERVER", db, expId);
   expId++;
   let newExperiment = {...experiment};
-  newExperiment.id = expId;
+  newExperiment.id = expId.toString();
   newExperiment.tests = [];
-  db.experiments[expId] = newExperiment;
+  db.experiments[expId.toString()] = newExperiment;
   set('expId', expId);
   set('db', db);
   return newExperiment;
+}
+
+export function updateExperiment(experiment) {
+  let db = get('db');
+  db.experiments[experiment.id.toString()] = experiment;
+  set('db', db);
+  return experiment;
 }
 
 export function deleteExperiment(id) {
@@ -43,17 +48,23 @@ export function deleteExperiment(id) {
 }
 
 export function createTest(test) {
-  let testId = parseInt(get('expId'));
+  let testId = parseInt(get('testId'), 10);
   let db = get('db');
   testId++;
-  localStorage.setItem('testId', testId.toString());
   let newTest = {...test};
-  newTest.id = testId;
-  db.tests[testId] = newTest;
-  db.experiments[newTest.experimentId].tests.push(testId);
+  newTest.id = testId.toString();
+  db.tests[testId.toString()] = newTest;
+  db.experiments[newTest.experimentId].tests.push(testId.toString());
   set('testId', testId);
   set('db', db);
   return newTest;
+}
+
+export function updateTest(test) {
+  let db = get('db');
+  db.tests[test.id.toString()] = test;
+  set('db', db);
+  return test;
 }
 
 export function deleteTest(id) {

@@ -4,11 +4,11 @@ import { connectRouter, routerMiddleware } from 'connected-react-router'
 import { reducer as formReducer } from 'redux-form'
 import loggerMiddleware from 'redux-logger';
 import createSagaMiddleware from 'redux-saga'
-import { createExperimentSaga } from './sagas/experiments';
+import rootSaga from './sagas';
 
 import * as reducers from './ducks';
 
-export const history = createBrowserHistory()
+export const history = createBrowserHistory();
 
 const rootReducer = connectRouter(history)(combineReducers({...reducers, form: formReducer}));
 const sagaMiddleware = createSagaMiddleware();
@@ -22,6 +22,6 @@ const store = createStore(
   applyMiddleware(...middlewares)
 );
 
-sagaMiddleware.run(createExperimentSaga);
+sagaMiddleware.run(rootSaga);
 
 export default store;

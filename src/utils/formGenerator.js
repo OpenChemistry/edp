@@ -4,13 +4,13 @@ import { Field } from 'redux-form'
 import { required } from './formValidation';
 
 import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import FormControl from '@material-ui/core/FormControl';
+// import IconButton from '@material-ui/core/IconButton';
+// import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+// import FormHelperText from '@material-ui/core/FormHelperText';
 import TextField from '@material-ui/core/TextField';
 
-import FileUploadIcon from '@material-ui/icons/FileUpload';
+// import FileUploadIcon from '@material-ui/icons/FileUpload';
 
 export function handleInputChange(event) {
   let value = event.target.value;
@@ -35,7 +35,7 @@ export function handleInputChange(event) {
   this.setState(newState);
 }
 
-export function createExperimentFields(experiment = undefined) {
+export function createExperimentFields(experiment) {
   let fields = {
     'date' : {
       label: 'Start date',
@@ -84,6 +84,46 @@ export function createExperimentFields(experiment = undefined) {
       error: '',
       validate: [required]
     },
+  }
+  return fields;
+}
+
+export function createTestFields(test = undefined) {
+  let fields = {
+    'date' : {
+      label: 'Start date',
+      type: 'date',
+      value: test ? test.date : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'cellId' : {
+      label: 'Cell ID',
+      type: 'text',
+      value: test ? test.cellId : '',
+      error: '',
+      validate: [required]
+    },
+    'channel' : {
+      label: 'Channel',
+      type: 'text',
+      value: test ? test.channel : '',
+      error: '',
+      validate: [required]
+    },
+    'scheduleFile' : {
+      label: 'Schedule file',
+      type: 'text',
+      value: test ? test.scheduleFile : '',
+      error: '',
+      validate: [required]
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: test ? test.comments : '',
+      error: ''
+    }
   }
   return fields;
 }
@@ -162,76 +202,3 @@ const renderCheckField = (field) => {
     </div>
   )
 };
-
-// export function createFields_() {
-//   let formFields = [];
-//   for (let key in this.state.fields) {
-//     const field = this.state.fields[key]; 
-//     const multiline = field.type === 'textarea';
-//     const type = multiline ? 'text' : field.type;
-//     const label = field.label;
-//     const value = field.value;
-//     const error = field.error;
-//     const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
-
-//     if (type=== 'checkbox') {
-//       formFields.push(
-//           <FormControlLabel
-//             key={key}
-//             control={
-//               <Checkbox
-//                 name={key}
-//                 checked={value}
-//                 onChange={this.handleInputChange}
-//                 value={key}
-//                 disabled={disabled}
-//               />
-//             }
-//             label={label}
-//           />
-//       );
-//     } else if (type === 'file') {
-//       formFields.push(
-//         <div key={key} style={{marginBottom: "1rem"}}>
-//           <FormControl error={error.length > 0}>
-//             <FormControlLabel
-//               control={
-//                 <IconButton onClick={() => this.fileUpload.click()} disabled={disabled}>
-//                   <FileUploadIcon/>
-//                 </IconButton>
-//               }
-//               label={label + " " + value}
-//             />
-//             <FormHelperText>{error}</FormHelperText>
-//           </FormControl>
-//           <input
-//             hidden
-//             name={key}
-//             type="file"
-//             ref={(ref) => {this.fileUpload = ref;}}
-//             onChange={this.handleInputChange}
-//           />
-//         </div>
-//       )
-//     } else {
-//       formFields.push(
-//         <div key={key} style={{marginBottom: "1rem"}}>
-//           <TextField
-//             fullWidth
-//             name={key}
-//             type={type} value={value} label={label}
-//             InputLabelProps={{shrink: true}}
-//             multiline={multiline}
-//             rows={4}
-//             onChange={this.handleInputChange}
-//             error={error.length > 0}
-//             helperText={error}
-//             disabled={disabled}
-//           >
-//           </TextField>
-//         </div>
-//       );
-//     }
-//   }
-//   return formFields;
-// }

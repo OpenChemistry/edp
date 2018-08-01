@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
-
-import store from '../redux/store';
 import { push } from 'connected-react-router';
 
-import { getExperiment, createExperiment } from '../redux/ducks/experiments';
+import { getExperiment, createExperiment, updateExperiment } from '../redux/ducks/experiments';
 
 import { createExperimentFields } from '../utils/formGenerator';
 
@@ -15,14 +13,22 @@ import ExperimentEdit from '../components/experimentEdit';
 import NotFoundPage from '../components/notFound.js';
 
 class ExperimentEditContainer extends Component {
-  
-  onSubmit = (experiment) => {
-    if (this.props.create) {
-      store.dispatch(createExperiment({experiment}));
-    } else {
 
-    }
-    // store.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${experiment.id}`))
+  onSubmit = (experiment) => {
+    let actionCreator = this.props.create ? createExperiment : updateExperiment;
+
+    let onSubmitPromise = new Promise((resolve, reject) => {
+      this.props.dispatch(actionCreator({experiment, resolve, reject}));
+    });
+
+    onSubmitPromise
+    .then((val) => {
+      this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${val.id}`));
+    })
+    .catch((err) =>{
+    });
+
+    return onSubmitPromise;
   }
 
   render() {
@@ -37,6 +43,7 @@ class ExperimentEditContainer extends Component {
       <ExperimentEdit
         create={this.props.create}
         fields={createExperimentFields(this.props.experiment)}
+        initialValues={this.props.experiment}
         onSubmit={this.onSubmit}
       />
     );

@@ -1,13 +1,10 @@
 import { createAction, handleActions } from 'redux-actions';
-import {
-  deleteExperiment as deleteExperimentRest,
-  getExperiment as getExperimentRest,
-  getExperiments as getExperimentsRest
-} from '../../server';
+
 import { getTest } from './tests';
 
-// Selector
-export const getExperiments = state => state.experiments;
+// Selectors
+
+export const getExperiments = (state) => state.experiments;
 export const getExperiment = (state, id) => state.experiments[id];
 export const getExperimentTests = (state, id) => {
   let experiment = getExperiment(state, id);
@@ -21,30 +18,35 @@ export const getExperimentTests = (state, id) => {
   return tests;
 };
 
-
 // Actions
 
 export const CREATE_EXPERIMENT_REQUESTED = 'CREATE_EXPERIMENT_REQUESTED';
 export const CREATE_EXPERIMENT_SUCCEEDED = 'CREATE_EXPERIMENT_SUCCEEDED';
 export const CREATE_EXPERIMENT_FAILED = 'CREATE_EXPERIMENT_FAILED';
-const DELETE_EXPERIMENT = 'DELETE_EXPERIMENT';
-const FETCH_EXPERIMENT = 'FETCH_EXPERIMENT';
-const FETCH_EXPERIMENTS = 'FETCH_EXPERIMENTS';
-// const UPDATE_EXPERIMENT = 'UPDATE_EXPERIMENT';
+
+export const FETCH_EXPERIMENT_REQUESTED = 'FETCH_EXPERIMENT_REQUESTED';
+export const FETCH_EXPERIMENT_SUCCEEDED = 'FETCH_EXPERIMENT_SUCCEEDED';
+export const FETCH_EXPERIMENT_FAILED = 'FETCH_EXPERIMENT_FAILED';
+
+export const UPDATE_EXPERIMENT_REQUESTED = 'UPDATE_EXPERIMENT_REQUESTED';
+export const UPDATE_EXPERIMENT_SUCCEEDED = 'UPDATE_EXPERIMENT_SUCCEEDED';
+export const UPDATE_EXPERIMENT_FAILED = 'UPDATE_EXPERIMENT_FAILED';
+
+export const DELETE_EXPERIMENT_REQUESTED = 'DELETE_EXPERIMENT_REQUESTED';
+export const DELETE_EXPERIMENT_SUCCEEDED = 'DELETE_EXPERIMENT_SUCCEEDED';
+export const DELETE_EXPERIMENT_FAILED = 'DELETE_EXPERIMENT_FAILED';
+
+export const FETCH_EXPERIMENTS_REQUESTED = 'FETCH_EXPERIMENTS_REQUESTED';
+export const FETCH_EXPERIMENTS_SUCCEEDED = 'FETCH_EXPERIMENTS_SUCCEEDED';
+export const FETCH_EXPERIMENTS_FAILED = 'FETCH_EXPERIMENTS_FAILED';
+
+// Action creators
 
 export const createExperiment = createAction(CREATE_EXPERIMENT_REQUESTED);
-
-export const deleteExperiment = createAction(DELETE_EXPERIMENT, (id) => {
-  return {id: deleteExperimentRest(id)};
-});
-
-export const fetchExperiment = createAction(FETCH_EXPERIMENT, (id) => {
-  return {experiment: getExperimentRest(id)};
-});
-
-export const fetchExperiments = createAction(FETCH_EXPERIMENTS, () => {
-  return {experiments: getExperimentsRest()};
-});
+export const fetchExperiment = createAction(FETCH_EXPERIMENT_REQUESTED);
+export const updateExperiment = createAction(UPDATE_EXPERIMENT_REQUESTED);
+export const deleteExperiment = createAction(DELETE_EXPERIMENT_REQUESTED);
+export const fetchExperiments = createAction(FETCH_EXPERIMENTS_REQUESTED);
 
 // Reducer
 
@@ -54,16 +56,19 @@ const reducer = handleActions({
   CREATE_EXPERIMENT_SUCCEEDED: (state, action) => {
     return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
   },
-  DELETE_EXPERIMENT: (state, action) => {
+  FETCH_EXPERIMENT_SUCCEEDED: (state, action) => {
+    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
+  },
+  UPDATE_EXPERIMENT_SUCCEEDED: (state, action) => {
+    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
+  },
+  FETCH_EXPERIMENTS_SUCCEEDED: (state, action) => {
+    return action.payload.experiments;
+  },
+  DELETE_EXPERIMENT_REQUESTED: (state, action) => {
     let newState = {...state};
     delete newState[action.payload.id];
     return newState;
-  },
-  FETCH_EXPERIMENT: (state, action) => {
-    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
-  },
-  FETCH_EXPERIMENTS: (state, action) => {
-    return action.payload.experiments;
   },
 }, initialState);
 

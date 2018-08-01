@@ -6,19 +6,11 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 import store from './redux/store';
+import { fetchExperiments } from './redux/ducks/experiments';
+import { fetchTests } from './redux/ducks/tests';
 
-// import { createExperiment } from './redux/ducks/experiments';
-
-// for (let i = 0; i < 5; ++i) {
-//   let exp = {
-//     text: 'Lulzi ' + i.toString()
-//   }
-//   store.dispatch(createExperiment(exp));
-// }
-
-
-
-// store.dispatch(createExperiment(exp));
+store.dispatch(fetchExperiments());
+store.dispatch(fetchTests());
 
 ReactDOM.render(
   <Provider store={store}>
