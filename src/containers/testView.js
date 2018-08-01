@@ -40,7 +40,7 @@ class TestViewContainer extends Component {
 function mapStateToProps(state, ownProps) {
   let testId = ownProps.match.params.id;
   return {
-    test: getTest(state, testId)
+    test: getTest(state, testId),
   }
 }
 

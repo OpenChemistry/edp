@@ -1,13 +1,33 @@
 import React, { Component } from 'react';
 
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton';
+
+import EditIcon from '@material-ui/icons/Edit';
+
+import { createExperimentFields } from '../utils/fields';
+import { renderDisplayFields } from '../utils/displayGenerator';
+
 class ExperimentView extends Component {
   render() {
+    let fields = renderDisplayFields(createExperimentFields(this.props.experiment));
     return (
-      <div>
-        <h3>Experiment {this.props.experiment.id} - {this.props.experiment.title}</h3>
-        <button onClick={() => {this.props.onEditExperiment()}}>Edit</button>
-        <button onClick={() => {this.props.onAddTest()}}>New test</button>
-      </div>
+      <Card>
+        <CardHeader
+          action={
+            <IconButton onClick={() => {this.props.onEditExperiment()}}>
+              <EditIcon />
+            </IconButton>
+          }
+          title={this.props.experiment.title}
+          subheader={this.props.experiment.date}
+        />
+        <CardContent>
+          {fields}
+        </CardContent>
+      </Card>
     );
   }
 }

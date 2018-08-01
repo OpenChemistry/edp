@@ -1,14 +1,43 @@
 import React, { Component } from 'react';
 
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import Typography from '@material-ui/core/Typography';
+
+import { createTestFields } from '../utils/fields';
+import { renderDisplayFields } from '../utils/displayGenerator';
+
+const linkStyle = {
+  textDecoration: 'underline',
+  cursor: 'pointer'
+}
 class TestView extends Component {
   render() {
-
+    let fields = renderDisplayFields(createTestFields(this.props.test));
     return (
-      <div>
-        <h3>Test {this.props.test.id} - {this.props.test.text}</h3>
-        <button onClick={() => {this.props.onBackToExperiment()}}>Back</button>
-        <button onClick={() => {this.props.onEditTest()}}>Edit test</button>
-      </div>
+      <Card>
+        <CardHeader
+          action={
+            <IconButton onClick={() => {this.props.onEditTest()}}>
+              <EditIcon />
+            </IconButton>
+          }
+          title={`Channel ${this.props.test.channel}`}
+          subheader={this.props.test.date}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="subheading" color="textSecondary">
+            Experiment
+          </Typography>
+          <Typography color="secondary" paragraph>
+            <a style={linkStyle} onClick={this.props.onBackToExperiment}>{this.props.test.experimentId}</a>
+          </Typography>
+          {fields}
+        </CardContent>
+      </Card>
     );
   }
 }

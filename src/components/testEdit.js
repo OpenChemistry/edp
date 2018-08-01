@@ -20,7 +20,7 @@ class TestEdit extends Component {
   }
 
   render() {
-    let title = this.props.create ? 'Create new test' : 'Edit experiment';
+    let title = this.props.create ? 'Create new test' : 'Edit test';
     let formFields = this.renderFormFields();
     return (
       <Card elevation={1}>

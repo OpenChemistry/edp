@@ -3,13 +3,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { createTestFields } from '../utils/formGenerator';
+import { createTestFields } from '../utils/fields';
 import { fetchExperiment } from '../redux/ducks/experiments';
 import { getTest, createTest, updateTest } from '../redux/ducks/tests';
 
 import { TEST_VIEW_ROUTE } from '../routes';
 
-import ExperimentEdit from '../components/experimentEdit';
+import TestEdit from '../components/testEdit';
 import NotFoundPage from '../components/notFound.js';
 
 class TestEditContainer extends Component {
@@ -24,7 +24,6 @@ class TestEditContainer extends Component {
 
     onSubmitPromise
     .then((val) => {
-      // refresh the parent experiment
       this.props.dispatch(fetchExperiment({id: this.props.experimentId}));
       this.props.dispatch(push(`${TEST_VIEW_ROUTE}/${val.id}`));
     })
@@ -43,7 +42,7 @@ class TestEditContainer extends Component {
     }
 
     return (
-      <ExperimentEdit
+      <TestEdit
         create={this.props.create}
         fields={createTestFields(this.props.test)}
         initialValues={this.props.test}

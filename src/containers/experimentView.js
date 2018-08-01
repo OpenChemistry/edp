@@ -39,11 +39,11 @@ class ExperimentViewContainer extends Component {
           <ExperimentView
             experiment={this.props.experiment}
             onEditExperiment={this.onEditExperiment}
-            onAddTest={this.onAddTest}
           />
           <TestList
             tests={this.props.tests}
             onOpenTest={this.onOpenTest}
+            onAddTest={this.onAddTest}
             onDeleteTest={this.onDeleteTest}
           />
         </div>

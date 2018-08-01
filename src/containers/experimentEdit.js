@@ -5,7 +5,7 @@ import { push } from 'connected-react-router';
 
 import { getExperiment, createExperiment, updateExperiment } from '../redux/ducks/experiments';
 
-import { createExperimentFields } from '../utils/formGenerator';
+import { createExperimentFields } from '../utils/fields';
 
 import {EXPERIMENT_VIEW_ROUTE} from '../routes';
 
