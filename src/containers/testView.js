@@ -41,7 +41,7 @@ function mapStateToProps(state, ownProps) {
 
   if (!experiment) {
     test = null;
-  } else if ( test && test.experimentId !== experimentId) {
+  } else if ( test && test.experimentId != experimentId) {
     test = null;
   }
   return {

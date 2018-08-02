@@ -1,13 +1,88 @@
+const initialExperiments = {
+  0: {
+    id: 0,
+    date: '2018-07-31',
+    title: 'Batch 5',
+    motivation: 'Repeat batch 4',
+    expDesign: `
+      See batch4.\n
+      Lorem ipsum dolor sit amet consectetur adipiscing elit, litora dictumst feugiat dui phasellus faucibus netus, nec diam sociosqu etiam tellus integer. Pretium suspendisse molestie tempor placerat sed convallis et arcu varius mollis nam, scelerisque quam ad suscipit class enim euismod curabitur mus ante. In vel per litora scelerisque ligula praesent risus fermentum, volutpat elementum aenean euismod id molestie massa taciti, nunc natoque dis malesuada himenaeos torquent tempor.
+    `,
+    expNotes: 'Anomally high temperature',
+    completed: true,
+    results: `
+    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+    `,
+    tests: [0, 1]
+  },
+  1: {
+    id: 1,
+    date: '2018-08-01',
+    title: 'Batch 6',
+    motivation: 'Repeat batch 4',
+    expDesign: `
+      See batch4.\n
+      Lorem ipsum dolor sit amet consectetur adipiscing elit, litora dictumst feugiat dui phasellus faucibus netus, nec diam sociosqu etiam tellus integer. Pretium suspendisse molestie tempor placerat sed convallis et arcu varius mollis nam, scelerisque quam ad suscipit class enim euismod curabitur mus ante. In vel per litora scelerisque ligula praesent risus fermentum, volutpat elementum aenean euismod id molestie massa taciti, nunc natoque dis malesuada himenaeos torquent tempor.
+    `,
+    expNotes: 'Anomally high temperature',
+    completed: true,
+    results: `
+    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+    `,
+    tests: [2]
+  }
+}
+
+const initialTests = {
+  0: {
+    id: 0,
+    date: '2018-07-31',
+    cellId: 'EL15080',
+    channel: '1',
+    scheduleFile: '3_6C_36CV_01.sdu',
+    metadataFile: '2018-07-12_tempdebugging_CH1_Metadata.csv',
+    dataFile: '2018-07-12_tempdebugging_CH1.csv',
+    experimentId: 0
+  },
+  1: {
+    id: 1,
+    date: '2018-07-31',
+    cellId: 'EL15080',
+    channel: '24',
+    scheduleFile: '3_6C_36CV_01.sdu',
+    metadataFile: '2018-07-12_tempdebugging_CH24_Metadata.csv',
+    dataFile: '2018-07-12_tempdebugging_CH24.csv',
+    comments: 'Channel 24 - woah',
+    experimentId: 0
+  },
+  2: {
+    id: 2,
+    date: '2018-08-01',
+    cellId: 'EL15080',
+    channel: '1',
+    scheduleFile: '3_6C_36CV_01.sdu',
+    metadataFile: '2018-07-12_tempdebugging_CH1_Metadata.csv',
+    dataFile: '2018-07-12_tempdebugging_CH1.csv',
+    experimentId: 1
+  }
+}
+
+const initialTestId = 2;
+const initialExperimentId = 1;
+
+
 function get(key) {
   let value = JSON.parse(localStorage.getItem(key));
   if (!value) {
     if (key === 'db') {
       value = {
-        experiments: {},
-        tests: {}
+        experiments: initialExperiments,
+        tests: initialTests
       };
-    } else {
-      value = 0;
+    } else if (key === 'expId') {
+      value = initialExperimentId;
+    } else if (key === 'testId') {
+      value = initialTestId;
     }
   }
   return value;

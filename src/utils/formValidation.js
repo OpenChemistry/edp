@@ -20,7 +20,7 @@ export function validationFactory(fields) {
 }
 
 export let required = (val) => {
-  let msg = 'Field is required'
+  let msg = '* field is required'
   if (!val) {
     return msg
   }
