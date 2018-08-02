@@ -19,6 +19,14 @@ class TestEditContainer extends Component {
     let actionCreator = this.props.create ? createTest : updateTest;
     test.experimentId = this.props.experiment.id;
 
+    if (test.metadataFile && test.metadataFile[0]) {
+      test.metadataFile = test.metadataFile[0].name;
+    }
+
+    if (test.dataFile && test.dataFile[0]) {
+      test.dataFile = test.dataFile[0].name;
+    }
+
     let onSubmitPromise = new Promise((resolve, reject) => {
       this.props.dispatch(actionCreator({test, resolve, reject}));
     });

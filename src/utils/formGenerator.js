@@ -2,7 +2,7 @@ import React from 'react';
 import { Field } from 'redux-form'
 
 import Checkbox from '@material-ui/core/Checkbox';
-// import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 // import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import FormHelperText from '@material-ui/core/FormHelperText';
@@ -50,6 +50,17 @@ export function renderFormFields() {
           disabled={disabled}
         />
       );
+    } else if (type === 'file') {
+      formFields.push(
+        <Field
+          key={key}
+          type='text'
+          name={key}
+          component={renderFileField}
+          label={label}
+          disabled={disabled}
+        />
+      );
     } else {
       formFields.push(
         <Field
@@ -82,6 +93,7 @@ const renderTextField = (field) => {
         rows={field.rows}
         disabled={field.disabled}
         {...field.input}
+        // onChange={(e)=>{console.log(e); field.input.onChange(e);}}
       />
     </div>
   )
@@ -105,3 +117,40 @@ const renderCheckField = (field) => {
     </div>
   )
 };
+
+const renderFileField = (field) => {
+  console.log("FILE FIELD", field, this.fileInput);
+  return (
+    <div style={{display: 'flex', marginBottom: "1rem"}}>
+      <div style={{flexGrow: 1}}>
+        <TextField
+          fullWidth
+          disabled={true}
+          value={field.input.value && field.input.value[0] ? field.input.value[0].name : field.input.value}
+          label={field.label}
+          onClick={() => {
+            if (this[`${field.input.name}Input`]) {
+              this[`${field.input.name}Input`].click();
+            }
+          }}
+        />
+      </div>
+      <Button
+        disabled={field.disabled}
+        onClick={() => {
+          if (this[`${field.input.name}Input`]) {
+            this[`${field.input.name}Input`].click();
+          }
+        }}
+      >
+        Select file
+        <input
+          ref={ref => {this[`${field.input.name}Input`] = ref;}}
+          type="file"
+          onChange={field.input.onChange}
+          hidden
+        />
+      </Button>
+    </div>
+  );
+}

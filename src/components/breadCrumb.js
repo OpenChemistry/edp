@@ -12,7 +12,8 @@ const style = {
   fontSize: 18,
   padding: '1rem',
   paddingTop: '1.25rem',
-  display: 'flex'
+  display: 'flex',
+  alignItems: 'center'
 }
 
 class BreadCrumb extends Component {
@@ -22,23 +23,23 @@ class BreadCrumb extends Component {
     }
     return (
         <div style={style}>
-          <div style={linkStyle} onClick={this.props.onHomeClick}>
-            <HomeIcon/>
+          <div>
+            <HomeIcon style={linkStyle} onClick={this.props.onHomeClick}/>
           </div>
-          <span>
+          <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
-            <a  style={linkStyle}  onClick={this.props.onExperimentClick}>
+            <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
               experiment {this.props.experiment.id}
-            </a>
-          </span>
+            </span>
+          </div>
 
           {this.props.test &&
-          <span>
+          <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
-            <a  style={linkStyle}  onClick={this.props.onTestClick}>
+            <span  style={linkStyle}  onClick={this.props.onTestClick}>
               test {this.props.test.id}
-            </a>
-          </span>
+            </span>
+          </div>
           }
       </div>
     );

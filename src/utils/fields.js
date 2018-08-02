@@ -83,6 +83,18 @@ export function createTestFields(test = undefined) {
       error: '',
       validate: [required]
     },
+    'metadataFile' : {
+      label: 'Metadata file',
+      type: 'file',
+      value: test ? test.metadataFile : '',
+      error: ''
+    },
+    'dataFile' : {
+      label: 'Data file',
+      type: 'file',
+      value: test ? test.dataFile : '',
+      error: ''
+    },
     'comments': {
       label: 'Comments',
       type: 'textarea',

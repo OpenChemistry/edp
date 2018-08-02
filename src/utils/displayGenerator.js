@@ -12,6 +12,17 @@ export function renderDisplayFields(fields) {
 
     if (type === 'checkbox') {
       
+    } else if (type === 'file') {
+      displayFields.push(
+        <div key={key}>
+          <Typography gutterBottom variant="subheading" color="textSecondary">
+            {label}
+          </Typography>
+          <Typography  paragraph color='primary' style={{cursor: 'pointer', textDecoration: 'underline'}}>
+            {value}
+          </Typography>
+        </div>
+      );
     } else {
       let doPush = ( key !== 'title' && key !== 'date' && key !== 'channel' && value);
       if (doPush) {
