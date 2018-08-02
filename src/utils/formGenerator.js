@@ -87,8 +87,8 @@ const renderTextField = (field) => {
         InputLabelProps={{shrink: true}}
         type={field.type}
         label={field.label}
-        error={field.meta.touched && field.meta.error}
-        helperText={field.meta.error}
+        error={field.meta.touched && !!field.meta.error}
+        helperText={field.meta.touched ? field.meta.error : ''}
         multiline={field.multiline}
         rows={field.rows}
         disabled={field.disabled}

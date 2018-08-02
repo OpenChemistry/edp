@@ -46,8 +46,7 @@ export function createExperimentFields(experiment) {
       type: 'textarea',
       value: experiment ? experiment.results : '',
       disabled: experiment ? !experiment.completed : true,
-      error: '',
-      validate: [required]
+      error: ''
     },
   }
   return fields;

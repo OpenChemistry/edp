@@ -8,7 +8,7 @@ import { fetchExperiment } from '../redux/ducks/experiments';
 import { getTest, createTest, updateTest } from '../redux/ducks/tests';
 import { getExperiment } from '../redux/ducks/experiments';
 
-import { EXPERIMENT_VIEW_ROUTE } from '../routes';
+import { EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
 
 import TestEdit from '../components/testEdit';
 import NotFoundPage from '../components/notFound.js';
@@ -34,8 +34,11 @@ class TestEditContainer extends Component {
     onSubmitPromise
     .then((val) => {
       this.props.dispatch(fetchExperiment({id: this.props.experiment.id}));
-      // this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}/${TEST_VIEW_ROUTE}/${val.id}`));
-      this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}`));
+      if (this.props.create) {
+        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}`));
+      } else {
+        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}/${TEST_VIEW_ROUTE}/${val.id}`));
+      }
     })
     .catch((err) =>{
     });

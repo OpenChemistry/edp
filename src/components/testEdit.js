@@ -9,6 +9,8 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
 import { renderFormFields } from '../utils/formGenerator';
+import { createTestFields } from '../utils/fields';
+import { validationFactory } from '../utils/formValidation';
 
 class TestEdit extends Component {
 
@@ -20,18 +22,21 @@ class TestEdit extends Component {
   }
 
   render() {
+    const {handleSubmit, pristine, submitting, invalid} = this.props;
     let title = this.props.create ? 'Create new test' : 'Edit test';
     let formFields = this.renderFormFields();
     return (
       <Card elevation={1}>
-        <form onSubmit={this.props.handleSubmit}>
+        <form onSubmit={handleSubmit}>
         <CardContent>
           <Typography variant="headline">{title}</Typography>
           <br/>
             {formFields}
         </CardContent>
         <CardActions >
-          <Button variant="contained" color="secondary" type='submit'>
+          <Button
+            disabled={pristine || submitting || invalid}
+            variant="contained" color="secondary" type='submit'>
             {this.props.create ? 'Create' : 'Save'}
           </Button>
         </CardActions>
@@ -42,5 +47,6 @@ class TestEdit extends Component {
 }
 
 export default reduxForm({
-  form: 'testEdit'
+  form: 'testEdit',
+  validate: validationFactory(createTestFields())
 })(TestEdit);
