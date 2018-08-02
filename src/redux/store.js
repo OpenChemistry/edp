@@ -8,7 +8,7 @@ import rootSaga from './sagas';
 
 import * as reducers from './ducks';
 
-export const history = createBrowserHistory();
+export const history = createBrowserHistory({basename: process.env.PUBLIC_URL});
 
 const rootReducer = connectRouter(history)(combineReducers({...reducers, form: formReducer}));
 const sagaMiddleware = createSagaMiddleware();
