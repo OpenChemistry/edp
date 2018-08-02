@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
+import { replace } from 'connected-react-router';
 
 import { getExperiment, createExperiment, updateExperiment } from '../redux/ducks/experiments';
 
@@ -23,7 +23,7 @@ class ExperimentEditContainer extends Component {
 
     onSubmitPromise
     .then((val) => {
-      this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${val.id}`));
+        this.props.dispatch(replace(`/${EXPERIMENT_VIEW_ROUTE}/${val.id}`));
     })
     .catch((err) =>{
     });
@@ -54,7 +54,7 @@ function mapStateToProps(state, ownProps) {
   let create = ownProps.match.params.action === 'add';
   let experiment;
   if (!create) {
-    let experimentId = ownProps.match.params.id;
+    let experimentId = ownProps.match.params.experimentId;
     experiment = getExperiment(state, experimentId);
   }
   return {

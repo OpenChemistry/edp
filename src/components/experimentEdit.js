@@ -23,7 +23,6 @@ class ExperimentEdit extends Component {
   render() {
     let title = this.props.create ? 'Create new experiment' : 'Edit experiment';
     let formFields = this.renderFormFields();
-    console.log("EXPERIMENT: ", this.props.experiment);
     return (
       <Card elevation={1}>
         <form onSubmit={this.props.handleSubmit}>

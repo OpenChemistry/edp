@@ -7,7 +7,7 @@ import logo from '../assets/logo.svg';
 class Header extends Component {
   render() {
     return (
-      <AppBar color="default" position="fixed">
+      <AppBar color="default" position="static">
         <Toolbar>
           <Button color="inherit" aria-label="Logo" style={{marginRight: 9}}
             onClick={this.props.onLogoClick}

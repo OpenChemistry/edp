@@ -11,11 +11,11 @@ import ExperimentList from '../components/experimentList';
 class ExperimentListContainer extends Component {
   
   onAddExperiment = () => {
-    this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/add`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/add`));
   }
 
   onOpenExperiment = (experimentId) => {
-    this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
   }
 
   onDeleteExperiment = (experimentId) => {

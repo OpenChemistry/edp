@@ -19,7 +19,6 @@ export function handleInputChange(event) {
     newState.fields[event.target.name].value = event.target.checked;
   }
   let err = '';
-  console.log(this.state.fields[name]);
   if (this.state.fields[name].validate) {
     for (let fn of this.state.fields[name].validate) {
       err = fn(value);
@@ -28,7 +27,6 @@ export function handleInputChange(event) {
       }
     }
   }
-  console.log(err);
   newState.fields[event.target.name].error = err;
   this.setState(newState);
 }

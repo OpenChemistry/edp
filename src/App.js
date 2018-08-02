@@ -14,6 +14,7 @@ import ExperimentEdit from './containers/experimentEdit';
 import TestView from './containers/testView';
 import TestEdit from './containers/testEdit';
 import Header from './containers/header';
+import BreadCrumb from './containers/breadcrumb';
 
 import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from './routes';
 
@@ -23,19 +24,20 @@ class App extends Component {
       <div className="App">
         <CssBaseline />
         <Header />
-        <div className="content">
           <ConnectedRouter history={history}>
-            <Switch>
-              <Route path={EXPERIMENT_LIST_ROUTE} exact component={ExperimentList} />
-              <Route path={`${EXPERIMENT_VIEW_ROUTE}/:action(add)`} exact component={ExperimentEdit} />
-              <Route path={`${EXPERIMENT_VIEW_ROUTE}/:id/:action(edit)`} exact component={ExperimentEdit} />
-              <Route path={`${EXPERIMENT_VIEW_ROUTE}/:id`} exact component={ExperimentView} />
-              <Route path={`${EXPERIMENT_VIEW_ROUTE}/:id/:action(addtest)`} exact component={TestEdit} />
-              <Route path={`${TEST_VIEW_ROUTE}/:id/:action(edit)`} exact component={TestEdit} />
-              <Route path={`${TEST_VIEW_ROUTE}/:id`} exact component={TestView} />
-            </Switch>
+            <div className="content">
+              <BreadCrumb/>
+              <Switch>
+                <Route path={EXPERIMENT_LIST_ROUTE} exact component={ExperimentList} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:action(add)`} exact component={ExperimentEdit} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(edit)`} exact component={ExperimentEdit} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId`} exact component={ExperimentView} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(addtest)`} exact component={TestEdit} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId/:action(edit)`} exact component={TestEdit} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId`} component={TestView} />
+              </Switch>
+            </div>
           </ConnectedRouter>
-        </div>
       </div>
     );
   }

@@ -16,16 +16,17 @@ class ExperimentViewContainer extends Component {
 
   onEditExperiment = () => {
     let experimentId = this.props.experiment.id;
-    this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${experimentId}/edit`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/edit`));
   }
 
   onAddTest = () => {
     let experimentId = this.props.experiment.id;
-    this.props.dispatch(push(`${EXPERIMENT_VIEW_ROUTE}/${experimentId}/addtest`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/addtest`));
   }
 
   onOpenTest = (testId) => {
-    this.props.dispatch(push(`${TEST_VIEW_ROUTE}/${testId}`));
+    let experimentId = this.props.experiment.id;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${TEST_VIEW_ROUTE}/${testId}`));
   }
 
   onDeleteTest = (testId) => {
@@ -55,7 +56,7 @@ class ExperimentViewContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  let experimentId = ownProps.match.params.id;
+  let experimentId = ownProps.match.params.experimentId;
   return {
     experiment: getExperiment(state, experimentId),
     tests: getExperimentTests(state, experimentId)

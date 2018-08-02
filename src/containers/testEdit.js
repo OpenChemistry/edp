@@ -6,8 +6,9 @@ import { push } from 'connected-react-router';
 import { createTestFields } from '../utils/fields';
 import { fetchExperiment } from '../redux/ducks/experiments';
 import { getTest, createTest, updateTest } from '../redux/ducks/tests';
+import { getExperiment } from '../redux/ducks/experiments';
 
-import { TEST_VIEW_ROUTE } from '../routes';
+import { EXPERIMENT_VIEW_ROUTE } from '../routes';
 
 import TestEdit from '../components/testEdit';
 import NotFoundPage from '../components/notFound.js';
@@ -16,7 +17,7 @@ class TestEditContainer extends Component {
   
   onSubmit = (test) => {
     let actionCreator = this.props.create ? createTest : updateTest;
-    test.experimentId = this.props.experimentId;
+    test.experimentId = this.props.experiment.id;
 
     let onSubmitPromise = new Promise((resolve, reject) => {
       this.props.dispatch(actionCreator({test, resolve, reject}));
@@ -24,8 +25,9 @@ class TestEditContainer extends Component {
 
     onSubmitPromise
     .then((val) => {
-      this.props.dispatch(fetchExperiment({id: this.props.experimentId}));
-      this.props.dispatch(push(`${TEST_VIEW_ROUTE}/${val.id}`));
+      this.props.dispatch(fetchExperiment({id: this.props.experiment.id}));
+      // this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}/${TEST_VIEW_ROUTE}/${val.id}`));
+      this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}`));
     })
     .catch((err) =>{
     });
@@ -55,18 +57,20 @@ class TestEditContainer extends Component {
 function mapStateToProps(state, ownProps) {
   let create = ownProps.match.params.action === 'addtest';
   let test;
-  let experimentId;
-  if (create) {
-    experimentId = ownProps.match.params.id;
-  } else {
-    let testId = ownProps.match.params.id;
+  let experiment = getExperiment(state, ownProps.match.params.experimentId);
+  if (!create) {
+    let testId = ownProps.match.params.testId;
     test = getTest(state, testId);
-    experimentId = test.experimentId;
+    if (!experiment) {
+      test = null;
+    } else if ( test && test.experimentId !== experiment.id) {
+      test = null;
+    }
   }
   return {
     create,
     test,
-    experimentId
+    experiment
   }
 }
 

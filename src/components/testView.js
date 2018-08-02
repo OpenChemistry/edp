@@ -5,15 +5,10 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
-import Typography from '@material-ui/core/Typography';
 
 import { createTestFields } from '../utils/fields';
 import { renderDisplayFields } from '../utils/displayGenerator';
 
-const linkStyle = {
-  textDecoration: 'underline',
-  cursor: 'pointer'
-}
 class TestView extends Component {
   render() {
     let fields = renderDisplayFields(createTestFields(this.props.test));
@@ -29,12 +24,6 @@ class TestView extends Component {
           subheader={this.props.test.date}
         />
         <CardContent>
-          <Typography gutterBottom variant="subheading" color="textSecondary">
-            Experiment
-          </Typography>
-          <Typography color="secondary" paragraph>
-            <a style={linkStyle} onClick={this.props.onBackToExperiment}>{this.props.test.experimentId}</a>
-          </Typography>
           {fields}
         </CardContent>
       </Card>
