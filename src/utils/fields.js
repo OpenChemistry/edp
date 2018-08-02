@@ -16,6 +16,13 @@ export function createExperimentFields(experiment) {
       error: '',
       validate: [required]
     },
+    'motivation' : {
+      label: 'Motivation',
+      type: 'textarea',
+      value: experiment ? experiment.motivation : '',
+      error: '',
+      validate: [required]
+    },
     'expDesign': {
       label: 'Experimental design',
       type: 'textarea',

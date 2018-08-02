@@ -34,7 +34,7 @@ class App extends Component {
                 <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId`} exact component={ExperimentView} />
                 <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(addtest)`} exact component={TestEdit} />
                 <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId/:action(edit)`} exact component={TestEdit} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId`} component={TestView} />
+                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId`} exact component={TestView} />
               </Switch>
             </div>
           </ConnectedRouter>

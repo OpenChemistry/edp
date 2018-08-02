@@ -70,7 +70,7 @@ export function renderFormFields() {
           component={renderTextField}
           label={label}
           multiline={multiline}
-          rows={4}
+          rows={6}
           disabled={disabled}
         />
       );
@@ -88,7 +88,7 @@ const renderTextField = (field) => {
         type={field.type}
         label={field.label}
         error={field.meta.touched && !!field.meta.error}
-        helperText={field.meta.touched ? field.meta.error : ''}
+        helperText={field.meta.error ? field.meta.error : ''}
         multiline={field.multiline}
         rows={field.rows}
         disabled={field.disabled}
