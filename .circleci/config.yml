@@ -1,0 +1,28 @@
+version: 2
+jobs:
+
+  test:
+    working_directory: ~/repo
+    docker:
+      - image: girder/girder:latest-py3
+      - image: mongo:latest
+    steps:
+      - checkout
+      - run:
+          name: Install plugin
+          command: |
+            girder-install plugin server/edp
+      - run:
+          name: Install dev requirements
+          command: |
+            pip3 install -r server/requirements-dev.txt
+      - run:
+          name: Run the tests
+          command: |
+            pytest server/
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
