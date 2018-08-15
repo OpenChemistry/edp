@@ -1,0 +1,2 @@
+pytest
+-e git+https://github.com/girder/girder.git#egg=pytest_girder&subdirectory=pytest_girder
