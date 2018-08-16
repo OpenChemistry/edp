@@ -53,8 +53,8 @@ class Experiment(AccessControlledModel):
         mutable_props = ['startDate', 'title', 'experimentalDesign',
                          'experimentalNotes', 'dataNotes', 'public']
 
-        for prop in mutable_props:
-            if prop in experiment_updates:
+        for prop in experiment_updates:
+            if prop in mutable_props:
                 updates.setdefault('$set', {})[prop] = experiment_updates[prop]
 
         if updates:
