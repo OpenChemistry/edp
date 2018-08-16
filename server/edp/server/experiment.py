@@ -16,9 +16,9 @@ class Experiment(Resource):
         super(Experiment, self).__init__()
         self.route('POST', (), self.create)
         self.route('GET', (), self.find)
-        self.route('GET', (':id',), self.get)
-        self.route('PATCH', (':id',), self.update)
-        self.route('DELETE', (':id',), self.delete)
+        self.route('GET', (':experimentId',), self.get)
+        self.route('PATCH', (':experimentId',), self.update)
+        self.route('DELETE', (':experimentId',), self.delete)
 
         self.route('POST', (':experimentId', 'tests'), test.create)
         self.route('GET', (':experimentId', 'tests'), test.find)
@@ -64,7 +64,7 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Get an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.READ, paramType='path')
     )
@@ -74,7 +74,7 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
         Description('Update an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.WRITE, paramType='path')
         .jsonParam('updates', 'The experiment updates', required=True, paramType='body')
@@ -87,7 +87,7 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
         Description('Update an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.ADMIN, paramType='path')
     )
