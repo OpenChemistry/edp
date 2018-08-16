@@ -53,5 +53,5 @@ def make_girder_file():
 
     yield _make_girder_file
 
-    #for file in files:
-     #   File().remove(file)
+    for file in files:
+        File().remove(file)
