@@ -115,8 +115,6 @@ def test_find_owner(server, user, admin, experiment):
 
 @pytest.mark.plugin('edp')
 def test_get(server, user, admin, experiment):
-    from girder.plugins.edp.models.experiment import Experiment
-
     r = server.request('/edp/experiments/%s' % experiment['_id'],
                        method='GET', user=user)
     assertStatusOk(r)
