@@ -6,6 +6,7 @@ from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
+from . import test
 from girder.plugins.edp.models.experiment import Experiment as ExperimentModel
 
 
@@ -18,6 +19,12 @@ class Experiment(Resource):
         self.route('GET', (':id',), self.get)
         self.route('PATCH', (':id',), self.update)
         self.route('DELETE', (':id',), self.delete)
+
+        self.route('POST', (':experimentId', 'tests'), test.create)
+        self.route('GET', (':experimentId', 'tests'), test.find)
+        self.route('GET', (':experimentId', 'tests', ':testId'), test.get)
+        self.route('PATCH', (':experimentId', 'tests', ':testId'), test.update)
+        self.route('DELETE', (':experimentId', 'tests', ':testId'), test.delete)
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
@@ -85,5 +92,5 @@ class Experiment(Resource):
             level=AccessType.ADMIN, paramType='path')
     )
     def delete(self, experiment):
-        experiment = ExperimentModel().remove(experiment, user=self.getCurrentUser())
+        ExperimentModel().remove(experiment, user=self.getCurrentUser())
 
