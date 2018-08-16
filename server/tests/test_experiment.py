@@ -4,29 +4,6 @@ import json
 from pytest_girder.assertions import assertStatus, assertStatusOk
 
 
-@pytest.fixture
-def create_request():
-    yield {
-        'startDate': datetime.datetime.utcnow().timestamp(),
-        'title': 'title',
-        'experimentalDesign': 'I designed the cool experiment.',
-        'experimentalNotes': 'These are my notes.',
-        'dataNotes': 'Here are some notes.',
-        'public': True
-    }
-
-@pytest.fixture
-def experiment(server, user, create_request):
-    from girder.plugins.edp.models.experiment import Experiment
-
-    r = server.request('/edp/experiments', method='POST', body=json.dumps(create_request),
-                       type='application/json', user=user)
-    assertStatus(r, 201)
-
-    yield r.json
-
-    Experiment().remove(r.json, force=True)
-
 @pytest.mark.plugin('edp')
 def test_create_public(server, user, create_request):
     from girder.plugins.edp.models.experiment import Experiment
