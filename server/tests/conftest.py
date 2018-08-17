@@ -55,11 +55,13 @@ def make_girder_file():
             'parentId': user['_id'],
             'name': 'Public'
         })[0]
-        upload = Upload().uploadFromFile(
+        file = Upload().uploadFromFile(
             six.BytesIO(contents), size=len(contents), name=name,
             parentType='folder', parent=folder,
             user=user, assetstore=assetstore)
-        file = Upload().finalizeUpload(upload, assetstore)
+        if not contents:
+            file = Upload().finalizeUpload(file, assetstore)
+
         files.append(file)
 
         return  file
