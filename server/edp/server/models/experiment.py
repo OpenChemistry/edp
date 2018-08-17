@@ -58,7 +58,10 @@ class Experiment(AccessControlledModel):
                 updates.setdefault('$set', {})[prop] = experiment_updates[prop]
 
         if updates:
-            super(Experiment, self).update(query, update=updates, multi=False)
+            update_result = super(Experiment, self).update(query, update=updates, multi=False)
+            if update_result.matched_count == 0:
+                raise ValidationException('Invalid experiment id (%)' % experiment['_id'])
+
             return self.load(experiment['_id'], user=user, level=AccessType.READ)
 
         return experiment

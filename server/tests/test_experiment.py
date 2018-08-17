@@ -51,6 +51,23 @@ def test_update(server, user, experiment):
     experiment = Experiment().load(r.json['_id'], force=True)
     assert updates.items() <= experiment.items()
 
+
+@pytest.mark.plugin('edp')
+def test_update_non_existent(server, user, experiment):
+    from girder.plugins.edp.models.experiment import Experiment
+
+    updates = {
+        'title': 'Nothing to see here.',
+        'dataNotes': 'Notes'
+    }
+
+    non_existent = '5ae71e1ff657102b11ce2233'
+    r = server.request('/edp/experiments/%s' % non_existent,
+                       method='PATCH', body=json.dumps(updates),
+                       type='application/json', user=user)
+    assertStatus(r, 400)
+
+
 @pytest.mark.plugin('edp')
 def test_delete(server, user, experiment):
     from girder.plugins.edp.models.experiment import Experiment
