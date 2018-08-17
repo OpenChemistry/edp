@@ -4,29 +4,6 @@ import json
 from pytest_girder.assertions import assertStatus, assertStatusOk
 
 
-@pytest.fixture
-def create_request():
-    yield {
-        'startDate': datetime.datetime.utcnow().timestamp(),
-        'title': 'title',
-        'experimentalDesign': 'I designed the cool experiment.',
-        'experimentalNotes': 'These are my notes.',
-        'dataNotes': 'Here are some notes.',
-        'public': True
-    }
-
-@pytest.fixture
-def experiment(server, user, create_request):
-    from girder.plugins.edp.models.experiment import Experiment
-
-    r = server.request('/edp/experiments', method='POST', body=json.dumps(create_request),
-                       type='application/json', user=user)
-    assertStatus(r, 201)
-
-    yield r.json
-
-    Experiment().remove(r.json, force=True)
-
 @pytest.mark.plugin('edp')
 def test_create_public(server, user, create_request):
     from girder.plugins.edp.models.experiment import Experiment
@@ -74,6 +51,23 @@ def test_update(server, user, experiment):
     experiment = Experiment().load(r.json['_id'], force=True)
     assert updates.items() <= experiment.items()
 
+
+@pytest.mark.plugin('edp')
+def test_update_non_existent(server, user, experiment):
+    from girder.plugins.edp.models.experiment import Experiment
+
+    updates = {
+        'title': 'Nothing to see here.',
+        'dataNotes': 'Notes'
+    }
+
+    non_existent = '5ae71e1ff657102b11ce2233'
+    r = server.request('/edp/experiments/%s' % non_existent,
+                       method='PATCH', body=json.dumps(updates),
+                       type='application/json', user=user)
+    assertStatus(r, 400)
+
+
 @pytest.mark.plugin('edp')
 def test_delete(server, user, experiment):
     from girder.plugins.edp.models.experiment import Experiment
@@ -115,8 +109,6 @@ def test_find_owner(server, user, admin, experiment):
 
 @pytest.mark.plugin('edp')
 def test_get(server, user, admin, experiment):
-    from girder.plugins.edp.models.experiment import Experiment
-
     r = server.request('/edp/experiments/%s' % experiment['_id'],
                        method='GET', user=user)
     assertStatusOk(r)

@@ -6,6 +6,7 @@ from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
+from . import test
 from girder.plugins.edp.models.experiment import Experiment as ExperimentModel
 
 
@@ -15,9 +16,15 @@ class Experiment(Resource):
         super(Experiment, self).__init__()
         self.route('POST', (), self.create)
         self.route('GET', (), self.find)
-        self.route('GET', (':id',), self.get)
-        self.route('PATCH', (':id',), self.update)
-        self.route('DELETE', (':id',), self.delete)
+        self.route('GET', (':experimentId',), self.get)
+        self.route('PATCH', (':experimentId',), self.update)
+        self.route('DELETE', (':experimentId',), self.delete)
+
+        self.route('POST', (':experimentId', 'tests'), test.create)
+        self.route('GET', (':experimentId', 'tests'), test.find)
+        self.route('GET', (':experimentId', 'tests', ':testId'), test.get)
+        self.route('PATCH', (':experimentId', 'tests', ':testId'), test.update)
+        self.route('DELETE', (':experimentId', 'tests', ':testId'), test.delete)
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
@@ -57,7 +64,7 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Get an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.READ, paramType='path')
     )
@@ -67,7 +74,7 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
         Description('Update an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.WRITE, paramType='path')
         .jsonParam('updates', 'The experiment updates', required=True, paramType='body')
@@ -80,10 +87,10 @@ class Experiment(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
         Description('Update an experiment.')
-        .modelParam('id', 'The experiment id',
+        .modelParam('experimentId', 'The experiment id',
             model=ExperimentModel, destName='experiment',
             level=AccessType.ADMIN, paramType='path')
     )
     def delete(self, experiment):
-        experiment = ExperimentModel().remove(experiment, user=self.getCurrentUser())
+        ExperimentModel().remove(experiment, user=self.getCurrentUser())
 

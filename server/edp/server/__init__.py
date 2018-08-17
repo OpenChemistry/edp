@@ -1,5 +1,5 @@
 from girder.api.rest import Prefix
-from .rest import Experiment
+from .experiment import Experiment
 
 def load(info):
     info['apiRoot'].edp = Prefix()
