@@ -48,6 +48,9 @@ def create(self, experiment, test):
         level=AccessType.READ, paramType='path')
 )
 def get(self, experiment, test):
+    if test['experimentId'] != experiment['_id']:
+        raise RestException('Invalid experiment or test id (%s, %s).' % (experiment['_id'], test['_id']))
+
     return test
 
 
@@ -76,7 +79,7 @@ def find(self, experiment, offset=0, limit=None, sort=None):
     .jsonParam('updates', 'The test updates', required=True, paramType='body')
 )
 def update(self, experiment, test, updates):
-    test = TestModel().update(test, updates, self.getCurrentUser())
+    test = TestModel().update(experiment, test, updates, self.getCurrentUser())
     return test
 
 @boundHandler

@@ -43,9 +43,10 @@ class Test(AccessControlledModel):
 
         return self.save(test)
 
-    def update(self, test, test_updates, user):
+    def update(self, experiment, test, test_updates, user):
         query = {
-            '_id': test['_id']
+            '_id': test['_id'],
+            'experimentId': experiment['_id']
         }
         updates = {}
 
@@ -67,7 +68,11 @@ class Test(AccessControlledModel):
                 updates.setdefault('$set', {})[prop] = value
 
         if updates:
-            super(Test, self).update(query, update=updates, multi=False)
+            update_result = super(Test, self).update(query, update=updates, multi=False)
+            if update_result.matched_count == 0:
+                raise ValidationException('Invalid experiment or test id (%s, %s)' %
+                    (experiment['_id'], test['_id']))
+
             return self.load(test['_id'], user=user, level=AccessType.READ)
 
         return test

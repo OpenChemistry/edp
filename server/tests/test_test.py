@@ -55,7 +55,8 @@ def test_create_private(server, user, experiment, create_test_request):
 
 
 @pytest.mark.plugin('edp')
-def test_update(server, user, experiment, test, fsAssetstore, make_girder_file):
+def test_update(server, user, experiment, make_experiment,
+                test, fsAssetstore, make_girder_file):
     from girder.plugins.edp.models.test import Test
 
     schedule_file = make_girder_file(fsAssetstore, user, 'schedule')
@@ -77,6 +78,20 @@ def test_update(server, user, experiment, test, fsAssetstore, make_girder_file):
     test = Test().load(r.json['_id'], force=True)
     assert updates.items() <= test.items()
 
+    # Try to patch a test not associated with a give experiment
+    body = {
+        'startDate': datetime.datetime.utcnow().timestamp(),
+        'title': 'another title',
+        'experimentalDesign': 'I designed the cool experiment.',
+        'experimentalNotes': 'These are my notes.',
+        'dataNotes': 'Here are some notes.'
+    }
+    another_experiment = make_experiment(user, body)
+    r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),
+                       method='PATCH', body=json.dumps({k:str(v) for (k,v) in updates.items()}),
+                       type='application/json', user=user)
+    assertStatus(r, 400)
+
 @pytest.mark.plugin('edp')
 def test_delete(server, user, experiment, test):
     from girder.plugins.edp.models.test import Test
@@ -97,9 +112,22 @@ def test_find(server, user, experiment, test):
     assert test.items() <= r.json[0].items()
 
 @pytest.mark.plugin('edp')
-def test_get(server, user, admin, experiment, test):
+def test_get(server, make_experiment, user, admin, experiment, test):
     r = server.request('/edp/experiments/%s/tests/%s' % (experiment['_id'], test['_id']),
                        method='GET', user=user)
     assertStatusOk(r)
     assert test.items() <= r.json.items()
 
+    # Make another experiment and try to fetch a test that is not associated
+    # with it
+    body = {
+        'startDate': datetime.datetime.utcnow().timestamp(),
+        'title': 'another title',
+        'experimentalDesign': 'I designed the cool experiment.',
+        'experimentalNotes': 'These are my notes.',
+        'dataNotes': 'Here are some notes.'
+    }
+    another_experiment = make_experiment(user, body)
+    r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),
+                       method='GET', user=user)
+    assertStatus(r, 400)

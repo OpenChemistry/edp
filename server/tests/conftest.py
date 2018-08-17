@@ -21,16 +21,29 @@ def create_request():
     }
 
 @pytest.fixture
-def experiment(server, user, create_request):
+def make_experiment(server):
+    from girder.plugins.edp.models.experiment import Experiment
+    experiments = []
+
+    def _make_experiment(user, request):
+        r = server.request('/edp/experiments', method='POST', body=json.dumps(request),
+                           type='application/json', user=user)
+        assertStatus(r, 201)
+        experiments.append(r.json)
+
+        return  r.json
+
+    yield _make_experiment
+
+    for experiment in experiments:
+        Experiment().remove(experiment)
+
+
+@pytest.fixture
+def experiment(make_experiment, user, create_request):
     from girder.plugins.edp.models.experiment import Experiment
 
-    r = server.request('/edp/experiments', method='POST', body=json.dumps(create_request),
-                       type='application/json', user=user)
-    assertStatus(r, 201)
-
-    yield r.json
-
-    Experiment().remove(r.json, force=True)
+    yield make_experiment(user, create_request)
 
 
 @pytest.fixture
