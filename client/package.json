@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^1.4.0",
-    "@material-ui/icons": "^1.1.0",
+    "@material-ui/icons": "^2.0.3",
     "@material-ui/lab": "^1.0.0-alpha.6",
+    "@openchemistry/girder-auth-redux": "^0.0.1",
     "connected-react-router": "^4.3.0",
+    "lodash-es": "^4.17.10",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
@@ -16,7 +18,8 @@
     "redux-actions": "^2.5.0",
     "redux-form": "^7.4.2",
     "redux-logger": "^3.0.6",
-    "redux-saga": "^0.16.0"
+    "redux-saga": "^0.16.0",
+    "universal-cookie": "^3.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
