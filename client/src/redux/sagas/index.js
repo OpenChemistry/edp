@@ -5,8 +5,10 @@ import {
   watchFetchMe,
   watchFetchOauthProviders,
   watchInvalidateToken,
-  watchNewToken
-} from '@openchemistry/girder-auth-redux';
+  watchNewToken,
+  watchUsernameLogin,
+  watchTestOauthEnabled
+} from './auth';
 
 import {
   createExperimentSaga,
@@ -39,6 +41,8 @@ export default function* root() {
   yield fork(watchAuthenticate);
   yield fork(watchFetchMe);
   yield fork(watchFetchOauthProviders);
+  yield fork(watchTestOauthEnabled);
   yield fork(watchInvalidateToken);
   yield fork(watchNewToken);
+  yield fork(watchUsernameLogin);
 }

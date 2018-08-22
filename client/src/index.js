@@ -12,7 +12,7 @@ import store from './redux/store';
 import { fetchExperiments } from './redux/ducks/experiments';
 import { fetchTests } from './redux/ducks/tests';
 
-import { authenticate } from '@openchemistry/girder-auth-redux';
+import { authenticate, testOauthEnabled } from '@openchemistry/girder-auth-redux';
 
 store.dispatch(fetchExperiments());
 store.dispatch(fetchTests());
@@ -24,6 +24,9 @@ const cookieToken = cookies.get('girderToken');
 if (cookieToken !== 'undefined') {
   store.dispatch(authenticate({token: cookieToken}));
 }
+
+// Test if oauth is enabled on the backend
+store.dispatch(testOauthEnabled());
 
 ReactDOM.render(
   <Provider store={store}>

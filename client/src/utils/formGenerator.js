@@ -119,7 +119,6 @@ const renderCheckField = (field) => {
 };
 
 const renderFileField = (field) => {
-  console.log("FILE FIELD", field, this.fileInput);
   return (
     <div style={{display: 'flex', marginBottom: "1rem"}}>
       <div style={{flexGrow: 1}}>

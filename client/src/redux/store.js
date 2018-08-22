@@ -8,11 +8,16 @@ import rootSaga from './sagas';
 
 import * as reducers from './ducks';
 
-import girderAuthReducer from '@openchemistry/girder-auth-redux';
+import { default as girderAuthReducer } from './ducks/auth';
 
 export const history = createBrowserHistory({basename: process.env.PUBLIC_URL});
 
-const rootReducer = connectRouter(history)(combineReducers({...reducers, form: formReducer, auth: girderAuthReducer}));
+const rootReducer = connectRouter(history)(combineReducers({
+  ...reducers,
+  auth: girderAuthReducer,
+  form: formReducer
+}));
+
 const sagaMiddleware = createSagaMiddleware();
 let middlewares = [];
 middlewares.push(sagaMiddleware);
