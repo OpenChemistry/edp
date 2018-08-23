@@ -13,25 +13,27 @@ class Experiment(AccessControlledModel):
         self.ensureIndices(('title'))
         self.ensureTextIndex({
             'title': 1,
+            'motivation': 1,
             'experimentalDesign': 1,
             'experimentalNotes': 1,
             'dataNotes': 1
         })
 
         self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'startDate', 'title', 'experimentalDesign',
+            '_id', 'startDate', 'title', 'motivation', 'experimentalDesign',
             'experimentalNotes', 'dataNotes', 'public'))
 
     def validate(self, experiment):
 
         return experiment
 
-    def create(self, start_date, title, experimental_design, experimental_notes,
-               data_notes, user, public=False):
+    def create(self, start_date, title, motivation, experimental_design,
+               experimental_notes, data_notes, user, public=False):
 
         experiment = {
             'startDate': start_date,
             'title': title,
+            'motivation': motivation,
             'experimentalDesign': experimental_design,
             'experimentalNotes': experimental_notes,
             'dataNotes': data_notes,
@@ -50,7 +52,7 @@ class Experiment(AccessControlledModel):
         }
         updates = {}
 
-        mutable_props = ['startDate', 'title', 'experimentalDesign',
+        mutable_props = ['startDate', 'title', 'motivation', 'experimentalDesign',
                          'experimentalNotes', 'dataNotes', 'public']
 
         for prop in experiment_updates:
