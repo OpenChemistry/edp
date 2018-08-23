@@ -15,11 +15,12 @@ import TestView from './containers/testView';
 import TestEdit from './containers/testEdit';
 import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
+
 import {
-  LoginOptionsContainer as LoginOptions,
-  GirderLoginContainer as GirderLogin,
+  LoginOptions,
+  GirderLogin,
   OauthRedirect
-} from './containers/header/login';
+} from '@openchemistry/girder-auth-ui';
 
 import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from './routes';
 
