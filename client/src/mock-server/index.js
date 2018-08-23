@@ -1,14 +1,14 @@
 const initialExperiments = {
   0: {
     id: 0,
-    date: '2018-07-31',
+    startDate: '2018-07-31',
     title: 'Batch 5',
     motivation: 'Repeat batch 4',
-    expDesign: `
+    experimentalDesign: `
       See batch4.\n
       Lorem ipsum dolor sit amet consectetur adipiscing elit, litora dictumst feugiat dui phasellus faucibus netus, nec diam sociosqu etiam tellus integer. Pretium suspendisse molestie tempor placerat sed convallis et arcu varius mollis nam, scelerisque quam ad suscipit class enim euismod curabitur mus ante. In vel per litora scelerisque ligula praesent risus fermentum, volutpat elementum aenean euismod id molestie massa taciti, nunc natoque dis malesuada himenaeos torquent tempor.
     `,
-    expNotes: 'Anomally high temperature',
+    experimentalNotes: 'Anomally high temperature',
     completed: true,
     results: `
     Lorem ipsum dolor sit amet consectetur adipiscing elit.
@@ -17,14 +17,14 @@ const initialExperiments = {
   },
   1: {
     id: 1,
-    date: '2018-08-01',
+    startDate: '2018-08-01',
     title: 'Batch 6',
     motivation: 'Repeat batch 4',
-    expDesign: `
+    experimentalDesign: `
       See batch4.\n
       Lorem ipsum dolor sit amet consectetur adipiscing elit, litora dictumst feugiat dui phasellus faucibus netus, nec diam sociosqu etiam tellus integer. Pretium suspendisse molestie tempor placerat sed convallis et arcu varius mollis nam, scelerisque quam ad suscipit class enim euismod curabitur mus ante. In vel per litora scelerisque ligula praesent risus fermentum, volutpat elementum aenean euismod id molestie massa taciti, nunc natoque dis malesuada himenaeos torquent tempor.
     `,
-    expNotes: 'Anomally high temperature',
+    experimentalNotes: 'Anomally high temperature',
     completed: true,
     results: `
     Lorem ipsum dolor sit amet consectetur adipiscing elit.
@@ -36,7 +36,7 @@ const initialExperiments = {
 const initialTests = {
   0: {
     id: 0,
-    date: '2018-07-31',
+    startDate: '2018-07-31',
     cellId: 'EL15080',
     channel: '1',
     scheduleFile: '3_6C_36CV_01.sdu',
@@ -46,7 +46,7 @@ const initialTests = {
   },
   1: {
     id: 1,
-    date: '2018-07-31',
+    startDate: '2018-07-31',
     cellId: 'EL15080',
     channel: '24',
     scheduleFile: '3_6C_36CV_01.sdu',
@@ -57,7 +57,7 @@ const initialTests = {
   },
   2: {
     id: 2,
-    date: '2018-08-01',
+    startDate: '2018-08-01',
     cellId: 'EL15080',
     channel: '1',
     scheduleFile: '3_6C_36CV_01.sdu',

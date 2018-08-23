@@ -16,11 +16,11 @@ class BreadCrumbContainer extends Component {
   }
 
   onExperimentClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment.id}`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}`));
   }
 
   onTestClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment.id}/${TEST_VIEW_ROUTE}/${this.props.test.id}`));
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}/${TEST_VIEW_ROUTE}/${this.props.test._id}`));
   }
 
   render() {

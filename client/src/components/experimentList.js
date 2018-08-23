@@ -34,15 +34,15 @@ class ExperimentList extends Component {
               return (
                 <ListItem
                   button
-                  key={experiment.id}
-                  onClick={() => {this.props.onOpenExperiment(experiment.id)}}
+                  key={experiment._id}
+                  onClick={() => {this.props.onOpenExperiment(experiment)}}
                 >
                   <ListItemText
                     primary={experiment.title}
-                    secondary={experiment.date}
+                    secondary={experiment.startDate}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton onClick={() => {this.props.onDeleteExperiment(experiment.id)}}>
+                    <IconButton onClick={() => {this.props.onDeleteExperiment(experiment)}}>
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>

@@ -29,7 +29,7 @@ class BreadCrumb extends Component {
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
-              experiment {this.props.experiment.id}
+              experiment {this.props.experiment._id}
             </span>
           </div>
 
@@ -37,7 +37,7 @@ class BreadCrumb extends Component {
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onTestClick}>
-              test {this.props.test.id}
+              test {this.props.test._id}
             </span>
           </div>
           }

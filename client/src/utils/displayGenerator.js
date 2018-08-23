@@ -24,7 +24,7 @@ export function renderDisplayFields(fields) {
         </div>
       );
     } else {
-      let doPush = ( key !== 'title' && key !== 'date' && key !== 'channel' && value);
+      let doPush = ( key !== 'title' && key !== 'startDate' && key !== 'channel' && value);
       if (doPush) {
         displayFields.push(
           <div key={key}>

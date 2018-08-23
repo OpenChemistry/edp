@@ -23,7 +23,7 @@ import {
   fetchTestSaga,
   updateTestSaga,
   deleteTestSaga,
-  fetchTestsSaga,
+  fetchExperimentTestsSaga,
 } from './tests';
 
 export default function* root() {
@@ -36,7 +36,7 @@ export default function* root() {
   yield fork(fetchTestSaga);
   yield fork(updateTestSaga);
   yield fork(deleteTestSaga);
-  yield fork(fetchTestsSaga);
+  yield fork(fetchExperimentTestsSaga);
 
   yield fork(watchAuthenticate);
   yield fork(watchFetchMe);

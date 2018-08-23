@@ -23,7 +23,7 @@ class ExperimentEditContainer extends Component {
 
     onSubmitPromise
     .then((val) => {
-        this.props.dispatch(replace(`/${EXPERIMENT_VIEW_ROUTE}/${val.id}`));
+        this.props.dispatch(replace(`/${EXPERIMENT_VIEW_ROUTE}/${val._id}`));
     })
     .catch((err) =>{
     });
