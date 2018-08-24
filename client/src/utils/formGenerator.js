@@ -8,6 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import FormHelperText from '@material-ui/core/FormHelperText';
 import TextField from '@material-ui/core/TextField';
 
+import FileInputField from '../components/fields/file';
 // import FileUploadIcon from '@material-ui/icons/FileUpload';
 
 export function handleInputChange(event) {
@@ -56,7 +57,7 @@ export function renderFormFields() {
           key={key}
           type='text'
           name={key}
-          component={renderFileField}
+          component={FileInputField}
           label={label}
           disabled={disabled}
         />
@@ -125,7 +126,7 @@ const renderFileField = (field) => {
         <TextField
           fullWidth
           disabled={true}
-          value={field.input.value && field.input.value[0] ? field.input.value[0].name : field.input.value}
+          value={field.input.value}
           label={field.label}
           onClick={() => {
             if (this[`${field.input.name}Input`]) {

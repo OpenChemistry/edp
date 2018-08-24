@@ -89,10 +89,10 @@ export function createTestFields(test = undefined) {
       error: '',
       validate: [required]
     },
-    'metadataFile' : {
+    'metaDataFile' : {
       label: 'Metadata file',
       type: 'file',
-      value: test ? test.metadataFile : '',
+      value: test ? test.metaDataFile : '',
       error: ''
     },
     'dataFile' : {

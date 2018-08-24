@@ -1,3 +1,6 @@
+import { call, put, takeEvery, takeLatest, select, all } from 'redux-saga/effects';
+import { isNil } from 'lodash-es';
+
 import {
   CREATE_TEST_REQUESTED, CREATE_TEST_SUCCEEDED, CREATE_TEST_FAILED,
   FETCH_TEST_REQUESTED, FETCH_TEST_SUCCEEDED, FETCH_TEST_FAILED,
@@ -21,13 +24,54 @@ import {
   deleteTest as deleteTestRest,
 } from '../../rest/tests';
 
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects';
+import {
+  getRootFolder,
+} from '../ducks/files';
+
+import {
+  fetchRootFolder,
+  uploadFile
+} from '../sagas/files';
+
+function* uploadTestFiles(test) {
+  let rootFolder = yield select(getRootFolder);
+  if (isNil(rootFolder)) {
+    rootFolder = yield call(fetchRootFolder);
+  }
+
+  const filesToUpload = {};
+
+  if (!isNil(test.metaDataFile)) {
+    filesToUpload['metaDataFileModel'] = call(uploadFile, test.metaDataFile, rootFolder['_id'], test.metaDataFileId);
+  }
+  
+  if (!isNil(test.dataFile)) {
+    filesToUpload['dataFileModel'] = call(uploadFile, test.dataFile, rootFolder['_id'], test.dataFileId);
+  }
+
+  const {
+    metaDataFileModel,
+    dataFileModel
+  } = yield all(filesToUpload);
+
+  delete test.metaDataFile;
+  if (!isNil(metaDataFileModel)) {
+    test['metaDataFileId'] = metaDataFileModel['_id'];
+  }
+
+  delete test.dataFile;
+  if (!isNil(dataFileModel)) {
+    test['dataFileId'] = dataFileModel['_id'];
+  }
+  // return test;
+}
 
 // Create test
 
 function* onCreateTest(action) {
   const {test, resolve, reject} = action.payload;
   try {
+    yield uploadTestFiles(test);
     const newTest = yield call(createTestRest, test);
     yield put({type: CREATE_TEST_SUCCEEDED, payload: {test: newTest}});
     resolve(newTest);
@@ -62,6 +106,7 @@ export function* fetchTestSaga() {
 function* onUpdateTest(action) {
   const {test, resolve, reject} = action.payload;
   try {
+    yield uploadTestFiles(test);
     const newTest = yield call(updateTestRest, test);
     yield put({type: UPDATE_TEST_SUCCEEDED, payload: {test: newTest}});
     resolve(newTest);
