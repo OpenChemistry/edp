@@ -27,7 +27,7 @@ class Test(AccessControlledModel):
         return test
 
     def create(self, experiment, start_date, cell_id, channel, comments,
-               user, public=False):
+               metaDataFileId, dataFileId, user, public=False):
 
         test = {
             'experimentId': experiment['_id'],
@@ -37,6 +37,19 @@ class Test(AccessControlledModel):
             'comments': comments,
             'owner': user['_id']
         }
+
+        file_args = {
+            'metaDataFileId': metaDataFileId,
+            'dataFileId': dataFileId
+        }
+
+        for key, fileId in file_args.items():
+            if fileId is not None:
+                file = File().load(fileId, user=getCurrentUser(),
+                        level=AccessType.READ)
+                if file is None:
+                    raise ValidationException('File doesn\'t exists: %s' % fileId)
+                test[key] = fileId
 
         self.setPublic(test, public=public)
         self.setUserAccess(test, user=user, level=AccessType.ADMIN)
@@ -50,7 +63,7 @@ class Test(AccessControlledModel):
         }
         updates = {}
 
-        file_props = ['scheduleFileId', 'metaDataFileId', 'dataFileId']
+        file_props = ['metaDataFileId', 'dataFileId']
         mutable_props = ['startDate', 'cellId', 'channel', 'experimentId',
                          'comments', 'public'] + file_props
 

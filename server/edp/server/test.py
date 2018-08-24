@@ -26,10 +26,13 @@ def create(self, experiment, test):
     cell_id = test.get('cellId')
     channel = test.get('channel')
     comments = test.get('comments')
+    metaDataFileId = test.get('metaDataFileId', None)
+    dataFileId = test.get('dataFileId', None)
     public = test.get('public', False)
 
     test = TestModel().create(experiment, start_date, cell_id,
-        channel, comments, self.getCurrentUser(), public)
+        channel, comments, metaDataFileId, dataFileId,
+        self.getCurrentUser(), public)
 
     cherrypy.response.status = 201
     cherrypy.response.headers['Location'] = '/experiments/%s/tests/%s' % (experiment['_id'], test['_id'])
