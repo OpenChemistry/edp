@@ -2,14 +2,10 @@ import React from 'react';
 import { Field } from 'redux-form'
 
 import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-// import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import FormHelperText from '@material-ui/core/FormHelperText';
 import TextField from '@material-ui/core/TextField';
-
 import FileInputField from '../components/fields/file';
-// import FileUploadIcon from '@material-ui/icons/FileUpload';
 
 export function handleInputChange(event) {
   let value = event.target.value;
@@ -32,48 +28,58 @@ export function handleInputChange(event) {
   this.setState(newState);
 }
 
-export function renderFormFields() {
+export function renderFormFields(fields) {
   let formFields = [];
-  for (let key in this.props.fields) {
-    const field = this.props.fields[key];
+  for (let key in fields) {
+    const field = fields[key];
     const multiline = field.type === 'textarea';
     const type = multiline ? 'text' : field.type;
     const label = field.label;
     const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
+    const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
 
     if (type === 'checkbox') {
       formFields.push(
-        <Field
-          key={key}
-          name={key}
-          component={renderCheckField}
-          label={label}
-          disabled={disabled}
-        />
+        <div hidden={hidden}>
+          <Field
+            key={key}
+            name={key}
+            component={renderCheckField}
+            label={label}
+            disabled={disabled}
+            hidden={hidden}
+          />
+        </div>
       );
     } else if (type === 'file') {
       formFields.push(
-        <Field
-          key={key}
-          type='text'
-          name={key}
-          component={FileInputField}
-          label={label}
-          disabled={disabled}
-        />
+        <div hidden={hidden}>
+          <Field
+            key={key}
+            type='text'
+            name={key}
+            component={FileInputField}
+            label={label}
+            disabled={disabled}
+            hidden={hidden}
+          />
+        </div>
       );
     } else {
       formFields.push(
-        <Field
-          key={key}
-          type={type}
-          name={key}
-          component={renderTextField}
-          label={label}
-          multiline={multiline}
-          rows={6}
-          disabled={disabled}
-        />
+        <div hidden={hidden}>
+          <Field
+            key={key}
+            type={type}
+            name={key}
+            component={renderTextField}
+            label={label}
+            multiline={multiline}
+            rows={6}
+            disabled={disabled}
+            hidden={hidden}
+          />
+        </div>
       );
     }
   }
@@ -102,13 +108,14 @@ const renderTextField = (field) => {
 
 const renderCheckField = (field) => {
   field = {...field};
+  const checked = field.input.value;
   delete field.input.value;
   return (
     <div style={{marginBottom: "1rem"}}>
       <FormControlLabel
         control={
           <Checkbox
-            checked={field.input.value}
+            checked={checked}
             disabled={field.disabled}
             {...field.input}
           />
@@ -118,39 +125,3 @@ const renderCheckField = (field) => {
     </div>
   )
 };
-
-const renderFileField = (field) => {
-  return (
-    <div style={{display: 'flex', marginBottom: "1rem"}}>
-      <div style={{flexGrow: 1}}>
-        <TextField
-          fullWidth
-          disabled={true}
-          value={field.input.value}
-          label={field.label}
-          onClick={() => {
-            if (this[`${field.input.name}Input`]) {
-              this[`${field.input.name}Input`].click();
-            }
-          }}
-        />
-      </div>
-      <Button
-        disabled={field.disabled}
-        onClick={() => {
-          if (this[`${field.input.name}Input`]) {
-            this[`${field.input.name}Input`].click();
-          }
-        }}
-      >
-        Select file
-        <input
-          ref={ref => {this[`${field.input.name}Input`] = ref;}}
-          type="file"
-          onChange={field.input.onChange}
-          hidden
-        />
-      </Button>
-    </div>
-  );
-}

@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
 
-import { getExperiment, createExperiment, updateExperiment } from '../redux/ducks/experiments';
+import { getFormValues } from 'redux-form';
 
-import { createExperimentFields } from '../utils/fields';
+import { getExperiment, createExperiment, updateExperiment } from '../redux/ducks/experiments';
 
 import {EXPERIMENT_VIEW_ROUTE} from '../routes';
 
@@ -42,8 +42,8 @@ class ExperimentEditContainer extends Component {
     return (
       <ExperimentEdit
         create={this.props.create}
-        fields={createExperimentFields(this.props.experiment)}
         initialValues={this.props.experiment}
+        currentValues={this.props.currentValues}
         onSubmit={this.onSubmit}
       />
     );
@@ -59,8 +59,10 @@ function mapStateToProps(state, ownProps) {
   }
   return {
     create,
-    experiment
+    experiment,
+    currentValues: getFormValues('experimentEdit')(state)
   }
 }
+ExperimentEditContainer = connect(mapStateToProps)(ExperimentEditContainer);
 
-export default connect(mapStateToProps)(ExperimentEditContainer);
+export default ExperimentEditContainer;

@@ -53,6 +53,7 @@ export function createExperimentFields(experiment) {
       type: 'textarea',
       value: experiment ? experiment.results : '',
       disabled: experiment ? !experiment.completed : true,
+      hidden: experiment ? !experiment.completed : true,
       error: ''
     },
   }

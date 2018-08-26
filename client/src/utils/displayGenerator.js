@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
 
 export function renderDisplayFields(fields) {
   let displayFields = [];
@@ -9,9 +10,20 @@ export function renderDisplayFields(fields) {
     const label = field.label;
     // const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
     const value = field.value;
+    const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
 
     if (type === 'checkbox') {
-      
+      displayFields.push(
+        <div key={key} hidden={hidden}>
+          <Typography gutterBottom variant="subheading" color="textSecondary">
+            {label}
+            <Checkbox
+              disabled
+              checked={value}
+            />
+          </Typography>
+        </div>
+      )
     } else if (type === 'file') {
       // displayFields.push(
       //   <div key={key}>
@@ -24,10 +36,15 @@ export function renderDisplayFields(fields) {
       //   </div>
       // );
     } else {
-      let doPush = ( key !== 'title' && key !== 'startDate' && key !== 'channel' && value);
+      let doPush = (
+        key !== 'title' &&
+        key !== 'startDate' &&
+        key !== 'channel' &&
+        value
+      );
       if (doPush) {
         displayFields.push(
-          <div key={key}>
+          <div key={key} hidden={hidden}>
             <Typography gutterBottom variant="subheading" color="textSecondary">
               {label}
             </Typography>
