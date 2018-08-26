@@ -16,19 +16,20 @@ class Experiment(AccessControlledModel):
             'motivation': 1,
             'experimentalDesign': 1,
             'experimentalNotes': 1,
-            'dataNotes': 1
+            'dataNotes': 1,
+            'completed': 1
         })
 
         self.exposeFields(level=AccessType.READ, fields=(
             '_id', 'startDate', 'title', 'motivation', 'experimentalDesign',
-            'experimentalNotes', 'dataNotes', 'public'))
+            'experimentalNotes', 'dataNotes', 'completed', 'public'))
 
     def validate(self, experiment):
 
         return experiment
 
     def create(self, start_date, title, motivation, experimental_design,
-               experimental_notes, data_notes, user, public=False):
+               experimental_notes, data_notes, completed, user, public=False):
 
         experiment = {
             'startDate': start_date,
@@ -37,6 +38,7 @@ class Experiment(AccessControlledModel):
             'experimentalDesign': experimental_design,
             'experimentalNotes': experimental_notes,
             'dataNotes': data_notes,
+            'completed': completed,
             'owner': user['_id']
         }
 
@@ -53,7 +55,7 @@ class Experiment(AccessControlledModel):
         updates = {}
 
         mutable_props = ['startDate', 'title', 'motivation', 'experimentalDesign',
-                         'experimentalNotes', 'dataNotes', 'public']
+                         'experimentalNotes', 'dataNotes', 'completed', 'public']
 
         for prop in experiment_updates:
             if prop in mutable_props:

@@ -33,7 +33,7 @@ class Experiment(Resource):
     )
     def create(self, experiment):
         self.requireParams(['startDate', 'title', 'motivation', 'experimentalDesign',
-                            'experimentalNotes', 'dataNotes'], experiment)
+                            'experimentalNotes', 'dataNotes', 'completed'], experiment)
 
         start_date = experiment.get('startDate')
         title = experiment.get('title')
@@ -41,11 +41,12 @@ class Experiment(Resource):
         experimental_design = experiment.get('experimentalDesign')
         experimental_notes = experiment.get('experimentalNotes')
         data_notes = experiment.get('dataNotes')
+        completed = experiment.get('completed')
         public = experiment.get('public', False)
 
         experiment = ExperimentModel().create(start_date, title,
             motivation, experimental_design, experimental_notes,
-            data_notes, self.getCurrentUser(), public)
+            data_notes, completed, self.getCurrentUser(), public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/experiments/%s' % experiment['_id']
