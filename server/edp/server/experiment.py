@@ -33,7 +33,7 @@ class Experiment(Resource):
     )
     def create(self, experiment):
         self.requireParams(['startDate', 'title', 'motivation', 'experimentalDesign',
-                            'experimentalNotes', 'dataNotes', 'completed'], experiment)
+                            'experimentalNotes', 'dataNotes'], experiment)
 
         start_date = experiment.get('startDate')
         title = experiment.get('title')
@@ -41,7 +41,7 @@ class Experiment(Resource):
         experimental_design = experiment.get('experimentalDesign')
         experimental_notes = experiment.get('experimentalNotes')
         data_notes = experiment.get('dataNotes')
-        completed = experiment.get('completed')
+        completed = experiment.get('completed', False)
         public = experiment.get('public', False)
 
         experiment = ExperimentModel().create(start_date, title,
