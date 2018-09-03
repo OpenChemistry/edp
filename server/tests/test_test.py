@@ -84,7 +84,8 @@ def test_update(server, user, experiment, make_experiment,
         'title': 'another title',
         'experimentalDesign': 'I designed the cool experiment.',
         'experimentalNotes': 'These are my notes.',
-        'dataNotes': 'Here are some notes.'
+        'dataNotes': 'Here are some notes.',
+        'motivation': 'I have lots'
     }
     another_experiment = make_experiment(user, body)
     r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),
@@ -125,7 +126,8 @@ def test_get(server, make_experiment, user, admin, experiment, test):
         'title': 'another title',
         'experimentalDesign': 'I designed the cool experiment.',
         'experimentalNotes': 'These are my notes.',
-        'dataNotes': 'Here are some notes.'
+        'dataNotes': 'Here are some notes.',
+        'motivation': 'I have some.'
     }
     another_experiment = make_experiment(user, body)
     r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),

@@ -17,6 +17,7 @@ def create_request():
         'experimentalDesign': 'I designed the cool experiment.',
         'experimentalNotes': 'These are my notes.',
         'dataNotes': 'Here are some notes.',
+        'motivation': 'Very motivated!',
         'public': True
     }
 
