@@ -1,4 +1,4 @@
-import { girderClient } from '@openchemistry/girder-auth-redux';
+import { girderClient } from '@openchemistry/girder-redux';
 
 // Folder
 export function getFolder(parentId, parentType, name) {

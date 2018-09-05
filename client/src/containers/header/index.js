@@ -7,8 +7,7 @@ import { EXPERIMENT_LIST_ROUTE } from '../../routes';
 
 import Header from '../../components/header/';
 
-import { getAuthState } from '../../redux/ducks/auth';
-import { isAuthenticated } from '@openchemistry/girder-auth-redux';
+import { auth } from '@openchemistry/girder-redux';
 
 class HeaderContainer extends Component {
   
@@ -27,7 +26,7 @@ class HeaderContainer extends Component {
 }
 
 function mapStateToProps(state) {
-  const loggedIn = isAuthenticated(getAuthState(state));
+  const loggedIn = auth.selectors.isAuthenticated(state);
   return {
     loggedIn
   }

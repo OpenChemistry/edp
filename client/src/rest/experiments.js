@@ -1,4 +1,4 @@
-import { girderClient } from '@openchemistry/girder-auth-redux';
+import { girderClient } from '@openchemistry/girder-redux';
 
 export function getExperiments() {
   return girderClient().get('edp/experiments/')

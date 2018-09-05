@@ -16,11 +16,7 @@ import TestEdit from './containers/testEdit';
 import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
 
-import {
-  LoginOptions,
-  GirderLogin,
-  OauthRedirect
-} from '@openchemistry/girder-auth-ui';
+import { auth as authUI } from '@openchemistry/girder-ui';
 
 import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from './routes';
 
@@ -44,9 +40,9 @@ class App extends Component {
             </Switch>
           </div>
         </ConnectedRouter>
-        <LoginOptions/>
-        <GirderLogin/>
-        <OauthRedirect/>
+        <authUI.LoginOptions/>
+        <authUI.GirderLogin/>
+        <authUI.OauthRedirect/>
       </div>
     );
   }

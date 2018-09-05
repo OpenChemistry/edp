@@ -11,14 +11,14 @@ import registerServiceWorker from './registerServiceWorker';
 import store from './redux/store';
 import { fetchExperiments } from './redux/ducks/experiments';
 
-import { authenticate, testOauthEnabled } from '@openchemistry/girder-auth-redux';
+import { auth } from '@openchemistry/girder-redux';
 
 const cookies = new Cookies();
 const cookieToken = cookies.get('girderToken');
 // if there is no token the string "undefined" is returned ?!!
 // if (!isNil(cookieToken)) {
 if (cookieToken !== 'undefined') {
-  store.dispatch(authenticate({token: cookieToken}));
+  store.dispatch(auth.actions.authenticate({token: cookieToken}));
 }
 
 setTimeout(()=>{
@@ -26,7 +26,7 @@ setTimeout(()=>{
 }, 1000);
 
 // Test if oauth is enabled on the backend
-store.dispatch(testOauthEnabled());
+store.dispatch(auth.actions.testOauthEnabled());
 
 ReactDOM.render(
   <Provider store={store}>

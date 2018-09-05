@@ -1,14 +1,6 @@
 import { fork } from 'redux-saga/effects';
 
-import {
-  watchAuthenticate,
-  watchFetchMe,
-  watchFetchOauthProviders,
-  watchInvalidateToken,
-  watchNewToken,
-  watchUsernameLogin,
-  watchTestOauthEnabled
-} from './auth';
+import { auth } from '@openchemistry/girder-redux';
 
 import {
   createExperimentSaga,
@@ -38,11 +30,11 @@ export default function* root() {
   yield fork(deleteTestSaga);
   yield fork(fetchExperimentTestsSaga);
 
-  yield fork(watchAuthenticate);
-  yield fork(watchFetchMe);
-  yield fork(watchFetchOauthProviders);
-  yield fork(watchTestOauthEnabled);
-  yield fork(watchInvalidateToken);
-  yield fork(watchNewToken);
-  yield fork(watchUsernameLogin);
+  yield fork(auth.sagas.watchAuthenticate);
+  yield fork(auth.sagas.watchFetchMe);
+  yield fork(auth.sagas.watchFetchOauthProviders);
+  yield fork(auth.sagas.watchTestOauthEnabled);
+  yield fork(auth.sagas.watchInvalidateToken);
+  yield fork(auth.sagas.watchNewToken);
+  yield fork(auth.sagas.watchUsernameLogin);
 }

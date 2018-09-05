@@ -6,7 +6,7 @@ import { buffers, eventChannel, END } from 'redux-saga';
 
 import { isNil, isEmpty } from 'lodash-es';
 
-import { getMe } from '@openchemistry/girder-auth-redux';
+import { auth } from '@openchemistry/girder-redux';
 
 import { requestUpload, uploadProgress,
   receiveRootFolder, REQUEST_ROOT_FOLDER,
@@ -24,7 +24,7 @@ const chunkSize = 1024 * 1024 * 64; // 64MB
 
 export function* fetchRootFolder() {
   const state = yield select();
-  const me = getMe(state.auth);
+  const me = auth.selectors.getMe(state);
 
   let privateFolder = yield call(getFolder, me['_id'], 'user', 'Private');
   if (isEmpty(privateFolder)) {

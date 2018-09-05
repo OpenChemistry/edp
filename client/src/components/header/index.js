@@ -4,7 +4,7 @@ import { AppBar, Toolbar, Button } from '@material-ui/core';
 
 import logo from '../../assets/logo.svg';
 
-import { LoginButton, UserMenu } from '@openchemistry/girder-auth-ui';
+import { auth as authUI} from '@openchemistry/girder-ui';
 
 class Header extends Component {
   render() {
@@ -19,7 +19,7 @@ class Header extends Component {
           </Button>
           <div style={{flex: 1}}>
           </div>
-          { loggedIn ? <UserMenu/> : <LoginButton />}
+          { loggedIn ? <authUI.UserMenu/> : <authUI.LoginButton />}
         </Toolbar>
       </AppBar>
     );
