@@ -27,12 +27,12 @@ def create(self, experiment, test):
     channel = test.get('channel')
     comments = test.get('comments')
     schedule_file = test.get('scheduleFile')
-    metaDataFileId = test.get('metaDataFileId', None)
-    dataFileId = test.get('dataFileId', None)
+    meta_data_file_id = test.get('metaDataFileId', None)
+    data_file_id = test.get('dataFileId', None)
     public = test.get('public', False)
 
     test = TestModel().create(experiment, start_date, cell_id,
-        channel, comments, schedule_file, metaDataFileId, dataFileId,
+        channel, comments, schedule_file, meta_data_file_id, data_file_id,
         self.getCurrentUser(), public)
 
     cherrypy.response.status = 201

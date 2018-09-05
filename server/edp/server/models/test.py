@@ -27,7 +27,7 @@ class Test(AccessControlledModel):
         return test
 
     def create(self, experiment, start_date, cell_id, channel, comments,
-               schedule_file, metaDataFileId, dataFileId, user, public=False):
+               schedule_file, meta_data_file_id, data_file_id, user, public=False):
 
         test = {
             'experimentId': experiment['_id'],
@@ -40,8 +40,8 @@ class Test(AccessControlledModel):
         }
 
         file_args = {
-            'metaDataFileId': metaDataFileId,
-            'dataFileId': dataFileId
+            'metaDataFileId': meta_data_file_id,
+            'dataFileId': data_file_id
         }
 
         for key, fileId in file_args.items():
