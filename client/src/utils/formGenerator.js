@@ -40,9 +40,11 @@ export function renderFormFields(fields) {
 
     if (type === 'checkbox') {
       formFields.push(
-        <div hidden={hidden}>
+        <div
+          key={key}
+          hidden={hidden}
+        >
           <Field
-            key={key}
             name={key}
             component={renderCheckField}
             label={label}
@@ -53,9 +55,11 @@ export function renderFormFields(fields) {
       );
     } else if (type === 'file') {
       formFields.push(
-        <div hidden={hidden}>
+        <div
+          key={key}
+          hidden={hidden}
+        >
           <Field
-            key={key}
             type='text'
             name={key}
             component={FileInputField}
@@ -67,9 +71,11 @@ export function renderFormFields(fields) {
       );
     } else {
       formFields.push(
-        <div hidden={hidden}>
+        <div
+          key={key}
+          hidden={hidden}
+        >
           <Field
-            key={key}
             type={type}
             name={key}
             component={renderTextField}

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { createTestFields } from '../utils/fields';
+import { getFormValues } from 'redux-form';
 // import { fetchExperiment } from '../redux/ducks/experiments';
 import { getTest, createTest, updateTest } from '../redux/ducks/tests';
 import { getExperiment } from '../redux/ducks/experiments';
@@ -55,8 +55,8 @@ class TestEditContainer extends Component {
     return (
       <TestEdit
         create={this.props.create}
-        fields={createTestFields(this.props.test)}
         initialValues={this.props.test}
+        currentValues={this.props.currentValues}
         onSubmit={this.onSubmit}
       />
     );
@@ -79,7 +79,8 @@ function mapStateToProps(state, ownProps) {
   return {
     create,
     test,
-    experiment
+    experiment,
+    currentValues: getFormValues('testEdit')(state)
   }
 }
 
