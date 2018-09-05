@@ -20,7 +20,7 @@ export function updateExperiment(experiment) {
     .then(response => response.data );
 }
 
-export function deleteExperiment(experiment) {
-  return girderClient().delete(`edp/experiments/${experiment._id}`)
+export function deleteExperiment(experimentId) {
+  return girderClient().delete(`edp/experiments/${experiment}`)
     .then(response => response.data );
 }
