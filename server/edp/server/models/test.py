@@ -18,7 +18,7 @@ class Test(AccessControlledModel):
         })
 
         self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'startDate', 'cellId', 'channel', 'comments', 'public'))
+            '_id', 'startDate', 'cellId', 'channel', 'comments', 'scheduleFile', 'public'))
 
     def validate(self, test):
         if 'experimentId' not in test:
@@ -27,7 +27,7 @@ class Test(AccessControlledModel):
         return test
 
     def create(self, experiment, start_date, cell_id, channel, comments,
-               metaDataFileId, dataFileId, user, public=False):
+               schedule_file, metaDataFileId, dataFileId, user, public=False):
 
         test = {
             'experimentId': experiment['_id'],
@@ -35,6 +35,7 @@ class Test(AccessControlledModel):
             'cellId': cell_id,
             'channel': channel,
             'comments': comments,
+            'scheduleFile': schedule_file,
             'owner': user['_id']
         }
 
@@ -65,7 +66,7 @@ class Test(AccessControlledModel):
 
         file_props = ['metaDataFileId', 'dataFileId']
         mutable_props = ['startDate', 'cellId', 'channel', 'experimentId',
-                         'comments', 'public'] + file_props
+                         'comments', 'scheduleFile', 'public'] + file_props
 
         for prop in test_updates:
             if prop in mutable_props:
