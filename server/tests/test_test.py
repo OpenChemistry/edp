@@ -11,6 +11,7 @@ def create_test_request():
         'cellId': 'cell',
         'channel': '2',
         'comments': 'comments',
+        'scheduleFile': 'schedule0123.zip',
         'public': True
     }
 
@@ -59,13 +60,11 @@ def test_update(server, user, experiment, make_experiment,
                 test, fsAssetstore, make_girder_file):
     from girder.plugins.edp.models.test import Test
 
-    schedule_file = make_girder_file(fsAssetstore, user, 'schedule')
     metadata_file = make_girder_file(fsAssetstore, user, 'meta')
     data_file = make_girder_file(fsAssetstore, user, 'data')
     from girder.models.file import File
 
     updates = {
-        'scheduleFileId': schedule_file['_id'],
         'metaDataFileId': metadata_file['_id'],
         'dataFileId': data_file['_id'],
         'comments': 'We now have files.'
