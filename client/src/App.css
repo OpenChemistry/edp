@@ -39,3 +39,11 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.r-icon-btn {
+  margin-left: 0.5rem;
+}
+
+.l-icon-btn {
+  margin-right: 0.5rem;
+}

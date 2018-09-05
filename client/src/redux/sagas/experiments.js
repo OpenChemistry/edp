@@ -5,13 +5,22 @@ import {
   DELETE_EXPERIMENT_REQUESTED, DELETE_EXPERIMENT_SUCCEEDED, DELETE_EXPERIMENT_FAILED,
   FETCH_EXPERIMENTS_REQUESTED, FETCH_EXPERIMENTS_SUCCEEDED, FETCH_EXPERIMENTS_FAILED,
 } from '../ducks/experiments';
+
+// import {
+//   createExperiment as createExperimentRest,
+//   updateExperiment as updateExperimentRest,
+//   deleteExperiment as deleteExperimentRest,
+//   getExperiment as getExperimentRest,
+//   getExperiments as getExperimentsRest
+// } from '../../mock-server';
+
 import {
+  getExperiments as getExperimentsRest,
+  getExperiment as getExperimentRest,
   createExperiment as createExperimentRest,
   updateExperiment as updateExperimentRest,
   deleteExperiment as deleteExperimentRest,
-  getExperiment as getExperimentRest,
-  getExperiments as getExperimentsRest
-} from '../../server';
+} from '../../rest/experiments';
 
 import { call, put, takeEvery, takeLatest } from 'redux-saga/effects';
 
@@ -37,7 +46,8 @@ export function* createExperimentSaga() {
 
 function* onFetchExperiment(action) {
   try {
-    const experiment = yield call(getExperimentRest, action.payload.id);
+    const { experimentId } = action.payload;
+    const experiment = yield call(getExperimentRest, experimentId);
     yield put({type: FETCH_EXPERIMENT_SUCCEEDED, payload: {experiment}});
   } catch (e) {
     yield put({type: FETCH_EXPERIMENT_FAILED, error: e});
@@ -70,8 +80,9 @@ export function* updateExperimentSaga() {
 
 function* onDeleteExperiment(action) {
   try {
-    const id = yield call(deleteExperimentRest, action.payload.id);
-    yield put({type: DELETE_EXPERIMENT_SUCCEEDED, payload: {id}});
+    const { experiment } = action.payload;
+    yield call(deleteExperimentRest, experiment);
+    yield put({type: DELETE_EXPERIMENT_SUCCEEDED, payload: {id: experiment._id}});
   } catch (e) {
     yield put({type: DELETE_EXPERIMENT_FAILED, error: e});
   }

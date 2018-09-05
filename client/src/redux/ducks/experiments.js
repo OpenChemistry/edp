@@ -1,22 +1,9 @@
 import { createAction, handleActions } from 'redux-actions';
 
-import { getTest } from './tests';
-
 // Selectors
 
 export const getExperiments = (state) => state.experiments;
 export const getExperiment = (state, id) => state.experiments[id];
-export const getExperimentTests = (state, id) => {
-  let experiment = getExperiment(state, id);
-  if (!experiment) {
-    return {};
-  }
-  let tests = {};
-  for (let testId of experiment.tests) {
-    tests[testId] = getTest(state, testId);
-  }
-  return tests;
-};
 
 // Actions
 
@@ -54,18 +41,23 @@ const initialState = {};
 
 const reducer = handleActions({
   CREATE_EXPERIMENT_SUCCEEDED: (state, action) => {
-    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
+    return {...state, ...{[action.payload.experiment._id]: action.payload.experiment}};
   },
   FETCH_EXPERIMENT_SUCCEEDED: (state, action) => {
-    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
+    return {...state, ...{[action.payload.experiment._id]: action.payload.experiment}};
   },
   UPDATE_EXPERIMENT_SUCCEEDED: (state, action) => {
-    return {...state, ...{[action.payload.experiment.id]: action.payload.experiment}};
+    return {...state, ...{[action.payload.experiment._id]: action.payload.experiment}};
   },
   FETCH_EXPERIMENTS_SUCCEEDED: (state, action) => {
-    return action.payload.experiments;
+    let experiments = {};
+    return action.payload.experiments.reduce((result, item) => {
+      result[item._id] = item;
+      return result;
+    }, experiments);
+    // return action.payload.experiments;
   },
-  DELETE_EXPERIMENT_REQUESTED: (state, action) => {
+  DELETE_EXPERIMENT_SUCCEEDED: (state, action) => {
     let newState = {...state};
     delete newState[action.payload.id];
     return newState;

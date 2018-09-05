@@ -14,17 +14,23 @@ import { validationFactory } from '../utils/formValidation';
 
 class TestEdit extends Component {
 
-  renderFormFields;
-
-  constructor(props) {
-    super(props);
-    this.renderFormFields = renderFormFields.bind(this);
-  }
-
   render() {
-    const {handleSubmit, pristine, submitting, invalid} = this.props;
+    const {
+      handleSubmit,
+      pristine,
+      submitting,
+      invalid,
+      initialValues,
+      currentValues
+    } = this.props;
     let title = this.props.create ? 'Create new test' : 'Edit test';
-    let formFields = this.renderFormFields();
+    let fields;
+    if (pristine) {
+      fields = createTestFields(initialValues);
+    } else {
+      fields = createTestFields(currentValues);
+    }
+    let formFields = renderFormFields(fields);
     return (
       <Card elevation={1}>
         <form onSubmit={handleSubmit}>

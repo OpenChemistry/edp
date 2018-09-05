@@ -2,10 +2,10 @@ import { required } from './formValidation';
 
 export function createExperimentFields(experiment) {
   let fields = {
-    'date' : {
+    'startDate' : {
       label: 'Start date',
       type: 'date',
-      value: experiment ? experiment.date : (new Date()).toISOString().slice(0,10),
+      value: experiment ? experiment.startDate : (new Date()).toISOString().slice(0,10),
       error: '',
       validate: [required]
     },
@@ -23,17 +23,17 @@ export function createExperimentFields(experiment) {
       error: '',
       validate: [required]
     },
-    'expDesign': {
+    'experimentalDesign': {
       label: 'Experimental design',
       type: 'textarea',
-      value: experiment ? experiment.expDesign : '',
+      value: experiment ? experiment.experimentalDesign : '',
       error: '',
       validate: [required]
     },
-    'expNotes': {
+    'experimentalNotes': {
       label: 'Experimental notes',
       type: 'textarea',
-      value: experiment ? experiment.expNotes : '',
+      value: experiment ? experiment.experimentalNotes : '',
       error: '',
     },
     'dataNotes': {
@@ -53,6 +53,7 @@ export function createExperimentFields(experiment) {
       type: 'textarea',
       value: experiment ? experiment.results : '',
       disabled: experiment ? !experiment.completed : true,
+      hidden: experiment ? !experiment.completed : true,
       error: ''
     },
   }
@@ -61,10 +62,10 @@ export function createExperimentFields(experiment) {
 
 export function createTestFields(test = undefined) {
   let fields = {
-    'date' : {
+    'startDate' : {
       label: 'Start date',
       type: 'date',
-      value: test ? test.date : (new Date()).toISOString().slice(0,10),
+      value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
       error: '',
       validate: [required]
     },
@@ -89,10 +90,10 @@ export function createTestFields(test = undefined) {
       error: '',
       validate: [required]
     },
-    'metadataFile' : {
+    'metaDataFile' : {
       label: 'Metadata file',
       type: 'file',
-      value: test ? test.metadataFile : '',
+      value: test ? test.metaDataFile : '',
       error: ''
     },
     'dataFile' : {

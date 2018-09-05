@@ -18,7 +18,7 @@ class Test(AccessControlledModel):
         })
 
         self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'startDate', 'cellId', 'channel', 'comments', 'public'))
+            '_id', 'startDate', 'cellId', 'channel', 'comments', 'scheduleFile', 'public'))
 
     def validate(self, test):
         if 'experimentId' not in test:
@@ -27,7 +27,7 @@ class Test(AccessControlledModel):
         return test
 
     def create(self, experiment, start_date, cell_id, channel, comments,
-               user, public=False):
+               schedule_file, meta_data_file_id, data_file_id, user, public=False):
 
         test = {
             'experimentId': experiment['_id'],
@@ -35,8 +35,22 @@ class Test(AccessControlledModel):
             'cellId': cell_id,
             'channel': channel,
             'comments': comments,
+            'scheduleFile': schedule_file,
             'owner': user['_id']
         }
+
+        file_args = {
+            'metaDataFileId': meta_data_file_id,
+            'dataFileId': data_file_id
+        }
+
+        for key, fileId in file_args.items():
+            if fileId is not None:
+                file = File().load(fileId, user=getCurrentUser(),
+                        level=AccessType.READ)
+                if file is None:
+                    raise ValidationException('File doesn\'t exists: %s' % fileId)
+                test[key] = fileId
 
         self.setPublic(test, public=public)
         self.setUserAccess(test, user=user, level=AccessType.ADMIN)
@@ -50,9 +64,9 @@ class Test(AccessControlledModel):
         }
         updates = {}
 
-        file_props = ['scheduleFileId', 'metaDataFileId', 'dataFileId']
-        mutable_props = ['startDate', 'cellId', 'channel', 'experimentId',
-                         'comments', 'public'] + file_props
+        file_props = ['metaDataFileId', 'dataFileId']
+        mutable_props = ['startDate', 'cellId', 'channel',
+                         'comments', 'scheduleFile', 'public'] + file_props
 
         for prop in test_updates:
             if prop in mutable_props:

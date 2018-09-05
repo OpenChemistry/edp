@@ -32,19 +32,21 @@ class Experiment(Resource):
         .jsonParam('experiment', 'The experiment', required=True, paramType='body')
     )
     def create(self, experiment):
-        self.requireParams(['startDate', 'title', 'experimentalDesign',
+        self.requireParams(['startDate', 'title', 'motivation', 'experimentalDesign',
                             'experimentalNotes', 'dataNotes'], experiment)
 
         start_date = experiment.get('startDate')
         title = experiment.get('title')
+        motivation = experiment.get('motivation')
         experimental_design = experiment.get('experimentalDesign')
         experimental_notes = experiment.get('experimentalNotes')
         data_notes = experiment.get('dataNotes')
+        completed = experiment.get('completed', False)
         public = experiment.get('public', False)
 
         experiment = ExperimentModel().create(start_date, title,
-            experimental_design, experimental_notes, data_notes,
-            self.getCurrentUser(), public)
+            motivation, experimental_design, experimental_notes,
+            data_notes, completed, self.getCurrentUser(), public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/experiments/%s' % experiment['_id']

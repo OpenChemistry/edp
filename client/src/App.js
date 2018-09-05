@@ -13,8 +13,10 @@ import ExperimentView from './containers/experimentView';
 import ExperimentEdit from './containers/experimentEdit';
 import TestView from './containers/testView';
 import TestEdit from './containers/testEdit';
-import Header from './containers/header';
+import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
+
+import { auth as authUI } from '@openchemistry/girder-ui';
 
 import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from './routes';
 
@@ -24,20 +26,23 @@ class App extends Component {
       <div className="App">
         <CssBaseline />
         <Header />
-          <ConnectedRouter history={history}>
-            <div className="content">
-              <BreadCrumb/>
-              <Switch>
-                <Route path={EXPERIMENT_LIST_ROUTE} exact component={ExperimentList} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:action(add)`} exact component={ExperimentEdit} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(edit)`} exact component={ExperimentEdit} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId`} exact component={ExperimentView} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(addtest)`} exact component={TestEdit} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId/:action(edit)`} exact component={TestEdit} />
-                <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId`} exact component={TestView} />
-              </Switch>
-            </div>
-          </ConnectedRouter>
+        <ConnectedRouter history={history}>
+          <div className="content">
+            <BreadCrumb/>
+            <Switch>
+              <Route path={EXPERIMENT_LIST_ROUTE} exact component={ExperimentList} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:action(add)`} exact component={ExperimentEdit} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(edit)`} exact component={ExperimentEdit} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId`} exact component={ExperimentView} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(addtest)`} exact component={TestEdit} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId/:action(edit)`} exact component={TestEdit} />
+              <Route path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${TEST_VIEW_ROUTE}/:testId`} exact component={TestView} />
+            </Switch>
+          </div>
+        </ConnectedRouter>
+        <authUI.LoginOptions/>
+        <authUI.GirderLogin/>
+        <authUI.OauthRedirect/>
       </div>
     );
   }

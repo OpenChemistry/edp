@@ -14,7 +14,7 @@ import NotFoundPage from '../components/notFound.js';
 class TestViewContainer extends Component {
 
   onEditTest = () => {
-    store.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment.id}/${TEST_VIEW_ROUTE}/${this.props.test.id}/edit`));
+    store.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}/${TEST_VIEW_ROUTE}/${this.props.test._id}/edit`));
   }
  
   render() {
@@ -41,7 +41,7 @@ function mapStateToProps(state, ownProps) {
 
   if (!experiment) {
     test = null;
-  } else if ( test && test.experimentId != experimentId) {
+  } else if ( test && test.experimentId !== experimentId) {
     test = null;
   }
   return {

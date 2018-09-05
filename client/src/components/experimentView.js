@@ -22,7 +22,7 @@ class ExperimentView extends Component {
             </IconButton>
           }
           title={this.props.experiment.title}
-          subheader={this.props.experiment.date}
+          subheader={this.props.experiment.startDate}
         />
         <CardContent>
           {fields}
