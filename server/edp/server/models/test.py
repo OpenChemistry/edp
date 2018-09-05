@@ -65,7 +65,7 @@ class Test(AccessControlledModel):
         updates = {}
 
         file_props = ['metaDataFileId', 'dataFileId']
-        mutable_props = ['startDate', 'cellId', 'channel', 'experimentId',
+        mutable_props = ['startDate', 'cellId', 'channel',
                          'comments', 'scheduleFile', 'public'] + file_props
 
         for prop in test_updates:
