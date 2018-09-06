@@ -39,8 +39,7 @@ def test_update(server, user, experiment):
     from girder.plugins.edp.models.experiment import Experiment
 
     updates = {
-        'title': 'Nothing to see here.',
-        'dataNotes': 'Notes'
+        'title': 'Nothing to see here.'
     }
 
     r = server.request('/edp/experiments/%s' % experiment['_id'],
@@ -57,8 +56,7 @@ def test_update_non_existent(server, user, experiment):
     from girder.plugins.edp.models.experiment import Experiment
 
     updates = {
-        'title': 'Nothing to see here.',
-        'dataNotes': 'Notes'
+        'title': 'Nothing to see here.'
     }
 
     non_existent = '5ae71e1ff657102b11ce2233'

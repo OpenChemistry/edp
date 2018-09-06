@@ -21,16 +21,16 @@ class Test(AccessControlledModel):
             '_id', 'startDate', 'cellId', 'channel', 'comments', 'scheduleFile', 'public'))
 
     def validate(self, test):
-        if 'experimentId' not in test:
-            raise ValidationException('Test must be associated with an experiment.')
+        if 'batchId' not in test:
+            raise ValidationException('Test must be associated with a batch.')
 
         return test
 
-    def create(self, experiment, start_date, cell_id, channel, comments,
+    def create(self, batch, start_date, cell_id, channel, comments,
                schedule_file, meta_data_file_id, data_file_id, user, public=False):
 
         test = {
-            'experimentId': experiment['_id'],
+            'batchId': batch['_id'],
             'startDate': start_date,
             'cellId': cell_id,
             'channel': channel,
@@ -57,10 +57,10 @@ class Test(AccessControlledModel):
 
         return self.save(test)
 
-    def update(self, experiment, test, test_updates, user):
+    def update(self, batch, test, test_updates, user):
         query = {
             '_id': test['_id'],
-            'experimentId': experiment['_id']
+            'batchId': batch['_id']
         }
         updates = {}
 
@@ -84,18 +84,18 @@ class Test(AccessControlledModel):
         if updates:
             update_result = super(Test, self).update(query, update=updates, multi=False)
             if update_result.matched_count == 0:
-                raise ValidationException('Invalid experiment or test id (%s, %s)' %
-                    (experiment['_id'], test['_id']))
+                raise ValidationException('Invalid batch or test id (%s, %s)' %
+                    (batch['_id'], test['_id']))
 
             return self.load(test['_id'], user=user, level=AccessType.READ)
 
         return test
 
-    def find(self, experiment, force=False, offset=0, limit=None, sort=None,
+    def find(self, batch, force=False, offset=0, limit=None, sort=None,
              user=None):
 
         query = {
-            'experimentId': experiment['_id']
+            'batchId': batch['_id']
         }
 
         cursor = super(Test, self).find(query=query, offset=offset,

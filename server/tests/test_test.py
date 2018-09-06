@@ -16,10 +16,10 @@ def create_test_request():
     }
 
 @pytest.fixture
-def test(server, user, experiment, create_test_request):
+def test(server, user, experiment, batch, create_test_request):
     from girder.plugins.edp.models.test import Test
 
-    r = server.request('/edp/experiments/%s/tests' % experiment['_id'],
+    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
                        method='POST', body=json.dumps(create_test_request),
                        type='application/json', user=user)
     assertStatus(r, 201)
@@ -29,21 +29,20 @@ def test(server, user, experiment, create_test_request):
     Test().remove(r.json, force=True)
 
 @pytest.mark.plugin('edp')
-def test_create_public(server, user, experiment, create_test_request, test):
+def test_create_public(server, user, batch,  create_test_request, test):
     from girder.plugins.edp.models.test import Test
 
     test = Test().load(test['_id'], force=True)
     assert test['owner'] == user['_id']
-    assert str(test['experimentId']) == experiment['_id']
+    assert str(test['batchId']) == batch['_id']
     assert create_test_request.items() <= test.items()
 
-
 @pytest.mark.plugin('edp')
-def test_create_private(server, user, experiment, create_test_request):
+def test_create_private(server, user, experiment, batch, create_test_request):
     from girder.plugins.edp.models.test import Test
 
     create_test_request['public'] = False
-    r = server.request('/edp/experiments/%s/tests' % experiment['_id'],
+    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
                         method='POST', body=json.dumps(create_test_request),
                         type='application/json', user=user)
     assertStatus(r, 201)
@@ -51,12 +50,12 @@ def test_create_private(server, user, experiment, create_test_request):
     assert '_id' in r.json
 
     test = Test().load(r.json['_id'], force=True)
-    assert str(test['experimentId']) == experiment['_id']
+    assert str(test['batchId']) == batch['_id']
     assert create_test_request.items() <= test.items()
 
 
 @pytest.mark.plugin('edp')
-def test_update(server, user, experiment, make_experiment,
+def test_update(server, user, experiment, batch, make_batch,
                 test, fsAssetstore, make_girder_file):
     from girder.plugins.edp.models.test import Test
 
@@ -69,7 +68,7 @@ def test_update(server, user, experiment, make_experiment,
         'dataFileId': data_file['_id'],
         'comments': 'We now have files.'
     }
-    r = server.request('/edp/experiments/%s/tests/%s' % (experiment['_id'], test['_id']),
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'], batch['_id'], test['_id']),
                        method='PATCH', body=json.dumps({k:str(v) for (k,v) in updates.items()}),
                        type='application/json', user=user)
     assertStatusOk(r)
@@ -86,34 +85,36 @@ def test_update(server, user, experiment, make_experiment,
         'dataNotes': 'Here are some notes.',
         'motivation': 'I have lots'
     }
-    another_experiment = make_experiment(user, body)
-    r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),
+    another_experiment = make_batch(user, experiment, body)
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (another_experiment['_id'],
+                                                                    batch['_id'], test['_id']),
                        method='PATCH', body=json.dumps({k:str(v) for (k,v) in updates.items()}),
                        type='application/json', user=user)
     assertStatus(r, 400)
 
 @pytest.mark.plugin('edp')
-def test_delete(server, user, experiment, test):
+def test_delete(server, user, experiment, batch, test):
     from girder.plugins.edp.models.test import Test
 
-    r = server.request('/edp/experiments/%s/tests/%s' % (experiment['_id'], test['_id']),
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'], batch['_id'], test['_id']),
                         method='DELETE', user=user)
     assertStatusOk(r)
-#
-    test = Test().load(experiment['_id'], force=True)
+
+    test = Test().load(test['_id'], force=True)
     assert test is None
 
 @pytest.mark.plugin('edp')
-def test_find(server, user, experiment, test):
-    r = server.request('/edp/experiments/%s/tests' % experiment['_id'],
+def test_find(server, user, experiment, batch,  test):
+    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
                        method='GET', user=user)
     assertStatusOk(r)
     assert len(r.json) == 1
     assert test.items() <= r.json[0].items()
 
 @pytest.mark.plugin('edp')
-def test_get(server, make_experiment, user, admin, experiment, test):
-    r = server.request('/edp/experiments/%s/tests/%s' % (experiment['_id'], test['_id']),
+def test_get(server, experiment, batch, make_batch, user, admin, test):
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'],
+                                                                    batch['_id'], test['_id']),
                        method='GET', user=user)
     assertStatusOk(r)
     assert test.items() <= r.json.items()
@@ -128,7 +129,7 @@ def test_get(server, make_experiment, user, admin, experiment, test):
         'dataNotes': 'Here are some notes.',
         'motivation': 'I have some.'
     }
-    another_experiment = make_experiment(user, body)
-    r = server.request('/edp/experiments/%s/tests/%s' % (another_experiment['_id'], test['_id']),
+    another_batch = make_batch(user, experiment, body)
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'], another_batch['_id'], test['_id']),
                        method='GET', user=user)
     assertStatus(r, 400)

@@ -7,6 +7,7 @@ from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
 from . import test
+from . import batch
 from girder.plugins.edp.models.experiment import Experiment as ExperimentModel
 
 
@@ -20,11 +21,17 @@ class Experiment(Resource):
         self.route('PATCH', (':experimentId',), self.update)
         self.route('DELETE', (':experimentId',), self.delete)
 
-        self.route('POST', (':experimentId', 'tests'), test.create)
-        self.route('GET', (':experimentId', 'tests'), test.find)
-        self.route('GET', (':experimentId', 'tests', ':testId'), test.get)
-        self.route('PATCH', (':experimentId', 'tests', ':testId'), test.update)
-        self.route('DELETE', (':experimentId', 'tests', ':testId'), test.delete)
+        self.route('POST', (':experimentId', 'batches'), batch.create)
+        self.route('GET', (':experimentId', 'batches'), batch.find)
+        self.route('GET', (':experimentId', 'batches', ':batchId'), batch.get)
+        self.route('PATCH', (':experimentId', 'batches', ':batchId'), batch.update)
+        self.route('DELETE', (':experimentId', 'batches', ':batchId'), batch.delete)
+
+        self.route('POST', (':experimentId', 'batches', ':batchId', 'tests'), test.create)
+        self.route('GET', (':experimentId', 'batches', ':batchId', 'tests'), test.find)
+        self.route('GET', (':experimentId', 'batches', ':batchId', 'tests', ':testId'), test.get)
+        self.route('PATCH', (':experimentId', 'batches', ':batchId', 'tests', ':testId'), test.update)
+        self.route('DELETE', (':experimentId', 'batches', ':batchId', 'tests', ':testId'), test.delete)
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
@@ -32,21 +39,15 @@ class Experiment(Resource):
         .jsonParam('experiment', 'The experiment', required=True, paramType='body')
     )
     def create(self, experiment):
-        self.requireParams(['startDate', 'title', 'motivation', 'experimentalDesign',
-                            'experimentalNotes', 'dataNotes'], experiment)
+        self.requireParams(['startDate', 'title', 'objective'], experiment)
 
         start_date = experiment.get('startDate')
         title = experiment.get('title')
-        motivation = experiment.get('motivation')
-        experimental_design = experiment.get('experimentalDesign')
-        experimental_notes = experiment.get('experimentalNotes')
-        data_notes = experiment.get('dataNotes')
-        completed = experiment.get('completed', False)
+        objective = experiment.get('objective')
         public = experiment.get('public', False)
 
         experiment = ExperimentModel().create(start_date, title,
-            motivation, experimental_design, experimental_notes,
-            data_notes, completed, self.getCurrentUser(), public)
+            objective, self.getCurrentUser(), public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/experiments/%s' % experiment['_id']
