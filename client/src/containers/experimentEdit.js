@@ -19,9 +19,7 @@ class ExperimentEditContainer extends Component {
 
     let onSubmitPromise = new Promise((resolve, reject) => {
       this.props.dispatch(actionCreator({experiment, resolve, reject}));
-    });
-
-    onSubmitPromise
+    })
     .then((val) => {
         this.props.dispatch(replace(`/${EXPERIMENT_VIEW_ROUTE}/${val._id}`));
     })

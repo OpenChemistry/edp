@@ -15,20 +15,22 @@ class ExperimentListContainer extends Component {
   }
 
   onOpenExperiment = (experiment) => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experiment._id}`));
+    const {experimentId} = experiment._id;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
   }
 
   onDeleteExperiment = (experiment) => {
-    this.props.dispatch(deleteExperiment({experiment}));
+    const {experimentId} = experiment._id;
+    this.props.dispatch(deleteExperiment({experimentId}));
   }
 
   render() {
     return (
       <ExperimentList
         experiments={this.props.experiments}
-        onOpenExperiment={this.onOpenExperiment}
-        onAddExperiment={this.onAddExperiment}
-        onDeleteExperiment={this.onDeleteExperiment}
+        onOpen={this.onOpenExperiment}
+        onAdd={this.onAddExperiment}
+        onDelete={this.onDeleteExperiment}
       />
     );
   }
