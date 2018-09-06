@@ -97,9 +97,33 @@ def make_batch(server):
     yield _make_batch
 
     for batch in batches:
-        Batch().remove(batch)
+        Batch().remove(batch, force=True)
 
 @pytest.fixture
 def batch(experiment, make_batch, batch_request, user):
 
     yield make_batch(user, experiment, batch_request)
+
+@pytest.fixture
+def create_test_request():
+    yield {
+        'startDate': datetime.datetime.utcnow().timestamp(),
+        'cellId': 'cell',
+        'channel': '2',
+        'comments': 'comments',
+        'scheduleFile': 'schedule0123.zip',
+        'public': True
+    }
+
+@pytest.fixture
+def test(server, user, experiment, batch, create_test_request):
+    from girder.plugins.edp.models.test import Test
+
+    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
+                       method='POST', body=json.dumps(create_test_request),
+                       type='application/json', user=user)
+    assertStatus(r, 201)
+
+    yield r.json
+
+    Test().remove(r.json, user)
