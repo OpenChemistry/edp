@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { reduxForm } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
@@ -9,8 +10,11 @@ import { getBatch, createBatch, updateBatch } from '../redux/ducks/batches';
 
 import {EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE} from '../routes';
 
-import BatchEdit from '../components/batchEdit';
+import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
+
+import { createBatchFields } from '../utils/fields';
+import { validationFactory } from '../utils/formValidation';
 
 class BatchEditContainer extends Component {
 
@@ -40,10 +44,10 @@ class BatchEditContainer extends Component {
     }
 
     return (
-      <BatchEdit
-        create={this.props.create}
-        initialValues={this.props.batch}
-        currentValues={this.props.currentValues}
+      <ItemEdit
+        {...this.props}
+        itemName="batch"
+        fieldsCreator={createBatchFields}
         onSubmit={this.onSubmit}
       />
     );
@@ -63,9 +67,17 @@ function mapStateToProps(state, ownProps) {
     experimentId,
     batchId,
     batch,
+    initialValues: batch,
     currentValues: getFormValues('batchEdit')(state)
   }
 }
+
+BatchEditContainer = reduxForm({
+  form: 'batchEdit',
+  enableReinitialize: true,
+  validate: validationFactory(createBatchFields())
+})(BatchEditContainer);
+
 BatchEditContainer = connect(mapStateToProps)(BatchEditContainer);
 
 export default BatchEditContainer;

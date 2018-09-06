@@ -17,11 +17,18 @@ class BreadCrumbContainer extends Component {
   }
 
   onExperimentClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}`));
+    const { experimentId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
+  }
+
+  onBatchClick = () => {
+    const { experimentId, batchId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}`));
   }
 
   onTestClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}/${TEST_VIEW_ROUTE}/${this.props.test._id}`));
+    const { experimentId, batchId, testId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/${testId}`));
   }
 
   render() {
@@ -32,6 +39,7 @@ class BreadCrumbContainer extends Component {
         test={this.props.test}
         onHomeClick={this.onHomeClick}
         onExperimentClick={this.onExperimentClick}
+        onBatchClick={this.onBatchClick}
         onTestClick={this.onTestClick}
       />
     );
@@ -45,19 +53,25 @@ function mapStateToProps(state) {
   let regexStr = `((${EXPERIMENT_VIEW_ROUTE})\\/(\\w+))(\\/(${BATCH_VIEW_ROUTE})\\/(\\w+))?(\\/(${TEST_VIEW_ROUTE})\\/(\\w+))?`;
   let regex = new RegExp(regexStr);
   let mo = state.router.location.pathname.match(regex);
+  let experimentId;
+  let batchId;
+  let testId;
   let experiment;
   let batch;
   let test;
   if (mo) {
-    let experimentId = mo[experimentIdGroup];
-    let batchId = mo[batchIdGroup];
-    let testId = mo[testIdGroup];
+    experimentId = mo[experimentIdGroup];
+    batchId = mo[batchIdGroup];
+    testId = mo[testIdGroup];
     experiment = getExperiment(state, experimentId);
     batch = getBatch(state, batchId);
     test = getTest(state, testId);
   }
   
   return {
+    experimentId,
+    batchId,
+    testId,
     experiment,
     batch,
     test

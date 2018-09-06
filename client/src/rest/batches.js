@@ -1,7 +1,7 @@
 import { girderClient } from '@openchemistry/girder-redux';
 
 export function getBatches(experimentId) {
-  return girderClient().get(`edp/experiments/${experimentId}/batch`)
+  return girderClient().get(`edp/experiments/${experimentId}/batches`)
     .then(response => response.data );
 }
 
