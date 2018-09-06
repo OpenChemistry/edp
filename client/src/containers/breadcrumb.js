@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
+import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
 import { getExperiment } from '../redux/ducks/experiments';
+import { getBatch } from '../redux/ducks/batches';
 import { getTest } from '../redux/ducks/tests';
 
 import BreadCrumb from '../components/breadCrumb';
@@ -16,20 +17,29 @@ class BreadCrumbContainer extends Component {
   }
 
   onExperimentClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}`));
+    const { experimentId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
+  }
+
+  onBatchClick = () => {
+    const { experimentId, batchId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}`));
   }
 
   onTestClick = () => {
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${this.props.experiment._id}/${TEST_VIEW_ROUTE}/${this.props.test._id}`));
+    const { experimentId, batchId, testId } = this.props;
+    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/${testId}`));
   }
 
   render() {
     return (
       <BreadCrumb
         experiment={this.props.experiment}
+        batch={this.props.batch}
         test={this.props.test}
         onHomeClick={this.onHomeClick}
         onExperimentClick={this.onExperimentClick}
+        onBatchClick={this.onBatchClick}
         onTestClick={this.onTestClick}
       />
     );
@@ -38,21 +48,32 @@ class BreadCrumbContainer extends Component {
 
 function mapStateToProps(state) {
   let experimentIdGroup = 3;
-  let testIdGroup = 6;
-  let regexStr = `((${EXPERIMENT_VIEW_ROUTE})\\/(\\w+))(\\/(${TEST_VIEW_ROUTE})\\/(\\w+))?`;
+  let batchIdGroup = 6;
+  let testIdGroup = 9;
+  let regexStr = `((${EXPERIMENT_VIEW_ROUTE})\\/(\\w+))(\\/(${BATCH_VIEW_ROUTE})\\/(\\w+))?(\\/(${TEST_VIEW_ROUTE})\\/(\\w+))?`;
   let regex = new RegExp(regexStr);
   let mo = state.router.location.pathname.match(regex);
+  let experimentId;
+  let batchId;
+  let testId;
   let experiment;
+  let batch;
   let test;
   if (mo) {
-    let experimentId = mo[experimentIdGroup];
-    let testId = mo[testIdGroup];
+    experimentId = mo[experimentIdGroup];
+    batchId = mo[batchIdGroup];
+    testId = mo[testIdGroup];
     experiment = getExperiment(state, experimentId);
+    batch = getBatch(state, batchId);
     test = getTest(state, testId);
   }
   
   return {
+    experimentId,
+    batchId,
+    testId,
     experiment,
+    batch,
     test
   }
 }

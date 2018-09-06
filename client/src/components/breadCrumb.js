@@ -21,6 +21,7 @@ class BreadCrumb extends Component {
     if (!this.props.experiment) {
       return null;
     }
+    const maxLen = 6;
     return (
         <div style={style}>
           <div>
@@ -29,15 +30,24 @@ class BreadCrumb extends Component {
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
-              experiment {this.props.experiment._id}
+              experiment {this.props.experiment._id.slice(-maxLen)}
             </span>
           </div>
+
+          {this.props.batch &&
+          <div>
+            &nbsp;&nbsp;/&nbsp;&nbsp;
+            <span  style={linkStyle}  onClick={this.props.onBatchClick}>
+              batch {this.props.batch._id.slice(-maxLen)}
+            </span>
+          </div>
+          }
 
           {this.props.test &&
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onTestClick}>
-              test {this.props.test._id}
+              test {this.props.test._id.slice(-maxLen)}
             </span>
           </div>
           }

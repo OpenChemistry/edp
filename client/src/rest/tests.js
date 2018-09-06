@@ -1,26 +1,26 @@
 import { girderClient } from '@openchemistry/girder-redux';
 
-export function getExperimentTests(experimentId) {
-  return girderClient().get(`edp/experiments/${experimentId}/tests`)
+export function getTests(experimentId, batchId) {
+  return girderClient().get(`edp/experiments/${experimentId}/batches/${batchId}/tests`)
     .then(response => response.data );
 }
 
-export function getTest(experimentId, testId) {
-  return girderClient().get(`edp/experiments/${experimentId}/tests/${testId}`)
+export function getTest(experimentId, batchId, testId) {
+  return girderClient().get(`edp/experiments/${experimentId}/batches/${batchId}/tests/${testId}`)
     .then(response => response.data );
 }
 
-export function createTest(test) {
-  return girderClient().post(`edp/experiments/${test.experimentId}/tests`, test)
+export function createTest(experimentId, batchId, test) {
+  return girderClient().post(`edp/experiments/${experimentId}/batches/${batchId}/tests`, test)
     .then(response => response.data );
 }
 
-export function updateTest(test) {
-  return girderClient().patch(`edp/experiments/${test.experimentId}/tests/${test._id}`, test)
+export function updateTest(experimentId, batchId, test) {
+  return girderClient().patch(`edp/experiments/${experimentId}/batches/${batchId}/tests/${test._id}`, test)
     .then(response => response.data );
 }
 
-export function deleteTest(test) {
-  return girderClient().delete(`edp/experiments/${test.experimentId}/tests/${test._id}`)
+export function deleteTest(experimentId, batchId, testId) {
+  return girderClient().delete(`edp/experiments/${experimentId}/batches/${batchId}/tests/${testId}`)
     .then(response => response.data );
 }

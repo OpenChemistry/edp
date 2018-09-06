@@ -11,11 +11,19 @@ import {
 } from './experiments';
 
 import {
+  createBatchSaga,
+  fetchBatchSaga,
+  updateBatchSaga,
+  deleteBatchtSaga,
+  fetchBatchesSaga
+} from './batches';
+
+import {
   createTestSaga,
   fetchTestSaga,
   updateTestSaga,
   deleteTestSaga,
-  fetchExperimentTestsSaga,
+  fetchTestsSaga,
 } from './tests';
 
 export default function* root() {
@@ -24,11 +32,18 @@ export default function* root() {
   yield fork(updateExperimentSaga);
   yield fork(deleteExperimentSaga);
   yield fork(fetchExperimentsSaga);
+
+  yield fork(createBatchSaga);
+  yield fork(fetchBatchSaga);
+  yield fork(updateBatchSaga);
+  yield fork(deleteBatchtSaga);
+  yield fork(fetchBatchesSaga);
+
   yield fork(createTestSaga);
   yield fork(fetchTestSaga);
   yield fork(updateTestSaga);
   yield fork(deleteTestSaga);
-  yield fork(fetchExperimentTestsSaga);
+  yield fork(fetchTestsSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

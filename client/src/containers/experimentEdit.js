@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { reduxForm } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
@@ -9,8 +10,11 @@ import { getExperiment, createExperiment, updateExperiment } from '../redux/duck
 
 import {EXPERIMENT_VIEW_ROUTE} from '../routes';
 
-import ExperimentEdit from '../components/experimentEdit';
+import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
+
+import { createExperimentFields } from '../utils/fields';
+import { validationFactory } from '../utils/formValidation';
 
 class ExperimentEditContainer extends Component {
 
@@ -19,9 +23,7 @@ class ExperimentEditContainer extends Component {
 
     let onSubmitPromise = new Promise((resolve, reject) => {
       this.props.dispatch(actionCreator({experiment, resolve, reject}));
-    });
-
-    onSubmitPromise
+    })
     .then((val) => {
         this.props.dispatch(replace(`/${EXPERIMENT_VIEW_ROUTE}/${val._id}`));
     })
@@ -40,10 +42,10 @@ class ExperimentEditContainer extends Component {
     }
 
     return (
-      <ExperimentEdit
-        create={this.props.create}
-        initialValues={this.props.experiment}
-        currentValues={this.props.currentValues}
+      <ItemEdit
+        {...this.props}
+        itemName="experiment"
+        fieldsCreator={createExperimentFields}
         onSubmit={this.onSubmit}
       />
     );
@@ -51,18 +53,27 @@ class ExperimentEditContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  let create = ownProps.match.params.action === 'add';
+  const create = ownProps.match.params.action === 'add';
+  const experimentId = ownProps.match.params.experimentId;
   let experiment;
   if (!create) {
-    let experimentId = ownProps.match.params.experimentId;
     experiment = getExperiment(state, experimentId);
   }
   return {
     create,
+    experimentId,
     experiment,
+    initialValues: experiment,
     currentValues: getFormValues('experimentEdit')(state)
   }
 }
+
+ExperimentEditContainer = reduxForm({
+  form: 'experimentEdit',
+  enableReinitialize: true,
+  validate: validationFactory(createExperimentFields())
+})(ExperimentEditContainer);
+
 ExperimentEditContainer = connect(mapStateToProps)(ExperimentEditContainer);
 
 export default ExperimentEditContainer;

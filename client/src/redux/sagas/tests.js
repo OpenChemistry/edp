@@ -6,18 +6,11 @@ import {
   FETCH_TEST_REQUESTED, FETCH_TEST_SUCCEEDED, FETCH_TEST_FAILED,
   UPDATE_TEST_REQUESTED, UPDATE_TEST_SUCCEEDED, UPDATE_TEST_FAILED,
   DELETE_TEST_REQUESTED, DELETE_TEST_SUCCEEDED, DELETE_TEST_FAILED,
-  FETCH_EXPERIMENT_TESTS_REQUESTED, FETCH_EXPERIMENT_TESTS_SUCCEEDED, FETCH_EXPERIMENT_TESTS_FAILED,
+  FETCH_TESTS_REQUESTED, FETCH_TESTS_SUCCEEDED, FETCH_TESTS_FAILED,
 } from '../ducks/tests';
 
-// import {
-//   createTest as createTestRest,
-//   getTest as getTestRest,
-//   updateTest as updateTestRest,
-//   deleteTest as deleteTestRest,
-// } from '../../mock-server';
-
 import {
-  getExperimentTests as getExperimentTestsRest,
+  getTests as getTestsRest,
   getTest as getTestRest,
   createTest as createTestRest,
   updateTest as updateTestRest,
@@ -69,10 +62,10 @@ function* uploadTestFiles(test) {
 // Create test
 
 function* onCreateTest(action) {
-  const {test, resolve, reject} = action.payload;
+  const {experimentId, batchId, test, resolve, reject} = action.payload;
   try {
     yield uploadTestFiles(test);
-    const newTest = yield call(createTestRest, test);
+    const newTest = yield call(createTestRest, experimentId, batchId, test);
     yield put({type: CREATE_TEST_SUCCEEDED, payload: {test: newTest}});
     resolve(newTest);
   } catch (e) {
@@ -89,8 +82,8 @@ export function* createTestSaga() {
 
 function* onFetchTest(action) {
   try {
-    const { experimentId, testId } = action.payload;
-    const test = yield call(getTestRest, experimentId, testId);
+    const { experimentId, batchId, testId } = action.payload;
+    const test = yield call(getTestRest, experimentId, batchId, testId);
     yield put({type: FETCH_TEST_SUCCEEDED, payload: {test}});
   } catch (e) {
     yield put({type: FETCH_TEST_FAILED, error: e});
@@ -104,10 +97,10 @@ export function* fetchTestSaga() {
 // Update test
 
 function* onUpdateTest(action) {
-  const {test, resolve, reject} = action.payload;
+  const {experimentId, batchId, test, resolve, reject} = action.payload;
   try {
     yield uploadTestFiles(test);
-    const newTest = yield call(updateTestRest, test);
+    const newTest = yield call(updateTestRest, experimentId, batchId, test);
     yield put({type: UPDATE_TEST_SUCCEEDED, payload: {test: newTest}});
     resolve(newTest);
   } catch (e) {
@@ -120,9 +113,9 @@ function* onUpdateTest(action) {
 
 function* onDeleteTest(action) {
   try {
-    const {test} = action.payload;
-    yield call(deleteTestRest, test);
-    yield put({type: DELETE_TEST_SUCCEEDED, payload: {id: test._id}});
+    const {experimentId, batchId, testId} = action.payload;
+    yield call(deleteTestRest, experimentId, batchId, testId);
+    yield put({type: DELETE_TEST_SUCCEEDED, payload: {id: testId}});
   } catch (e) {
     yield put({type: DELETE_TEST_FAILED, error: e});
   }
@@ -136,16 +129,16 @@ export function* updateTestSaga() {
   yield takeEvery(UPDATE_TEST_REQUESTED, onUpdateTest);
 }
 
-function* onFetchExperimentTests(action) {
+function* onFetchTests(action) {
   try {
-    const experimentId = action.payload;
-    const tests = yield call(getExperimentTestsRest, experimentId);
-    yield put({type: FETCH_EXPERIMENT_TESTS_SUCCEEDED, payload: {tests}});
+    const {experimentId, batchId} = action.payload;
+    const tests = yield call(getTestsRest, experimentId, batchId);
+    yield put({type: FETCH_TESTS_SUCCEEDED, payload: {tests}});
   } catch (e) {
-    yield put({type: FETCH_EXPERIMENT_TESTS_FAILED, error: e});
+    yield put({type: FETCH_TESTS_FAILED, error: e});
   }
 }
 
-export function* fetchExperimentTestsSaga() {
-  yield takeLatest(FETCH_EXPERIMENT_TESTS_REQUESTED, onFetchExperimentTests);
+export function* fetchTestsSaga() {
+  yield takeLatest(FETCH_TESTS_REQUESTED, onFetchTests);
 }

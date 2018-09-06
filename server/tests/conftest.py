@@ -10,14 +10,11 @@ from girder.models.folder import Folder
 
 
 @pytest.fixture
-def create_request():
+def experiment_request():
     yield {
         'startDate': datetime.datetime.utcnow().timestamp(),
         'title': 'title',
-        'experimentalDesign': 'I designed the cool experiment.',
-        'experimentalNotes': 'These are my notes.',
-        'dataNotes': 'Here are some notes.',
-        'motivation': 'Very motivated!',
+        'objective': 'I have one.',
         'public': True
     }
 
@@ -41,10 +38,10 @@ def make_experiment(server):
 
 
 @pytest.fixture
-def experiment(make_experiment, user, create_request):
+def experiment(make_experiment, user, experiment_request):
     from girder.plugins.edp.models.experiment import Experiment
 
-    yield make_experiment(user, create_request)
+    yield make_experiment(user, experiment_request)
 
 
 @pytest.fixture
@@ -71,3 +68,38 @@ def make_girder_file():
 
     for file in files:
         File().remove(file)
+
+@pytest.fixture
+def batch_request():
+    return {
+        'startDate': datetime.datetime.utcnow().timestamp(),
+        'title': 'title',
+        'experimentalDesign': 'I designed the cool experiment.',
+        'experimentalNotes': 'These are my notes.',
+        'dataNotes': 'Here are some notes.',
+        'motivation': 'Very motivated!',
+        'public': True
+    }
+
+@pytest.fixture
+def make_batch(server):
+    from girder.plugins.edp.models.batch import Batch
+    batches = []
+
+    def _make_batch(user, experiment, request):
+        r = server.request('/edp/experiments/%s/batches' % experiment['_id'], method='POST', body=json.dumps(request),
+                           type='application/json', user=user)
+        assertStatus(r, 201)
+        batches.append(r.json)
+
+        return  r.json
+
+    yield _make_batch
+
+    for batch in batches:
+        Batch().remove(batch)
+
+@pytest.fixture
+def batch(experiment, make_batch, batch_request, user):
+
+    yield make_batch(user, experiment, batch_request)

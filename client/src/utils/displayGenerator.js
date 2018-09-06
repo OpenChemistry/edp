@@ -2,7 +2,10 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 
-export function renderDisplayFields(fields) {
+export function renderDisplayFields(fields, exclude = null) {
+  if (!exclude) {
+    exclude = [];
+  }
   let displayFields = [];
   for (let key in fields) {
     const field = fields[key];
@@ -37,9 +40,7 @@ export function renderDisplayFields(fields) {
       // );
     } else {
       let doPush = (
-        key !== 'title' &&
-        key !== 'startDate' &&
-        key !== 'channel' &&
+        exclude.findIndex((val) => val === key) === -1 &&
         value
       );
       if (doPush) {

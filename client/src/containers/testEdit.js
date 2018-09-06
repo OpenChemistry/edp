@@ -1,23 +1,26 @@
 import React, { Component } from 'react';
+import { reduxForm } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
 import { getFormValues } from 'redux-form';
-// import { fetchExperiment } from '../redux/ducks/experiments';
 import { getTest, createTest, updateTest } from '../redux/ducks/tests';
-import { getExperiment } from '../redux/ducks/experiments';
 
-import { EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
+import { EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE, BATCH_VIEW_ROUTE } from '../routes';
 
-import TestEdit from '../components/testEdit';
+import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
+
+import { createTestFields } from '../utils/fields';
+import { validationFactory } from '../utils/formValidation';
 
 class TestEditContainer extends Component {
   
   onSubmit = (test) => {
-    let actionCreator = this.props.create ? createTest : updateTest;
-    test.experimentId = this.props.experiment._id;
+    const {experimentId, batchId, create} = this.props;
+    const actionCreator = create ? createTest : updateTest;
+    test.batchId = batchId;
 
     if (test.metadataFile && test.metadataFile[0]) {
       test.metadataFile = test.metadataFile[0].name;
@@ -28,14 +31,14 @@ class TestEditContainer extends Component {
     }
 
     let onSubmitPromise = new Promise((resolve, reject) => {
-      this.props.dispatch(actionCreator({test, resolve, reject}));
+      this.props.dispatch(actionCreator({experimentId, batchId, test, resolve, reject}));
     })
     .then((val) => {
       // this.props.dispatch(fetchExperiment({id: val.experimentId}));
-      if (this.props.create) {
-        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}`));
+      if (create) {
+        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}`));
       } else {
-        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${val.experimentId}/${TEST_VIEW_ROUTE}/${val._id}`));
+        this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/${val._id}`));
       }
     })
     .catch((err) =>{
@@ -53,10 +56,10 @@ class TestEditContainer extends Component {
     }
 
     return (
-      <TestEdit
-        create={this.props.create}
-        initialValues={this.props.test}
-        currentValues={this.props.currentValues}
+      <ItemEdit
+        {...this.props}
+        itemName="test"
+        fieldsCreator={createTestFields}
         onSubmit={this.onSubmit}
       />
     );
@@ -64,24 +67,31 @@ class TestEditContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  let create = ownProps.match.params.action === 'addtest';
+  const create = ownProps.match.params.action === 'add';
+  const experimentId = ownProps.match.params.experimentId;
+  const batchId = ownProps.match.params.batchId;
+  const testId = ownProps.match.params.testId;
   let test;
-  let experiment = getExperiment(state, ownProps.match.params.experimentId);
   if (!create) {
-    let testId = ownProps.match.params.testId;
     test = getTest(state, testId);
-    if (!experiment) {
-      test = null;
-    } else if ( test && test.experimentId !== experiment._id) {
-      test = null;
-    }
   }
   return {
     create,
+    experimentId,
+    batchId,
+    testId,
     test,
-    experiment,
+    initialValues: test,
     currentValues: getFormValues('testEdit')(state)
   }
 }
 
-export default connect(mapStateToProps)(TestEditContainer);
+TestEditContainer = reduxForm({
+  form: 'testEdit',
+  enableReinitialize: true,
+  validate: validationFactory(createTestFields())
+})(TestEditContainer);
+
+TestEditContainer = connect(mapStateToProps)(TestEditContainer);
+
+export default TestEditContainer;

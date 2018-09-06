@@ -16,44 +16,71 @@ export function createExperimentFields(experiment) {
       error: '',
       validate: [required]
     },
+    'objective' : {
+      label: 'Objective',
+      type: 'text',
+      value: experiment ? experiment.objective : '',
+      error: '',
+      validate: [required]
+    },
+  }
+  return fields;
+}
+
+export function createBatchFields(batch) {
+  let fields = {
+    'startDate' : {
+      label: 'Start date',
+      type: 'date',
+      value: batch ? batch.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'title' : {
+      label: 'Title',
+      type: 'text',
+      value: batch ? batch.title : '',
+      error: '',
+      validate: [required]
+    },
     'motivation' : {
       label: 'Motivation',
       type: 'textarea',
-      value: experiment ? experiment.motivation : '',
+      value: batch ? batch.motivation : '',
       error: '',
       validate: [required]
     },
     'experimentalDesign': {
       label: 'Experimental design',
       type: 'textarea',
-      value: experiment ? experiment.experimentalDesign : '',
+      value: batch ? batch.experimentalDesign : '',
       error: '',
       validate: [required]
     },
     'experimentalNotes': {
       label: 'Experimental notes',
       type: 'textarea',
-      value: experiment ? experiment.experimentalNotes : '',
+      value: batch ? batch.experimentalNotes : '',
       error: '',
     },
     'dataNotes': {
       label: 'Data notes',
       type: 'textarea',
-      value: experiment ? experiment.dataNotes : '',
+      value: batch ? batch.dataNotes : '',
       error: '',
     },
     'completed': {
       label: 'Completed',
       type: 'checkbox',
-      value: experiment ? experiment.completed : false,
+      value: batch ? batch.completed : false,
       error: ''
     },
     'results': {
       label: 'Results',
       type: 'textarea',
-      value: experiment ? experiment.results : '',
-      disabled: experiment ? !experiment.completed : true,
-      hidden: experiment ? !experiment.completed : true,
+      value: batch ? batch.results : '',
+      disabled: batch ? !batch.completed : true,
+      hidden: batch ? !batch.completed : true,
       error: ''
     },
   }

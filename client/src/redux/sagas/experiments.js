@@ -80,9 +80,9 @@ export function* updateExperimentSaga() {
 
 function* onDeleteExperiment(action) {
   try {
-    const { experiment } = action.payload;
-    yield call(deleteExperimentRest, experiment);
-    yield put({type: DELETE_EXPERIMENT_SUCCEEDED, payload: {id: experiment._id}});
+    const { experimentId } = action.payload;
+    yield call(deleteExperimentRest, experimentId);
+    yield put({type: DELETE_EXPERIMENT_SUCCEEDED, payload: {id: experimentId}});
   } catch (e) {
     yield put({type: DELETE_EXPERIMENT_FAILED, error: e});
   }

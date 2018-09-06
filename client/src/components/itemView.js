@@ -7,22 +7,35 @@ import IconButton from '@material-ui/core/IconButton';
 
 import EditIcon from '@material-ui/icons/Edit';
 
-import { createExperimentFields } from '../utils/fields';
 import { renderDisplayFields } from '../utils/displayGenerator';
 
-class ExperimentView extends Component {
+class ItemView extends Component {
   render() {
-    let fields = renderDisplayFields(createExperimentFields(this.props.experiment));
+    const {
+      item,
+      fieldsCreator,
+      primaryField,
+      primaryPrefix,
+      primarySuffix,
+      secondaryField,
+      secondaryPrefix,
+      secondarySuffix,
+      onEdit
+    } = this.props;
+    let fields = renderDisplayFields(
+      fieldsCreator(item),
+      [primaryField, secondaryField]
+    );
     return (
       <Card>
         <CardHeader
           action={
-            <IconButton onClick={() => {this.props.onEditExperiment()}}>
+            <IconButton onClick={() => {onEdit()}}>
               <EditIcon />
             </IconButton>
           }
-          title={this.props.experiment.title}
-          subheader={this.props.experiment.startDate}
+          title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
+          subheader={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
         />
         <CardContent>
           {fields}
@@ -32,4 +45,4 @@ class ExperimentView extends Component {
   }
 }
 
-export default ExperimentView;
+export default ItemView;
