@@ -6,7 +6,7 @@ import { push } from 'connected-react-router'
 import { EXPERIMENT_VIEW_ROUTE } from '../routes';
 import { getExperiments, deleteExperiment } from '../redux/ducks/experiments';
 
-import ExperimentList from '../components/experimentList';
+import ItemList from '../components/itemList';
 
 class ExperimentListContainer extends Component {
   
@@ -26,8 +26,11 @@ class ExperimentListContainer extends Component {
 
   render() {
     return (
-      <ExperimentList
-        experiments={this.props.experiments}
+      <ItemList
+        items={this.props.experiments}
+        title="Experiments"
+        primaryField="title"
+        secondaryField="startDate"
         onOpen={this.onOpenExperiment}
         onAdd={this.onAddExperiment}
         onDelete={this.onDeleteExperiment}

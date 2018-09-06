@@ -8,9 +8,11 @@ import { EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE } from '../routes';
 import { getExperiment, fetchExperiment } from '../redux/ducks/experiments';
 import { deleteBatch, getExperimentBatches, fetchBatches } from '../redux/ducks/batches';
 
-import ExperimentView from '../components/experimentView';
-import BatchList from '../components/batchList';
+import ItemView from '../components/itemView';
+import ItemList from '../components/itemList';
 import NotFoundPage from '../components/notFound.js';
+
+import { createExperimentFields } from '../utils/fields';
 
 class ExperimentViewContainer extends Component {
 
@@ -49,11 +51,18 @@ class ExperimentViewContainer extends Component {
     if (this.props.experiment) {
       return (
         <div>
-          <ExperimentView
-            experiment={this.props.experiment}
+          <ItemView
+            item={this.props.experiment}
             onEdit={this.onEditExperiment}
+            fieldsCreator={createExperimentFields}
+            primaryField="title"
+            secondaryField="startDate"
           />
-          <BatchList
+          <ItemList
+            items={this.props.batches}
+            title="Batches"
+            primaryField="title"
+            secondaryField="startDate"
             batches={this.props.batches}
             onOpen={this.onOpenBatch}
             onAdd={this.onAddBatch}

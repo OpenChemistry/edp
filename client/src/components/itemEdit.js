@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { reduxForm } from 'redux-form';
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -8,14 +7,15 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
 import { renderFormFields } from '../utils/formGenerator';
-import { createBatchFields } from '../utils/fields';
-import { validationFactory } from '../utils/formValidation';
 
-class BatchEdit extends Component {
+class ItemEdit extends Component {
 
   render() {
     const {
+      itemName,
+      fieldsCreator,
       handleSubmit,
+      onSubmit,
       pristine,
       submitting,
       invalid,
@@ -23,17 +23,18 @@ class BatchEdit extends Component {
       currentValues,
       create
     } = this.props;
-    let title = create ? 'Create new batch' : 'Edit batch';
+
+    let title = create ? `Create new ${itemName}` : `Edit  ${itemName}`;
     let fields;
     if (pristine) {
-      fields = createBatchFields(initialValues);
+      fields = fieldsCreator(initialValues);
     } else {
-      fields = createBatchFields(currentValues);
+      fields = fieldsCreator(currentValues);
     }
     let formFields = renderFormFields(fields);
     return (
       <Card elevation={1}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <Typography variant="headline">{title}</Typography>
           <br/>
@@ -53,10 +54,4 @@ class BatchEdit extends Component {
   }
 }
 
-
-BatchEdit = reduxForm({
-  form: 'batchEdit',
-  validate: validationFactory(createBatchFields())
-})(BatchEdit);
-
-export default BatchEdit
+export default ItemEdit

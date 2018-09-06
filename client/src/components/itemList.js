@@ -11,8 +11,22 @@ import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-class ExperimentList extends Component {
+class ItemList extends Component {
   render() {
+
+    const {
+      items,
+      title,
+      onAdd,
+      onDelete,
+      onOpen,
+      primaryField,
+      primaryPrefix,
+      primarySuffix,
+      secondaryField,
+      secondaryPrefix,
+      secondarySuffix,
+    } = this.props;
 
     return (
       <div>
@@ -20,29 +34,29 @@ class ExperimentList extends Component {
           <div style={{paddingBottom: '0.5rem'}}>
             <ListItem>
               <Typography variant='title'>
-                Experiments
+                {title}
               </Typography>
               <ListItemSecondaryAction>
-                <IconButton onClick={() => {this.props.onAdd()}}>
+                <IconButton onClick={() => {onAdd()}}>
                   <AddIcon />
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
           </div>
           <Paper>
-            {Object.values(this.props.experiments).map((experiment) => {
+            {Object.values(items).map((item) => {
               return (
                 <ListItem
                   button
-                  key={experiment._id}
-                  onClick={() => {this.props.onOpen(experiment)}}
+                  key={item._id}
+                  onClick={() => {onOpen(item)}}
                 >
                   <ListItemText
-                    primary={experiment.title}
-                    secondary={experiment.startDate}
+                    primary={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
+                    secondary={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton onClick={() => {this.props.onDelete(experiment)}}>
+                    <IconButton onClick={() => {onDelete(item)}}>
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>
@@ -56,4 +70,4 @@ class ExperimentList extends Component {
   }
 }
 
-export default ExperimentList;
+export default ItemList;

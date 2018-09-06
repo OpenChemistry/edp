@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { reduxForm } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -8,8 +9,11 @@ import { getTest, createTest, updateTest } from '../redux/ducks/tests';
 
 import { EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE, BATCH_VIEW_ROUTE } from '../routes';
 
-import TestEdit from '../components/testEdit';
+import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
+
+import { createTestFields } from '../utils/fields';
+import { validationFactory } from '../utils/formValidation';
 
 class TestEditContainer extends Component {
   
@@ -52,10 +56,10 @@ class TestEditContainer extends Component {
     }
 
     return (
-      <TestEdit
-        create={this.props.create}
-        initialValues={this.props.test}
-        currentValues={this.props.currentValues}
+      <ItemEdit
+        {...this.props}
+        itemName="test"
+        fieldsCreator={createTestFields}
         onSubmit={this.onSubmit}
       />
     );
@@ -77,8 +81,17 @@ function mapStateToProps(state, ownProps) {
     batchId,
     testId,
     test,
+    initialValues: test,
     currentValues: getFormValues('testEdit')(state)
   }
 }
 
-export default connect(mapStateToProps)(TestEditContainer);
+TestEditContainer = reduxForm({
+  form: 'testEdit',
+  enableReinitialize: true,
+  validate: validationFactory(createTestFields())
+})(TestEditContainer);
+
+TestEditContainer = connect(mapStateToProps)(TestEditContainer);
+
+export default TestEditContainer;

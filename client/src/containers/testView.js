@@ -8,8 +8,10 @@ import { getTest } from '../redux/ducks/tests';
 import { getBatch } from '../redux/ducks/batches';
 import { getExperiment } from '../redux/ducks/experiments';
 
-import TestView from '../components/testView';
+import ItemView from '../components/itemView';
 import NotFoundPage from '../components/notFound.js';
+
+import { createTestFields } from '../utils/fields';
 
 class TestViewContainer extends Component {
 
@@ -22,9 +24,13 @@ class TestViewContainer extends Component {
     if (this.props.test) {
       return (
         <div>
-          <TestView
-            test={this.props.test}
+          <ItemView
+            item={this.props.test}
             onEdit={this.onEditTest}
+            fieldsCreator={createTestFields}
+            primaryField="channel"
+            secondaryField="startDate"
+            primaryPrefix="Channel"
           />
         </div>
       );

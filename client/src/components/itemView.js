@@ -7,22 +7,35 @@ import IconButton from '@material-ui/core/IconButton';
 
 import EditIcon from '@material-ui/icons/Edit';
 
-import { createBatchFields } from '../utils/fields';
 import { renderDisplayFields } from '../utils/displayGenerator';
 
-class BatchView extends Component {
+class ItemView extends Component {
   render() {
-    let fields = renderDisplayFields(createBatchFields(this.props.batch));
+    const {
+      item,
+      fieldsCreator,
+      primaryField,
+      primaryPrefix,
+      primarySuffix,
+      secondaryField,
+      secondaryPrefix,
+      secondarySuffix,
+      onEdit
+    } = this.props;
+    let fields = renderDisplayFields(
+      fieldsCreator(item),
+      [primaryField, secondaryField]
+    );
     return (
       <Card>
         <CardHeader
           action={
-            <IconButton onClick={() => {this.props.onEdit()}}>
+            <IconButton onClick={() => {onEdit()}}>
               <EditIcon />
             </IconButton>
           }
-          title={this.props.batch.title}
-          subheader={this.props.batch.startDate}
+          title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
+          subheader={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
         />
         <CardContent>
           {fields}
@@ -32,4 +45,4 @@ class BatchView extends Component {
   }
 }
 
-export default BatchView;
+export default ItemView;
