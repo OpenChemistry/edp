@@ -10,7 +10,7 @@ from girder.models.folder import Folder
 
 
 @pytest.fixture
-def create_request():
+def experiment_request():
     yield {
         'startDate': datetime.datetime.utcnow().timestamp(),
         'title': 'title',
@@ -38,10 +38,10 @@ def make_experiment(server):
 
 
 @pytest.fixture
-def experiment(make_experiment, user, create_request):
+def experiment(make_experiment, user, experiment_request):
     from girder.plugins.edp.models.experiment import Experiment
 
-    yield make_experiment(user, create_request)
+    yield make_experiment(user, experiment_request)
 
 
 @pytest.fixture

@@ -5,10 +5,10 @@ from pytest_girder.assertions import assertStatus, assertStatusOk
 
 
 @pytest.mark.plugin('edp')
-def test_create_public(server, user, create_request):
+def test_create_public(server, user, experiment_request):
     from girder.plugins.edp.models.experiment import Experiment
 
-    r = server.request('/edp/experiments', method='POST', body=json.dumps(create_request),
+    r = server.request('/edp/experiments', method='POST', body=json.dumps(experiment_request),
                        type='application/json', user=user)
     assertStatus(r, 201)
 
@@ -16,22 +16,22 @@ def test_create_public(server, user, create_request):
 
     experiment = Experiment().load(r.json['_id'], force=True)
     assert experiment['owner'] == user['_id']
-    assert create_request.items() <= experiment.items()
+    assert experiment_request.items() <= experiment.items()
 
 
 @pytest.mark.plugin('edp')
-def test_create_private(server, user, create_request):
+def test_create_private(server, user, experiment_request):
     from girder.plugins.edp.models.experiment import Experiment
 
-    create_request['public'] = False
-    r = server.request('/edp/experiments', method='POST', body=json.dumps(create_request),
+    experiment_request['public'] = False
+    r = server.request('/edp/experiments', method='POST', body=json.dumps(experiment_request),
                        type='application/json', user=user)
     assertStatus(r, 201)
 
     assert '_id' in r.json
 
     experiment = Experiment().load(r.json['_id'], force=True)
-    assert create_request.items() <= experiment.items()
+    assert experiment_request.items() <= experiment.items()
 
 
 @pytest.mark.plugin('edp')
