@@ -5,6 +5,8 @@ from girder.constants import AccessType
 from girder.models.model_base import ValidationException
 from girder.models.group import Group
 
+from girder.plugins.edp.models.batch import Batch
+
 
 class Experiment(AccessControlledModel):
 
@@ -78,3 +80,11 @@ class Experiment(AccessControlledModel):
             for r  in cursor:
                 yield r
 
+    def remove(self, experiment, user=None, force=False):
+        super(Experiment, self).remove(experiment)
+
+        for batch in Batch().find(experiment, force=True):
+            if not force and not self.hasAccess(batch, user=user, level=AccessType.WRITE):
+                raise ValidationException('Unable to remove batch associated with experiment.')
+
+            Batch().remove(batch, user)

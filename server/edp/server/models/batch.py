@@ -5,6 +5,7 @@ from girder.constants import AccessType
 from girder.models.model_base import ValidationException
 from girder.models.group import Group
 
+from girder.plugins.edp.models.test import Test
 
 class Batch(AccessControlledModel):
 
@@ -92,3 +93,12 @@ class Batch(AccessControlledModel):
         else:
             for r  in cursor:
                 yield r
+
+    def remove(self, batch, user=None, force=False):
+        super(Batch, self).remove(batch)
+
+        for test in Test().find(batch, force=True):
+            if not force and not self.hasAccess(test, user=user, level=AccessType.WRITE):
+                raise ValidationException('Unable to remote test associated with batch.')
+
+            Test().remove(test, user)
