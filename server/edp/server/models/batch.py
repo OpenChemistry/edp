@@ -99,6 +99,6 @@ class Batch(AccessControlledModel):
 
         for test in Test().find(batch, force=True):
             if not force and not self.hasAccess(test, user=user, level=AccessType.WRITE):
-                raise ValidationException('Unable to remote test associated with batch.')
+                raise ValidationException('Unable to remove test associated with batch.')
 
             Test().remove(test, user)
