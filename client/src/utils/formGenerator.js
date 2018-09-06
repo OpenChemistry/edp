@@ -76,6 +76,7 @@ export function renderFormFields(fields) {
         break;
       }
 
+      case 'date':
       case 'text': {
         formFields.push(
           <div
