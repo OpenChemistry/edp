@@ -8,10 +8,10 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
 import { renderFormFields } from '../utils/formGenerator';
-import { createBatchFields } from '../utils/fields';
+import { createExperimentFields } from '../utils/fields';
 import { validationFactory } from '../utils/formValidation';
 
-class BatchEdit extends Component {
+class ExperimentEdit extends Component {
 
   render() {
     const {
@@ -23,12 +23,12 @@ class BatchEdit extends Component {
       currentValues,
       create
     } = this.props;
-    let title = create ? 'Create new batch' : 'Edit batch';
+    let title = create ? 'Create new experiment' : 'Edit experiment';
     let fields;
     if (pristine) {
-      fields = createBatchFields(initialValues);
+      fields = createExperimentFields(initialValues);
     } else {
-      fields = createBatchFields(currentValues);
+      fields = createExperimentFields(currentValues);
     }
     let formFields = renderFormFields(fields);
     return (
@@ -54,9 +54,9 @@ class BatchEdit extends Component {
 }
 
 
-BatchEdit = reduxForm({
-  form: 'batchEdit',
-  validate: validationFactory(createBatchFields())
-})(BatchEdit);
+ExperimentEdit = reduxForm({
+  form: 'experimentEdit',
+  validate: validationFactory(createExperimentFields())
+})(ExperimentEdit);
 
-export default BatchEdit
+export default ExperimentEdit

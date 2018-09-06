@@ -4,14 +4,15 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
+
 import EditIcon from '@material-ui/icons/Edit';
 
-import { createTestFields } from '../utils/fields';
+import { createExperimentFields } from '../utils/fields';
 import { renderDisplayFields } from '../utils/displayGenerator';
 
-class TestView extends Component {
+class ExperimentView extends Component {
   render() {
-    let fields = renderDisplayFields(createTestFields(this.props.test));
+    let fields = renderDisplayFields(createExperimentFields(this.props.experiment));
     return (
       <Card>
         <CardHeader
@@ -20,8 +21,8 @@ class TestView extends Component {
               <EditIcon />
             </IconButton>
           }
-          title={`Channel ${this.props.test.channel}`}
-          subheader={this.props.test.date}
+          title={this.props.experiment.title}
+          subheader={this.props.experiment.startDate}
         />
         <CardContent>
           {fields}
@@ -31,4 +32,4 @@ class TestView extends Component {
   }
 }
 
-export default TestView;
+export default ExperimentView;

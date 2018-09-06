@@ -7,22 +7,22 @@ import IconButton from '@material-ui/core/IconButton';
 
 import EditIcon from '@material-ui/icons/Edit';
 
-import { createExperimentFields } from '../utils/fields';
+import { createBatchFields } from '../utils/fields';
 import { renderDisplayFields } from '../utils/displayGenerator';
 
-class ExperimentView extends Component {
+class BatchView extends Component {
   render() {
-    let fields = renderDisplayFields(createExperimentFields(this.props.experiment));
+    let fields = renderDisplayFields(createBatchFields(this.props.batch));
     return (
       <Card>
         <CardHeader
           action={
-            <IconButton onClick={() => {this.props.onEditExperiment()}}>
+            <IconButton onClick={() => {this.props.onEdit()}}>
               <EditIcon />
             </IconButton>
           }
-          title={this.props.experiment.title}
-          subheader={this.props.experiment.startDate}
+          title={this.props.batch.title}
+          subheader={this.props.batch.startDate}
         />
         <CardContent>
           {fields}
@@ -32,4 +32,4 @@ class ExperimentView extends Component {
   }
 }
 
-export default ExperimentView;
+export default BatchView;

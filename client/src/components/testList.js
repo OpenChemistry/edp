@@ -22,14 +22,14 @@ class TestList extends Component {
           <ListItem
             button
             key={test._id}
-            onClick={() => {this.props.onOpenTest(test)}}
+            onClick={() => {this.props.onOpen(test)}}
           >
             <ListItemText
               primary={`Channel ${test.channel}`}
               secondary={test.startDate}
             />
             <ListItemSecondaryAction>
-              <IconButton onClick={() => {this.props.onDeleteTest(test)}}>
+              <IconButton onClick={() => {this.props.onDelete(test)}}>
                 <DeleteIcon />
               </IconButton>
             </ListItemSecondaryAction>
@@ -46,7 +46,7 @@ class TestList extends Component {
               Tests
             </Typography>
             <ListItemSecondaryAction>
-              <IconButton onClick={() => {this.props.onAddTest()}}>
+              <IconButton onClick={() => {this.props.onAdd()}}>
                 <AddIcon />
               </IconButton>
             </ListItemSecondaryAction>

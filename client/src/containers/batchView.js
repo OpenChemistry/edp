@@ -23,23 +23,23 @@ class BatchViewContainer extends Component {
   }
 
   onEditBatch = () => {
-    const { experimentId, batchId } = props;
+    const { experimentId, batchId } = this.props;
     this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/edit`));
   }
 
   onAddTest = () => {
-    const { experimentId, batchId } = props;
+    const { experimentId, batchId } = this.props;
     this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/add`));
   }
 
   onOpenTest = (test) => {
-    const { experimentId, batchId } = props;
+    const { experimentId, batchId } = this.props;
     const testId = test._id;
     this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/${testId}`));
   }
 
   onDeleteTest = (test) => {
-    const { experimentId, batchId } = props;
+    const { experimentId, batchId } = this.props;
     const testId = test._id;
     this.props.dispatch(deleteTest({experimentId, batchId, testId}));
   }

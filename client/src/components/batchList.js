@@ -11,7 +11,7 @@ import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-class ExperimentList extends Component {
+class BatchList extends Component {
   render() {
 
     return (
@@ -20,7 +20,7 @@ class ExperimentList extends Component {
           <div style={{paddingBottom: '0.5rem'}}>
             <ListItem>
               <Typography variant='title'>
-                Experiments
+                Batches
               </Typography>
               <ListItemSecondaryAction>
                 <IconButton onClick={() => {this.props.onAdd()}}>
@@ -30,19 +30,19 @@ class ExperimentList extends Component {
             </ListItem>
           </div>
           <Paper>
-            {Object.values(this.props.experiments).map((experiment) => {
+            {Object.values(this.props.batches).map((batch) => {
               return (
                 <ListItem
                   button
-                  key={experiment._id}
-                  onClick={() => {this.props.onOpen(experiment)}}
+                  key={batch._id}
+                  onClick={() => {this.props.onOpen(batch)}}
                 >
                   <ListItemText
-                    primary={experiment.title}
-                    secondary={experiment.startDate}
+                    primary={batch.title}
+                    secondary={batch.startDate}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton onClick={() => {this.props.onDelete(experiment)}}>
+                    <IconButton onClick={() => {this.props.onDelete(batch)}}>
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>
@@ -56,4 +56,4 @@ class ExperimentList extends Component {
   }
 }
 
-export default ExperimentList;
+export default BatchList;
