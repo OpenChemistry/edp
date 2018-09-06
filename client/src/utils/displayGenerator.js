@@ -15,35 +15,33 @@ export function renderDisplayFields(fields, exclude = null) {
     const value = field.value;
     const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
 
-    if (type === 'checkbox') {
-      displayFields.push(
-        <div key={key} hidden={hidden}>
-          <Typography gutterBottom variant="subheading" color="textSecondary">
-            {label}
-            <Checkbox
-              disabled
-              checked={value}
-            />
-          </Typography>
-        </div>
-      )
-    } else if (type === 'file') {
-      // displayFields.push(
-      //   <div key={key}>
-      //     <Typography gutterBottom variant="subheading" color="textSecondary">
-      //       {label}
-      //     </Typography>
-      //     <Typography  paragraph color='primary' style={{cursor: 'pointer', textDecoration: 'underline'}}>
-      //       {value}
-      //     </Typography>
-      //   </div>
-      // );
-    } else {
-      let doPush = (
-        exclude.findIndex((val) => val === key) === -1 &&
-        value
-      );
-      if (doPush) {
+    let doPush = (
+      exclude.findIndex((val) => val === key) === -1 &&
+      value
+    );
+
+    if (!doPush) {
+      continue;
+    }
+
+    switch (type) {
+      case 'checkbox': {
+        displayFields.push(
+          <div key={key} hidden={hidden}>
+            <Typography gutterBottom variant="subheading" color="textSecondary">
+              {label}
+              <Checkbox
+                disabled
+                checked={value}
+              />
+            </Typography>
+          </div>
+        )
+        break;
+      }
+
+      case 'textarea':
+      case 'text': {
         displayFields.push(
           <div key={key} hidden={hidden}>
             <Typography gutterBottom variant="subheading" color="textSecondary">
@@ -54,6 +52,26 @@ export function renderDisplayFields(fields, exclude = null) {
             </Typography>
           </div>
         );
+        break;
+      }
+
+      case 'fileId': {
+        const downloadUrl = `/api/v1/file/${value}/download`;
+        displayFields.push(
+          <div key={key} hidden={hidden}>
+            <Typography gutterBottom variant="subheading" color="textSecondary">
+              {label}
+            </Typography>
+            <Typography  paragraph>
+              <a href={downloadUrl}>Download</a>
+            </Typography>
+          </div>
+        );
+        break;
+      }
+
+      default: {
+        break;
       }
     }
   }
