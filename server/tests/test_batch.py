@@ -82,6 +82,21 @@ def test_delete(server, user, experiment, batch):
     assert batch is None
 
 @pytest.mark.plugin('edp')
+def test_delete_with_test(server, user, experiment, batch, test):
+    from girder.plugins.edp.models.batch import Batch
+    from girder.plugins.edp.models.test import Test
+
+    r = server.request('/edp/experiments/%s/batches/%s' % (experiment['_id'], batch['_id']),
+                       method='DELETE', user=user)
+    assertStatusOk(r)
+
+    batch = Batch().load(batch['_id'], force=True)
+    assert batch is None
+
+    test = Test().load(test['_id'], force=True)
+    assert test is None
+
+@pytest.mark.plugin('edp')
 def test_find(server, user, experiment, batch):
     r = server.request('/edp/experiments/%s/batches' % experiment['_id'],
                        method='GET', user=user)

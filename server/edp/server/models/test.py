@@ -7,6 +7,7 @@ from girder.models.group import Group
 from girder.models.file import File
 from girder.api.rest import getCurrentUser
 
+FILE_PROPS = ['metaDataFileId', 'dataFileId']
 
 class Test(AccessControlledModel):
 
@@ -64,15 +65,14 @@ class Test(AccessControlledModel):
         }
         updates = {}
 
-        file_props = ['metaDataFileId', 'dataFileId']
         mutable_props = ['startDate', 'cellId', 'channel',
-                         'comments', 'scheduleFile', 'public'] + file_props
+                         'comments', 'scheduleFile', 'public'] + FILE_PROPS
 
         for prop in test_updates:
             if prop in mutable_props:
                 value = test_updates[prop]
                 # Check the file exists
-                if prop in file_props:
+                if prop in FILE_PROPS:
                     file = File().load(value, user=getCurrentUser(),
                                        level=AccessType.READ)
                     if file is None:
@@ -110,3 +110,11 @@ class Test(AccessControlledModel):
             for r  in cursor:
                 yield r
 
+    def remove(self, test, user):
+        super(Test, self).remove(test)
+
+        # Now remove any file we have associated with this test
+        for file_prop in FILE_PROPS:
+            if file_prop in test:
+                file = File().load(test[file_prop], level=AccessType.WRITE, user=user)
+                File().remove(file)

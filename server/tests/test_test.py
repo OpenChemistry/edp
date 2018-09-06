@@ -4,30 +4,6 @@ import json
 from pytest_girder.assertions import assertStatus, assertStatusOk
 
 
-@pytest.fixture
-def create_test_request():
-    yield {
-        'startDate': datetime.datetime.utcnow().timestamp(),
-        'cellId': 'cell',
-        'channel': '2',
-        'comments': 'comments',
-        'scheduleFile': 'schedule0123.zip',
-        'public': True
-    }
-
-@pytest.fixture
-def test(server, user, experiment, batch, create_test_request):
-    from girder.plugins.edp.models.test import Test
-
-    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
-                       method='POST', body=json.dumps(create_test_request),
-                       type='application/json', user=user)
-    assertStatus(r, 201)
-
-    yield r.json
-
-    Test().remove(r.json, force=True)
-
 @pytest.mark.plugin('edp')
 def test_create_public(server, user, batch,  create_test_request, test):
     from girder.plugins.edp.models.test import Test
@@ -61,7 +37,6 @@ def test_update(server, user, experiment, batch, make_batch,
 
     metadata_file = make_girder_file(fsAssetstore, user, 'meta')
     data_file = make_girder_file(fsAssetstore, user, 'data')
-    from girder.models.file import File
 
     updates = {
         'metaDataFileId': metadata_file['_id'],
@@ -102,6 +77,40 @@ def test_delete(server, user, experiment, batch, test):
 
     test = Test().load(test['_id'], force=True)
     assert test is None
+
+@pytest.mark.plugin('edp')
+def test_delete_with_file(server, user, experiment, batch, test, make_girder_file,
+                          fsAssetstore):
+    from girder.plugins.edp.models.test import Test
+    from girder.models.file import File
+
+    metadata_file = make_girder_file(fsAssetstore, user, 'meta')
+    data_file = make_girder_file(fsAssetstore, user, 'data')
+
+    updates = {
+        'metaDataFileId': metadata_file['_id'],
+        'dataFileId': data_file['_id'],
+        'comments': 'We now have files.'
+    }
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'], batch['_id'], test['_id']),
+                       method='PATCH', body=json.dumps({k:str(v) for (k,v) in updates.items()}),
+                       type='application/json', user=user)
+    assertStatusOk(r)
+
+    r = server.request('/edp/experiments/%s/batches/%s/tests/%s' % (experiment['_id'], batch['_id'], test['_id']),
+                        method='DELETE', user=user)
+    assertStatusOk(r)
+
+    test = Test().load(test['_id'], force=True)
+    assert test is None
+
+
+    metadata_file =  File().load(metadata_file['_id'], force=True)
+    assert metadata_file is None
+
+    data_file = File().load(data_file['_id'], force=True)
+    assert data_file is None
+
 
 @pytest.mark.plugin('edp')
 def test_find(server, user, experiment, batch,  test):
