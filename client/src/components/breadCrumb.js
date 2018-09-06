@@ -25,14 +25,27 @@ class BreadCrumb extends Component {
     return (
         <div style={style}>
           <div>
-            <HomeIcon style={linkStyle} onClick={this.props.onHomeClick}/>
+            <span  style={linkStyle}  onClick={this.props.onHomeClick}>
+              <HomeIcon/>
+            </span>
           </div>
+
+          {!this.props.experiment &&
+          <div>
+            <span  style={linkStyle}  onClick={this.props.onHomeClick}>
+            &nbsp;Experimental Data Platform
+            </span>
+          </div>
+          }
+
+          {this.props.experiment &&
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
               experiment {this.props.experiment._id.slice(-maxLen)}
             </span>
           </div>
+          }
 
           {this.props.batch &&
           <div>
