@@ -37,6 +37,17 @@
           - edp
         state: present
 
+    - name: Enable OAuth plugin
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        plugins:
+          - oauth
+        state: present
+
     - name: Create filesystem assetstore
       girder:
         host: "{{girder_host}}"
@@ -66,3 +77,38 @@
         host="{{girder_host}}"
         port="{{girder_port}}"
         delay=5
+
+    - name: Configure OAuth plugins
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "oauth.google_client_id",
+          "value": "{{ oauth_google_client_id }}"
+        }
+        - {
+          "key": "oauth.google_client_secret",
+          "value": "{{ oauth_google_client_secret }}"
+        }
+        - {
+          "key": "oauth.providers_enabled",
+          "value": ["google"]
+        }
+
+    - name: Restart the server
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        put:
+          path: "system/restart"
