@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
+import { auth } from '@openchemistry/girder-redux';
+
 import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
 import { getExperiment } from '../redux/ducks/experiments';
 import { getBatch } from '../redux/ducks/batches';
@@ -32,6 +34,10 @@ class BreadCrumbContainer extends Component {
   }
 
   render() {
+    if (!this.props.me) {
+      return null;
+    }
+
     return (
       <BreadCrumb
         {...this.props}
@@ -57,6 +63,7 @@ function mapStateToProps(state) {
   let experiment;
   let batch;
   let test;
+  let me = auth.selectors.getMe(state);
   if (mo) {
     experimentId = mo[experimentIdGroup];
     batchId = mo[batchIdGroup];
@@ -72,7 +79,8 @@ function mapStateToProps(state) {
     testId,
     experiment,
     batch,
-    test
+    test,
+    me
   }
 }
 
