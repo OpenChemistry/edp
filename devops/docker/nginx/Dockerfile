@@ -1,5 +1,6 @@
 FROM node:8.11 as build
 COPY ./client /client
+RUN npm install -g npm
 RUN cd /client && npm install && npm run build
 
 FROM nginx
