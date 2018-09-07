@@ -1,4 +1,4 @@
-import { call, put, takeEvery, takeLatest, select, all } from 'redux-saga/effects';
+import { call, put, takeEvery, select, all } from 'redux-saga/effects';
 import { isNil } from 'lodash-es';
 
 import {
@@ -140,5 +140,5 @@ function* onFetchTests(action) {
 }
 
 export function* fetchTestsSaga() {
-  yield takeLatest(FETCH_TESTS_REQUESTED, onFetchTests);
+  yield takeEvery(FETCH_TESTS_REQUESTED, onFetchTests);
 }

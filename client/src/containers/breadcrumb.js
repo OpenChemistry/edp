@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
+import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
 import { getExperiment } from '../redux/ducks/experiments';
 import { getBatch } from '../redux/ducks/batches';
 import { getTest } from '../redux/ducks/tests';
@@ -13,7 +13,7 @@ import BreadCrumb from '../components/breadCrumb';
 class BreadCrumbContainer extends Component {
 
   onHomeClick = () => {
-    this.props.dispatch(push(EXPERIMENT_LIST_ROUTE));
+    this.props.dispatch(push(ROOT_ROUTE));
   }
 
   onExperimentClick = () => {
@@ -34,9 +34,7 @@ class BreadCrumbContainer extends Component {
   render() {
     return (
       <BreadCrumb
-        experiment={this.props.experiment}
-        batch={this.props.batch}
-        test={this.props.test}
+        {...this.props}
         onHomeClick={this.onHomeClick}
         onExperimentClick={this.onExperimentClick}
         onBatchClick={this.onBatchClick}

@@ -38,55 +38,69 @@ export function renderFormFields(fields) {
     const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
     const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
 
-    if (type === 'checkbox') {
-      formFields.push(
-        <div
-          key={key}
-          hidden={hidden}
-        >
-          <Field
-            name={key}
-            component={renderCheckField}
-            label={label}
-            disabled={disabled}
+    switch (type) {
+      case 'checkbox': {
+        formFields.push(
+          <div
+            key={key}
             hidden={hidden}
-          />
-        </div>
-      );
-    } else if (type === 'file') {
-      formFields.push(
-        <div
-          key={key}
-          hidden={hidden}
-        >
-          <Field
-            type='text'
-            name={key}
-            component={FileInputField}
-            label={label}
-            disabled={disabled}
+          >
+            <Field
+              name={key}
+              component={renderCheckField}
+              label={label}
+              disabled={disabled}
+              hidden={hidden}
+            />
+          </div>
+        );
+        break;
+      }
+
+      case 'file': {
+        formFields.push(
+          <div
+            key={key}
             hidden={hidden}
-          />
-        </div>
-      );
-    } else {
-      formFields.push(
-        <div
-          key={key}
-          hidden={hidden}
-        >
-          <Field
-            type={type}
-            name={key}
-            component={renderTextField}
-            label={label}
-            multiline={multiline}
-            rows={6}
-            disabled={disabled}
+          >
+            <Field
+              type='text'
+              name={key}
+              component={FileInputField}
+              label={label}
+              disabled={disabled}
+              hidden={hidden}
+            />
+          </div>
+        );
+        break;
+      }
+
+      case 'date':
+      case 'text': {
+        formFields.push(
+          <div
+            key={key}
             hidden={hidden}
-          />
-        </div>
-      );
+          >
+            <Field
+              type={type}
+              name={key}
+              component={renderTextField}
+              label={label}
+              multiline={multiline}
+              rows={6}
+              disabled={disabled}
+              hidden={hidden}
+            />
+          </div>
+        );
+        break;
+      }
+
+      default: {
+        break;
+      }
     }
   }
   return formFields;

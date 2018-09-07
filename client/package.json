@@ -7,7 +7,7 @@
     "@material-ui/icons": "^2.0.3",
     "@material-ui/lab": "^1.0.0-alpha.6",
     "@openchemistry/girder-redux": "^0.0.3",
-    "@openchemistry/girder-ui": "^0.0.3",
+    "@openchemistry/girder-ui": "^0.0.4",
     "connected-react-router": "^4.3.0",
     "core-js": "^2.5.7",
     "lodash-es": "^4.17.10",

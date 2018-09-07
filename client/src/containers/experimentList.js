@@ -4,11 +4,16 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router'
 
 import { EXPERIMENT_VIEW_ROUTE } from '../routes';
-import { getExperiments, deleteExperiment } from '../redux/ducks/experiments';
+import { getExperiments, fetchExperiments, deleteExperiment } from '../redux/ducks/experiments';
 
 import ItemList from '../components/itemList';
 
 class ExperimentListContainer extends Component {
+
+  constructor(props) {
+    super(props);
+    props.dispatch(fetchExperiments());
+  }
   
   onAddExperiment = () => {
     this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/add`));

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import { isEmpty } from 'lodash-es';
+
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -44,6 +46,13 @@ class ItemList extends Component {
             </ListItem>
           </div>
           <Paper>
+            { isEmpty(items) &&
+            <ListItem>
+              <Typography align='center' variant='subheading' color="textSecondary">
+                There are no {title.toLowerCase()} yet. Click the <b>+</b> button above to add some
+              </Typography>
+            </ListItem>
+            }
             {Object.values(items).map((item) => {
               return (
                 <ListItem

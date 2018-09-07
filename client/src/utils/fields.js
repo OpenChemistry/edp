@@ -62,12 +62,14 @@ export function createBatchFields(batch) {
       type: 'textarea',
       value: batch ? batch.experimentalNotes : '',
       error: '',
+      validate: [required]
     },
     'dataNotes': {
       label: 'Data notes',
       type: 'textarea',
       value: batch ? batch.dataNotes : '',
       error: '',
+      validate: [required]
     },
     'completed': {
       label: 'Completed',
@@ -134,7 +136,19 @@ export function createTestFields(test = undefined) {
       type: 'textarea',
       value: test ? test.comments : '',
       error: ''
-    }
+    },
+    'metaDataFileId' : {
+      label: 'Metadata file',
+      type: 'fileId',
+      value: test ? test.metaDataFileId : null,
+      error: ''
+    },
+    'dataFileId' : {
+      label: 'Data file',
+      type: 'fileId',
+      value: test ? test.dataFileId : null,
+      error: ''
+    },
   }
   return fields;
 }
