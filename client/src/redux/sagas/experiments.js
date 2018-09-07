@@ -22,7 +22,7 @@ import {
   deleteExperiment as deleteExperimentRest,
 } from '../../rest/experiments';
 
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 // Create experiment
 
@@ -105,5 +105,5 @@ function* onFetchExperiments(action) {
 }
 
 export function* fetchExperimentsSaga() {
-  yield takeLatest(FETCH_EXPERIMENTS_REQUESTED, onFetchExperiments);
+  yield takeEvery(FETCH_EXPERIMENTS_REQUESTED, onFetchExperiments);
 }

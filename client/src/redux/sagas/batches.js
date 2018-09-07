@@ -14,7 +14,7 @@ import {
   deleteBatch as deleteBatchRest
 } from '../../rest/batches';
 
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 // Create batch
 
@@ -98,5 +98,5 @@ function* onFetchBatches(action) {
 }
 
 export function* fetchBatchesSaga() {
-  yield takeLatest(FETCH_BATCHES_REQUESTED, onFetchBatches);
+  yield takeEvery(FETCH_BATCHES_REQUESTED, onFetchBatches);
 }

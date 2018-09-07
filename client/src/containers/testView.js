@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { push } from 'connected-react-router'
 import { EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
-import { getTest } from '../redux/ducks/tests';
+import { getTest, fetchTest } from '../redux/ducks/tests';
 import { getBatch } from '../redux/ducks/batches';
 import { getExperiment } from '../redux/ducks/experiments';
 
@@ -14,6 +14,12 @@ import NotFoundPage from '../components/notFound.js';
 import { createTestFields } from '../utils/fields';
 
 class TestViewContainer extends Component {
+
+  constructor(props) {
+    super(props);
+    const { experimentId, batchId, testId } = props;
+    props.dispatch(fetchTest({experimentId, batchId, testId}));
+  }
 
   onEditTest = () => {
     const { experimentId, batchId, testId } = this.props;
@@ -48,10 +54,6 @@ function mapStateToProps(state, ownProps) {
   let experiment = getExperiment(state, experimentId);
   let batch = getBatch(state, batchId);
   let test = getTest(state, testId);
-
-  if (!experiment || !batch) {
-    test = null;
-  }
 
   return {
     experimentId,

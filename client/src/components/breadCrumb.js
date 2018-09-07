@@ -18,7 +18,7 @@ const style = {
 
 class BreadCrumb extends Component {
   render() {
-    if (!this.props.experiment) {
+    if (!this.props.experimentId) {
       return null;
     }
     const maxLen = 6;
@@ -30,7 +30,7 @@ class BreadCrumb extends Component {
             </span>
           </div>
 
-          {!this.props.experiment &&
+          {!this.props.experimentId &&
           <div>
             <span  style={linkStyle}  onClick={this.props.onHomeClick}>
             &nbsp;Experimental Data Platform
@@ -38,29 +38,29 @@ class BreadCrumb extends Component {
           </div>
           }
 
-          {this.props.experiment &&
+          {this.props.experimentId &&
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
-              experiment {this.props.experiment._id.slice(-maxLen)}
+              experiment {this.props.experimentId.slice(-maxLen)}
             </span>
           </div>
           }
 
-          {this.props.batch &&
+          {this.props.batchId &&
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onBatchClick}>
-              batch {this.props.batch._id.slice(-maxLen)}
+              batch {this.props.batchId.slice(-maxLen)}
             </span>
           </div>
           }
 
-          {this.props.test &&
+          {this.props.testId &&
           <div>
             &nbsp;&nbsp;/&nbsp;&nbsp;
             <span  style={linkStyle}  onClick={this.props.onTestClick}>
-              test {this.props.test._id.slice(-maxLen)}
+              test {this.props.testId.slice(-maxLen)}
             </span>
           </div>
           }

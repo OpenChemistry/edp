@@ -19,10 +19,8 @@ class ExperimentViewContainer extends Component {
   constructor(props) {
     super(props);
     const { experimentId } = props;
-    if (experimentId) {
-      props.dispatch(fetchExperiment({experimentId}));
-      props.dispatch(fetchBatches({experimentId}));
-    }
+    props.dispatch(fetchExperiment({experimentId}));
+    props.dispatch(fetchBatches({experimentId}));
   }
 
   onEditExperiment = () => {
