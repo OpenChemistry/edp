@@ -61,6 +61,26 @@
           root: "/assetstore"
           current: true
         state: present
+      when: s3_bucket is not defined
+
+    - name: Create S3 assetstore
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        assetstore:
+          name: "S3 Assetstore"
+          type: "s3"
+          bucket: "{{ s3_bucket }}"
+          service: ""
+          region: "{{ s3_region }}"
+          prefix: "assetstore"
+          inferCredentials: true
+          current: true
+        state: present
+      when: s3_bucket is defined
 
     - name: Restart the server
       girder:
