@@ -27,6 +27,10 @@ import { EXPERIMENT_LIST_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE, BATCH_VI
 
 class App extends Component {
   render() {
+    let development = false;
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+      development = true;
+    }
     return (
       <div className="App">
         <CssBaseline />
@@ -51,7 +55,7 @@ class App extends Component {
             </Switch>
           </div>
         </ConnectedRouter>
-        <authUI.LoginOptions/>
+        <authUI.LoginOptions girder={development}/>
         <authUI.GirderLogin/>
         <authUI.OauthRedirect/>
       </div>
