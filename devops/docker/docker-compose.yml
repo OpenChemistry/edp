@@ -26,7 +26,7 @@ services:
       context: ../../
       dockerfile: devops/docker/nginx/Dockerfile
     ports:
-      - 8081:80
+      - 80:80
     links:
       - girder
     depends_on:
