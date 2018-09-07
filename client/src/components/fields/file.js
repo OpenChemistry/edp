@@ -35,15 +35,19 @@ const style = (theme) => (
 class FileInputField extends Component {
   
   fileInput;
+  fraction = 0;
 
   render = () => {
     const { total, progress, classes, input, label, disabled } = this.props;
 
-    const complete = !isNil(total) && !isNil(progress) && total === progress;
+    if (!isNil(progress) && !isNil(total)) {
+      this.fraction = progress / total;
+    }
+
     const file = input.value;
     const name = file !== '' ? file.name : '';
     const size = file !== '' ? filesize(file.size) : '';
-    const showProgress = progress > 0;
+    const showProgress = this.fraction > 0;
 
     return (
       <div
@@ -67,7 +71,7 @@ class FileInputField extends Component {
           <LinearProgress
             hidden={!showProgress}
             variant="determinate"
-            value={complete ? 0 : 100 * progress / total}
+            value={100 * this.fraction}
           />
         </div>
 
