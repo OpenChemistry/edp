@@ -63,7 +63,7 @@ export function renderDisplayFields(fields, exclude = null) {
               {label}
             </Typography>
             <Typography  paragraph>
-              <a href={downloadUrl}>Download</a>
+              <a href={downloadUrl} download>Download</a>
             </Typography>
           </div>
         );
