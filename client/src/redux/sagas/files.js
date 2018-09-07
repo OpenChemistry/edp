@@ -10,6 +10,7 @@ import { auth } from '@openchemistry/girder-redux';
 
 import { requestUpload, uploadProgress,
   receiveRootFolder, REQUEST_ROOT_FOLDER,
+  uploadComplete
 } from '../ducks/files';
 
 import {
@@ -57,7 +58,7 @@ export function* uploadFile(file, folderId, id=null) {
 
   yield put( requestUpload(uploadModel['_id'], file));
   const fileModel = yield call(uploadFileContent, uploadModel['_id'], file);
-  //yield put( uploadComplete(uploadModel['_id']) );
+  yield put( uploadComplete(uploadModel['_id']) );
 
   return fileModel;
 }

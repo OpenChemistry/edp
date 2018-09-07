@@ -14,8 +14,8 @@ export const getRootFolder = state => state.files.rootFolder;
 export const getUploadByFile = (state, file) => {
   const fileToId = state.files.fileToId;
   const byId = state.files.byId;
-  if (has(fileToId, file.id)) {
-    const id = fileToId[file.id];
+  if (has(fileToId, file.name)) {
+    const id = fileToId[file.name];
     if (has(byId, id)) {
       return byId[id];
     }
@@ -77,8 +77,7 @@ const reducer = handleActions({
 
       const fileToId = {
           ...state.fileToId,
-          [file.id]: id,
-          newDataSet: null,
+          [file.name]: id
       }
 
       return {...state, byId, fileToId};
