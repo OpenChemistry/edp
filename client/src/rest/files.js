@@ -40,10 +40,10 @@ export function createFile(parentId, parentType, name, size, mimeType='applicati
   .then(response => response.data );
 }
 
-export function updateFile(id, size) {
-  return girderClient().put(`file/${id}/contents`, {},  {
+export function updateFile(id, name) {
+  return girderClient().put(`file/${id}`, {},  {
     params: {
-      size,
+      name
     }
   })
   .then(response => response.data )
@@ -53,7 +53,7 @@ export function updateFileContent(id, size) {
 
   return girderClient().put(`file/${id}/contents`, null,  {
     params: {
-      size,
+      size
     }
   })
   .then(response => response.data );
