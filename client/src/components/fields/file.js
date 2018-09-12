@@ -11,6 +11,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { getUploadByFile } from '../../redux/ducks/files';
 import filesize from 'filesize';
+import uuid4 from 'uuid/v4';
 
 const style = (theme) => (
   {
@@ -36,6 +37,14 @@ class FileInputField extends Component {
   
   fileInput;
   fraction = 0;
+  id;
+
+  constructor(props) {
+    super(props);
+    // random id associated to the file field,
+    // useful to store progress in the redux store
+    this.id = uuid4();
+  }
 
   render = () => {
     const { total, progress, classes, input, label, disabled } = this.props;
@@ -89,7 +98,11 @@ class FileInputField extends Component {
             ref={ref => {this.fileInput = ref;}}
             type="file"
             hidden
-            onChange={(e) => input.onChange(e.target.files[0])}
+            onChange={(e) => {
+              let file = e.target.files[0];
+              file.fieldId = this.id;
+              return input.onChange(file);
+            }}
           />
         </Button>
       </div>

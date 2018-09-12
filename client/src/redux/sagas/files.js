@@ -18,6 +18,7 @@ import {
   createFolder,
   createFile,
   updateFile,
+  updateFileContent,
   uploadFileChunk
 } from '../../rest/files';
 
@@ -53,7 +54,8 @@ export function* uploadFile(file, folderId, id=null) {
     uploadModel = yield call(createFile, folderId, 'folder',
       file.name, file.size);
   } else {
-    uploadModel = yield call(updateFile, id, file.size);
+    uploadModel = yield call(updateFile, id, file.name);
+    uploadModel = yield call(updateFileContent, id, file.size);
   }
 
   yield put( requestUpload(uploadModel['_id'], file));
