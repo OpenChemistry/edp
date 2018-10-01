@@ -8,10 +8,10 @@ from girder.models.group import Group
 from girder.plugins.edp.models.batch import Batch
 
 
-class Experiment(AccessControlledModel):
+class Project(AccessControlledModel):
 
     def initialize(self):
-        self.name = 'edp.experiments'
+        self.name = 'edp.projects'
         self.ensureIndices(('title'))
         self.ensureTextIndex({
             'title': 1,
@@ -21,45 +21,45 @@ class Experiment(AccessControlledModel):
         self.exposeFields(level=AccessType.READ, fields=(
             '_id', 'startDate', 'title', 'objective', 'public'))
 
-    def validate(self, experiment):
+    def validate(self, project):
 
-        return experiment
+        return project
 
     def create(self, start_date, title, objective, user, public=False):
 
-        experiment = {
+        project = {
             'startDate': start_date,
             'title': title,
             'objective': objective,
             'owner': user['_id']
         }
 
-        self.setPublic(experiment, public=public)
-        self.setUserAccess(experiment, user=user, level=AccessType.ADMIN)
+        self.setPublic(project, public=public)
+        self.setUserAccess(project, user=user, level=AccessType.ADMIN)
 
-        return self.save(experiment)
+        return self.save(project)
 
-    def update(self, experiment, experiment_updates, user):
+    def update(self, project, project_updates, user):
 
         query = {
-            '_id': experiment['_id']
+            '_id': project['_id']
         }
         updates = {}
 
         mutable_props = ['startDate', 'title', 'objective', 'public']
 
-        for prop in experiment_updates:
+        for prop in project_updates:
             if prop in mutable_props:
-                updates.setdefault('$set', {})[prop] = experiment_updates[prop]
+                updates.setdefault('$set', {})[prop] = project_updates[prop]
 
         if updates:
-            update_result = super(Experiment, self).update(query, update=updates, multi=False)
+            update_result = super(Project, self).update(query, update=updates, multi=False)
             if update_result.matched_count == 0:
-                raise ValidationException('Invalid experiment id (%)' % experiment['_id'])
+                raise ValidationException('Invalid project id (%)' % project['_id'])
 
-            return self.load(experiment['_id'], user=user, level=AccessType.READ)
+            return self.load(project['_id'], user=user, level=AccessType.READ)
 
-        return experiment
+        return project
 
     def find(self, owner=None, force=False, offset=0, limit=None, sort=None,
              user=None):
@@ -68,7 +68,7 @@ class Experiment(AccessControlledModel):
         if owner is not None:
             query['owner'] = ObjectId(owner)
 
-        cursor = super(Experiment, self).find(query=query, offset=offset,
+        cursor = super(Project, self).find(query=query, offset=offset,
                                               sort=sort, user=user)
 
         if not force:
@@ -80,11 +80,11 @@ class Experiment(AccessControlledModel):
             for r  in cursor:
                 yield r
 
-    def remove(self, experiment, user=None, force=False):
-        super(Experiment, self).remove(experiment)
+    def remove(self, project, user=None, force=False):
+        super(Project, self).remove(project)
 
-        for batch in Batch().find(experiment, force=True):
+        for batch in Batch().find(project, force=True):
             if not force and not self.hasAccess(batch, user=user, level=AccessType.WRITE):
-                raise ValidationException('Unable to remove batch associated with experiment.')
+                raise ValidationException('Unable to remove batch associated with project.')
 
             Batch().remove(batch, user)

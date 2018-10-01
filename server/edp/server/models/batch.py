@@ -25,15 +25,15 @@ class Batch(AccessControlledModel):
             '_id', 'startDate', 'title', 'motivation', 'experimentalDesign',
             'experimentalNotes', 'dataNotes', 'completed', 'public'))
 
-    def validate(self, experiment):
+    def validate(self, project):
 
-        return experiment
+        return project
 
-    def create(self, experiment, start_date, title, motivation, experimental_design,
+    def create(self, project, start_date, title, motivation, experimental_design,
                experimental_notes, data_notes, completed, user, public=False):
 
-        experiment = {
-            'experimentId': experiment['_id'],
+        project = {
+            'projectId': project['_id'],
             'startDate': start_date,
             'title': title,
             'motivation': motivation,
@@ -44,10 +44,10 @@ class Batch(AccessControlledModel):
             'owner': user['_id']
         }
 
-        self.setPublic(experiment, public=public)
-        self.setUserAccess(experiment, user=user, level=AccessType.ADMIN)
+        self.setPublic(project, public=public)
+        self.setUserAccess(project, user=user, level=AccessType.ADMIN)
 
-        return self.save(experiment)
+        return self.save(project)
 
     def update(self, batch, batch_updates, user):
 
@@ -72,15 +72,15 @@ class Batch(AccessControlledModel):
 
         return batch
 
-    def find(self, experiment=None, owner=None, force=False, offset=0, limit=None,
+    def find(self, project=None, owner=None, force=False, offset=0, limit=None,
              sort=None, user=None):
         query = {}
 
         if owner is not None:
             query['owner'] = ObjectId(owner)
 
-        if experiment is not None:
-            query['experimentId'] = experiment['_id']
+        if project is not None:
+            query['projectId'] = project['_id']
 
         cursor = super(Batch, self).find(query=query, offset=offset,
                                               sort=sort, user=user)

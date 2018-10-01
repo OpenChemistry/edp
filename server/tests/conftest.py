@@ -10,7 +10,7 @@ from girder.models.folder import Folder
 
 
 @pytest.fixture
-def experiment_request():
+def project_request():
     yield {
         'startDate': datetime.datetime.utcnow().timestamp(),
         'title': 'title',
@@ -19,29 +19,29 @@ def experiment_request():
     }
 
 @pytest.fixture
-def make_experiment(server):
-    from girder.plugins.edp.models.experiment import Experiment
-    experiments = []
+def make_project(server):
+    from girder.plugins.edp.models.project import Project
+    projects = []
 
-    def _make_experiment(user, request):
-        r = server.request('/edp/experiments', method='POST', body=json.dumps(request),
+    def _make_project(user, request):
+        r = server.request('/edp/projects', method='POST', body=json.dumps(request),
                            type='application/json', user=user)
         assertStatus(r, 201)
-        experiments.append(r.json)
+        projects.append(r.json)
 
         return  r.json
 
-    yield _make_experiment
+    yield _make_project
 
-    for experiment in experiments:
-        Experiment().remove(experiment)
+    for project in projects:
+        Project().remove(project)
 
 
 @pytest.fixture
-def experiment(make_experiment, user, experiment_request):
-    from girder.plugins.edp.models.experiment import Experiment
+def project(make_project, user, project_request):
+    from girder.plugins.edp.models.project import Project
 
-    yield make_experiment(user, experiment_request)
+    yield make_project(user, project_request)
 
 
 @pytest.fixture
@@ -86,8 +86,8 @@ def make_batch(server):
     from girder.plugins.edp.models.batch import Batch
     batches = []
 
-    def _make_batch(user, experiment, request):
-        r = server.request('/edp/experiments/%s/batches' % experiment['_id'], method='POST', body=json.dumps(request),
+    def _make_batch(user, project, request):
+        r = server.request('/edp/projects/%s/batches' % project['_id'], method='POST', body=json.dumps(request),
                            type='application/json', user=user)
         assertStatus(r, 201)
         batches.append(r.json)
@@ -100,9 +100,9 @@ def make_batch(server):
         Batch().remove(batch, force=True)
 
 @pytest.fixture
-def batch(experiment, make_batch, batch_request, user):
+def batch(project, make_batch, batch_request, user):
 
-    yield make_batch(user, experiment, batch_request)
+    yield make_batch(user, project, batch_request)
 
 @pytest.fixture
 def create_test_request():
@@ -116,10 +116,10 @@ def create_test_request():
     }
 
 @pytest.fixture
-def test(server, user, experiment, batch, create_test_request):
+def test(server, user, project, batch, create_test_request):
     from girder.plugins.edp.models.test import Test
 
-    r = server.request('/edp/experiments/%s/batches/%s/tests' % (experiment['_id'], batch['_id']),
+    r = server.request('/edp/projects/%s/batches/%s/tests' % (project['_id'], batch['_id']),
                        method='POST', body=json.dumps(create_test_request),
                        type='application/json', user=user)
     assertStatus(r, 201)

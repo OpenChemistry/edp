@@ -1,6 +1,6 @@
 from girder.api.rest import Prefix
-from .experiment import Experiment
+from .project import Project
 
 def load(info):
     info['apiRoot'].edp = Prefix()
-    info['apiRoot'].edp.experiments = Experiment()
+    info['apiRoot'].edp.projects = Project()
