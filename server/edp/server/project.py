@@ -10,28 +10,40 @@ from . import test
 from . import batch
 from girder.plugins.edp.models.project import Project as ProjectModel
 
+class Route(object):
+
+    def __init__(self, resource, route):
+        self.resource = resource
+        self.route = route
+
+    def add_child_route(self, name, id_name, resource):
+        self.resource.route('POST', self.route + (name,), resource.create)
+        self.resource.route('GET',  self.route + (name,), resource.find)
+        id_route = self.route + (name, ':%s' % id_name)
+        self.resource.route('GET', id_route, resource.get)
+        self.resource.route('PATCH', id_route, resource.update)
+        self.resource.route('DELETE', id_route, resource.delete)
+
+        return Route(self.resource, id_route)
 
 class Project(Resource):
 
     def __init__(self):
         super(Project, self).__init__()
-        self.route('POST', (), self.create)
-        self.route('GET', (), self.find)
-        self.route('GET', (':projectId',), self.get)
-        self.route('PATCH', (':projectId',), self.update)
-        self.route('DELETE', (':projectId',), self.delete)
+        project_route = self.add_route('projectId', self)
+        batch_route = project_route.add_child_route('batches', 'batchId', batch)
+        batch_route.add_child_route('tests', 'testId', test)
 
-        self.route('POST', (':projectId', 'batches'), batch.create)
-        self.route('GET', (':projectId', 'batches'), batch.find)
-        self.route('GET', (':projectId', 'batches', ':batchId'), batch.get)
-        self.route('PATCH', (':projectId', 'batches', ':batchId'), batch.update)
-        self.route('DELETE', (':projectId', 'batches', ':batchId'), batch.delete)
 
-        self.route('POST', (':projectId', 'batches', ':batchId', 'tests'), test.create)
-        self.route('GET', (':projectId', 'batches', ':batchId', 'tests'), test.find)
-        self.route('GET', (':projectId', 'batches', ':batchId', 'tests', ':testId'), test.get)
-        self.route('PATCH', (':projectId', 'batches', ':batchId', 'tests', ':testId'), test.update)
-        self.route('DELETE', (':projectId', 'batches', ':batchId', 'tests', ':testId'), test.delete)
+    def add_route(self, id_name, resource):
+        self.route('POST', (), resource.create)
+        self.route('GET', (), resource.find)
+        id_route = (':%s' % id_name,)
+        self.route('GET', id_route, resource.get)
+        self.route('PATCH', id_route, resource.update)
+        self.route('DELETE', id_route, resource.delete)
+
+        return Route(self, id_route)
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
