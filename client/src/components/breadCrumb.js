@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import HomeIcon from '@material-ui/icons/Home';
+import { NODES } from '../utils/nodes';
 
 const linkStyle = {
   // textDecoration: 'underline',
@@ -18,52 +19,38 @@ const style = {
 
 class BreadCrumb extends Component {
   render() {
-    if (!this.props.experimentId) {
+    const {ancestors, onSegmentClick} = this.props;
+
+    if (ancestors.length === 0) {
       return null;
     }
+
     const maxLen = 6;
+
+    const segments = [];
+    segments.push(
+      <div key='home'>
+        <span  style={linkStyle} onClick={() => {onSegmentClick(-1)}}>
+          <HomeIcon/>
+        </span>
+      </div>
+    );
+
+    for (let i = 0; i < ancestors.length; ++i) {
+      let ancestor = ancestors[i];
+      segments.push(
+        <div>
+          &nbsp;&nbsp;/&nbsp;&nbsp;
+          <span  style={linkStyle} onClick={() => {onSegmentClick(i)}}>
+            {NODES[ancestor.type].label} {ancestor._id.slice(-maxLen)}
+          </span>
+        </div>
+      );
+    }
+
     return (
         <div style={style}>
-          <div>
-            <span  style={linkStyle}  onClick={this.props.onHomeClick}>
-              <HomeIcon/>
-            </span>
-          </div>
-
-          {!this.props.experimentId &&
-          <div>
-            <span  style={linkStyle}  onClick={this.props.onHomeClick}>
-            &nbsp;Experimental Data Platform
-            </span>
-          </div>
-          }
-
-          {this.props.experimentId &&
-          <div>
-            &nbsp;&nbsp;/&nbsp;&nbsp;
-            <span  style={linkStyle}  onClick={this.props.onExperimentClick}>
-              experiment {this.props.experimentId.slice(-maxLen)}
-            </span>
-          </div>
-          }
-
-          {this.props.batchId &&
-          <div>
-            &nbsp;&nbsp;/&nbsp;&nbsp;
-            <span  style={linkStyle}  onClick={this.props.onBatchClick}>
-              batch {this.props.batchId.slice(-maxLen)}
-            </span>
-          </div>
-          }
-
-          {this.props.testId &&
-          <div>
-            &nbsp;&nbsp;/&nbsp;&nbsp;
-            <span  style={linkStyle}  onClick={this.props.onTestClick}>
-              test {this.props.testId.slice(-maxLen)}
-            </span>
-          </div>
-          }
+          {segments}
       </div>
     );
   }

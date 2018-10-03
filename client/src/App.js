@@ -10,22 +10,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { history } from './redux/store';
 import PrivateRoute from './containers/privateRoute';
 
-import ExperimentList from './containers/experimentList';
-import ExperimentView from './containers/experimentView';
-import ExperimentEdit from './containers/experimentEdit';
-
-import BatchView from './containers/batchView';
-import BatchEdit from './containers/batchEdit';
-
-import TestView from './containers/testView';
-import TestEdit from './containers/testEdit';
-
 import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
 
 import { auth as authUI } from '@openchemistry/girder-ui';
 
-import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, TEST_VIEW_ROUTE, BATCH_VIEW_ROUTE } from './routes';
+import { ROOT_ROUTE } from './routes';
+import ItemView from './containers/itemView';
+import ItemEdit from './containers/itemEdit';
 
 class App extends Component {
   render() {
@@ -41,19 +33,23 @@ class App extends Component {
           <div className="content">
             <BreadCrumb/>
             <Switch>
-              <PrivateRoute path={ROOT_ROUTE} exact component={ExperimentList} />
+              <PrivateRoute path={'/:url0/:action(add)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:action(edit)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0'} exact component={ItemView} />
 
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:action(add)`} exact component={ExperimentEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/:action(edit)`} exact component={ExperimentEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId`} exact component={ExperimentView} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:action(add)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(edit)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
 
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:action(add)`} exact component={BatchEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:batchId/:action(edit)`} exact component={BatchEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:batchId`} exact component={BatchView} />
-              
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:batchId/${TEST_VIEW_ROUTE}/:action(add)`} exact component={TestEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:batchId/${TEST_VIEW_ROUTE}/:testId/:action(edit)`} exact component={TestEdit} />
-              <PrivateRoute path={`/${EXPERIMENT_VIEW_ROUTE}/:experimentId/${BATCH_VIEW_ROUTE}/:batchId/${TEST_VIEW_ROUTE}/:testId`} exact component={TestView} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:action(add)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:action(edit)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
+
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:action(add)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3/:action(edit)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
+
+              <PrivateRoute path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
           </div>
         </ConnectedRouter>

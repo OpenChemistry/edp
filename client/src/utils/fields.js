@@ -1,5 +1,31 @@
 import { required } from './formValidation';
 
+import {
+  EXPERIMENT_NODE,
+  BATCH_NODE,
+  TEST0_NODE
+} from './nodes';
+
+export function createFieldsFactory(nodeType) {
+  switch (nodeType) {
+    case EXPERIMENT_NODE : {
+      return createExperimentFields;
+    }
+
+    case BATCH_NODE : {
+      return createBatchFields
+    }
+
+    case TEST0_NODE : {
+      return createTestFields;
+    }
+
+    default : {
+      return () => ({});
+    }
+  }
+}
+
 export function createExperimentFields(experiment) {
   let fields = {
     'startDate' : {

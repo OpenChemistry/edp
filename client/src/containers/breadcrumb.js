@@ -6,13 +6,23 @@ import { push } from 'connected-react-router';
 import { auth } from '@openchemistry/girder-redux';
 
 import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
-import { getExperiment } from '../redux/ducks/experiments';
-import { getBatch } from '../redux/ducks/batches';
-import { getTest } from '../redux/ducks/tests';
 
 import BreadCrumb from '../components/breadCrumb';
+import { parseUrl, makeUrl } from '../utils/nodes';
 
 class BreadCrumbContainer extends Component {
+
+  onSegmentClick = (index) => {
+    const { ancestors, dispatch } = this.props;
+    if (index === -1) {
+      dispatch(push(ROOT_ROUTE));
+      return;
+    }
+    const ancestors_ = ancestors.slice(0, index);
+    const item = ancestors[index];
+    const url = makeUrl(ancestors_, item);
+    dispatch(push(url));
+  }
 
   onHomeClick = () => {
     this.props.dispatch(push(ROOT_ROUTE));
@@ -41,46 +51,19 @@ class BreadCrumbContainer extends Component {
     return (
       <BreadCrumb
         {...this.props}
-        onHomeClick={this.onHomeClick}
-        onExperimentClick={this.onExperimentClick}
-        onBatchClick={this.onBatchClick}
-        onTestClick={this.onTestClick}
+        onSegmentClick={this.onSegmentClick}
       />
     );
   }
 }
 
 function mapStateToProps(state) {
-  let experimentIdGroup = 3;
-  let batchIdGroup = 6;
-  let testIdGroup = 9;
-  let regexStr = `((${EXPERIMENT_VIEW_ROUTE})\\/(\\w+))(\\/(${BATCH_VIEW_ROUTE})\\/(\\w+))?(\\/(${TEST_VIEW_ROUTE})\\/(\\w+))?`;
-  let regex = new RegExp(regexStr);
-  let mo = state.router.location.pathname.match(regex);
-  let experimentId;
-  let batchId;
-  let testId;
-  let experiment;
-  let batch;
-  let test;
-  let me = auth.selectors.getMe(state);
-  if (mo) {
-    experimentId = mo[experimentIdGroup];
-    batchId = mo[batchIdGroup];
-    testId = mo[testIdGroup];
-    experiment = getExperiment(state, experimentId);
-    batch = getBatch(state, batchId);
-    test = getTest(state, testId);
-  }
-  
+  const me = auth.selectors.getMe(state);
+  const ancestors = parseUrl(state.router.location.pathname);
+
   return {
-    experimentId,
-    batchId,
-    testId,
-    experiment,
-    batch,
-    test,
-    me
+    me,
+    ancestors
   }
 }
 
