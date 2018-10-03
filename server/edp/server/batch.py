@@ -24,18 +24,15 @@ def create(self, project, batch):
     self.requireParams(['startDate', 'title', 'motivation', 'experimentalDesign',
                         'experimentalNotes', 'dataNotes'], batch)
 
-    start_date = batch.get('startDate')
-    title = batch.get('title')
-    motivation = batch.get('motivation')
-    experimental_design = batch.get('experimentalDesign')
-    experimental_notes = batch.get('experimentalNotes')
-    data_notes = batch.get('dataNotes')
-    completed = batch.get('completed', False)
-    public = batch.get('public', False)
+    args = {}
+    for prop in BatchModel().create_props:
+        args[prop['name']] = batch.get(prop['name'], prop.get('default'))
 
-    batch = BatchModel().create(project, start_date, title,
-        motivation, experimental_design, experimental_notes,
-        data_notes, completed, self.getCurrentUser(), public)
+    args['public'] = batch.get('public', False)
+    args['user'] = self.getCurrentUser()
+    args['projectId'] = project['_id']
+
+    batch = BatchModel().create(**args)
 
     cherrypy.response.status = 201
     cherrypy.response.headers['Location'] = '/projects/%s/batches/%s' % (project['_id'], batch['_id'])
@@ -52,7 +49,7 @@ def create(self, project, batch):
     .param('owner', 'The owner to return projects for.', required=False)
 )
 def find(self, project, owner=None, offset=0, limit=None, sort=None):
-    return list(BatchModel().find(project=project,
+    return list(BatchModel().find(parent=project,
         owner=owner, offset=offset, limit=limit, sort=sort,
         user=self.getCurrentUser()))
 
@@ -89,7 +86,7 @@ def update(self, project, batch, updates):
     if batch['projectId'] != project['_id']:
         raise RestException('Invalid project or batch id (%s, %s).' % (project['_id'], batch['_id']))
 
-    batch = BatchModel().update(batch, updates, self.getCurrentUser())
+    batch = BatchModel().update(batch, updates, self.getCurrentUser(), parent=project)
     return batch
 
 @boundHandler

@@ -29,18 +29,15 @@ def create(self, project, batch, test):
 
     self.requireParams(['cellId', 'channel'], test)
 
-    start_date = test.get('startDate')
-    cell_id = test.get('cellId')
-    channel = test.get('channel')
-    comments = test.get('comments')
-    schedule_file = test.get('scheduleFile')
-    meta_data_file_id = test.get('metaDataFileId', None)
-    data_file_id = test.get('dataFileId', None)
-    public = test.get('public', False)
+    args = {}
+    for prop in TestModel().create_props:
+        args[prop['name']] = test.get(prop['name'], prop.get('default'))
 
-    test = TestModel().create(batch, start_date, cell_id,
-        channel, comments, schedule_file, meta_data_file_id, data_file_id,
-        self.getCurrentUser(), public)
+    args['public'] = test.get('public', False)
+    args['user'] = self.getCurrentUser()
+    args['batchId'] = batch['_id']
+
+    test = TestModel().create(**args)
 
     cherrypy.response.status = 201
     cherrypy.response.headers['Location'] = '/projects/%s/batches/%s/tests/%s' % (project['_id'], batch['_id'],  test['_id'])
@@ -102,7 +99,7 @@ def update(self, project, batch, test, updates):
     if test['batchId'] != batch['_id']:
         raise RestException('Invalid batch or test id (%s, %s).' % (batch['_id'], test['_id']))
 
-    test = TestModel().update(batch, test, updates, self.getCurrentUser())
+    test = TestModel().update(test, updates, self.getCurrentUser(), parent=batch)
     return test
 
 @boundHandler
