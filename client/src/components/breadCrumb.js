@@ -39,7 +39,7 @@ class BreadCrumb extends Component {
     for (let i = 0; i < ancestors.length; ++i) {
       let ancestor = ancestors[i];
       segments.push(
-        <div>
+        <div key={i}>
           &nbsp;&nbsp;/&nbsp;&nbsp;
           <span  style={linkStyle} onClick={() => {onSegmentClick(i)}}>
             {NODES[ancestor.type].label} {ancestor._id.slice(-maxLen)}

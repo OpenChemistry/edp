@@ -1,10 +1,8 @@
-
-
 import { girderClient } from '@openchemistry/girder-redux';
 
 import { makeUrl } from '../utils/nodes';
 
-const prefix = 'edp/';
+const prefix = 'edp';
 
 export function getItems(ancestors, item) {
   const url = makeUrl(ancestors, item, prefix);

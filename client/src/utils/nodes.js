@@ -1,13 +1,11 @@
 import { has, isNil } from 'lodash-es';
 
 export const PROJECT_NODE = 'PROJECT_NODE';
-export const DISCHARGE_NODE = 'DISCHARGE_NODE';
-export const DISSECT_NODE = 'DISECT_NODE';
+export const CYCLE_NODE = 'CYCLE_NODE';
+export const POSTMORTEM_NODE = 'POSTMORTEM_NODE';
 export const BATCH_NODE = 'BATCH_NODE';
 export const TEST0_NODE = 'TEST0_NODE';
 export const TEST1_NODE = 'TEST1_NODE';
-
-export const EXPERIMENT_NODE = 'EXPERIMENT_NODE';
 
 export const ROOT_NODE = 'ROOT_NODE';
 
@@ -15,27 +13,19 @@ export const NODES = {
   [ROOT_NODE] : {
     label: '',
     url: '',
-    children: [EXPERIMENT_NODE],
-  },
-  [EXPERIMENT_NODE] : {
-    label: 'Experiment',
-    url: 'experiments',
-    children: [BATCH_NODE, DISSECT_NODE],
-    parentId: null,
-    primaryField: 'title',
-    secondaryField: 'startDate'
+    children: [PROJECT_NODE],
   },
   [PROJECT_NODE] : {
     label: 'Project',
     url: 'projects',
-    children: [DISCHARGE_NODE, DISSECT_NODE],
+    children: [CYCLE_NODE, POSTMORTEM_NODE],
     parentId: null,
     primaryField: 'title',
     secondaryField: 'startDate',
   },
-  [DISCHARGE_NODE] : {
-    label: 'Discharge',
-    url: 'discharges',
+  [CYCLE_NODE] : {
+    label: 'Cycle',
+    url: 'cycles',
     children: [BATCH_NODE],
     parentId: 'projectId',
     primaryField: 'title',
@@ -45,7 +35,7 @@ export const NODES = {
     label: 'Batch',
     url: 'batches',
     children: [TEST0_NODE],
-    parentId: 'experimentId',
+    parentId: 'cycleId',
     primaryField: 'title',
     secondaryField: 'startDate',
   },
@@ -59,31 +49,41 @@ export const NODES = {
     primaryPrefix: 'Channel',
     secondaryField: 'startDate',
   },
-  [DISSECT_NODE] : {
-    label: 'Dissection',
-    url: 'dissects',
+  [POSTMORTEM_NODE] : {
+    label: 'Post mortem',
+    url: 'postmortems',
     children: [TEST1_NODE],
-    parentId: 'projectId'
+    parentId: 'projectId',
+    primaryField: 'title',
+    secondaryField: 'startDate'
   },
   [TEST1_NODE] : {
     label: 'Test',
     url: 'tests',
     children: [],
-    parentId: 'dissectId'
+    parentId: 'postmortemId',
+    fileFields: ['imageFile'],
+    primaryField: 'cellId',
+    secondaryField: 'startDate'
   },
 }
 
 export function getNodeType(url, index) {
   const map = {
     0: {
-      [NODES[EXPERIMENT_NODE].url]: EXPERIMENT_NODE
+      [NODES[PROJECT_NODE].url]: PROJECT_NODE
     },
     1: {
-      [NODES[BATCH_NODE].url]: BATCH_NODE,
+      [NODES[CYCLE_NODE].url]: CYCLE_NODE,
+      [NODES[POSTMORTEM_NODE].url]: POSTMORTEM_NODE
     },
     2: {
+      [NODES[BATCH_NODE].url]: BATCH_NODE,
+      [NODES[TEST1_NODE].url]: TEST1_NODE
+    },
+    3: {
       [NODES[TEST0_NODE].url]: TEST0_NODE
-    }
+    },
   }
 
   if (has(map, `${index}.${url}`)) {
@@ -167,29 +167,3 @@ export function parseUrlMatch(match) {
   }
   return ancestors;
 }
-
-// export function getNodeType(url, index) {
-//   const map = {
-//     0: {
-//       [NODES[PROJECT_NODE].url]: PROJECT_NODE
-//     },
-//     1: {
-//       [NODES[DISCHARGE_NODE].url]: DISCHARGE_NODE,
-//       [NODES[DISSECT_NODE].url]: DISSECT_NODE
-//     },
-//     2: {
-//       [NODES[BATCH_NODE].url]: BATCH_NODE,
-//       [NODES[TEST1_NODE].url]: TEST1_NODE
-//     },
-//     3: {
-//       [NODES[TEST0_NODE].url]: TEST0_NODE
-//     },
-//   }
-
-//   if (has(map, `${index}.${url}`)) {
-//     return map[index][url];
-//   }
-
-//   console.warn('No matching node for this url');
-//   return null;
-// }
