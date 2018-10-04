@@ -37,6 +37,7 @@ export function renderFormFields(fields) {
     const label = field.label;
     const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
     const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
+    const validate = field.validate || [];
 
     switch (type) {
       case 'checkbox': {
@@ -92,6 +93,7 @@ export function renderFormFields(fields) {
               rows={6}
               disabled={disabled}
               hidden={hidden}
+              validate={validate}
             />
           </div>
         );

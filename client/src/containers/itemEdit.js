@@ -111,8 +111,7 @@ function mapStateToProps(state, ownProps) {
 
 ItemEditContainer = reduxForm({
   form: 'itemEdit',
-  enableReinitialize: true,
-  // validate: validationFactory(createBatchFields())
+  enableReinitialize: true
 })(ItemEditContainer);
 
 ItemEditContainer = connect(mapStateToProps)(ItemEditContainer);
