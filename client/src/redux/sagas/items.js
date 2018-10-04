@@ -1,3 +1,6 @@
+import { call, put, select, all, takeEvery } from 'redux-saga/effects';
+import { isNil } from 'lodash-es';
+
 import {
   CREATE_ITEM_REQUESTED, CREATE_ITEM_SUCCEEDED, CREATE_ITEM_FAILED,
   FETCH_ITEM_REQUESTED, FETCH_ITEM_SUCCEEDED, FETCH_ITEM_FAILED,
@@ -14,13 +17,52 @@ import {
   deleteItem as deleteItemRest
 } from '../../rest/items';
 
-import { call, put, takeEvery } from 'redux-saga/effects';
+import {
+  getRootFolder,
+} from '../ducks/files';
+
+import {
+  fetchRootFolder,
+  uploadFile
+} from '../sagas/files';
+
+import { NODES } from '../../utils/nodes';
+
+// Upload item files
+function* uploadItemFiles(item) {
+  if (isNil(NODES[item.type].fileFields)) {
+    return;
+  }
+
+  let rootFolder = yield select(getRootFolder);
+  if (isNil(rootFolder)) {
+    rootFolder = yield call(fetchRootFolder);
+  }
+
+  const filesToUpload = {};
+
+  for (let fileField of NODES[item.type].fileFields) {
+    if (!isNil(item[fileField])) {
+      filesToUpload[`${fileField}Model`] = call(uploadFile, item[fileField], rootFolder['_id'], item[`${fileField}Id`]);
+    }
+  }
+
+  const responses = yield all(filesToUpload);
+
+  for (let fileField of NODES[item.type].fileFields) {
+    delete item[fileField];
+    if (!isNil(responses[`${fileField}Model`])) {
+      item[`${fileField}Id`] = responses[`${fileField}Model`]['_id'];
+    }
+  }
+}
 
 // Create item
 
 function* onCreateItem(action) {
   const { ancestors, item, resolve, reject } = action.payload;
   try {
+    yield uploadItemFiles(item);
     const newItem = yield call(createItemRest, ancestors, item);
     yield put({type: CREATE_ITEM_SUCCEEDED, payload: {item: newItem, itemType: item.type}});
     resolve(newItem);
@@ -55,6 +97,7 @@ export function* fetchItemSaga() {
 function* onUpdateItem(action) {
   const { ancestors, item, resolve, reject } = action.payload;
   try {
+    yield uploadItemFiles(item);
     const newItem = yield call(updateItemRest, ancestors, item);
     yield put({type: UPDATE_ITEM_SUCCEEDED, payload: { item: newItem, itemType: item.type }});
     resolve(newItem);
