@@ -11,6 +11,7 @@ from girder.models.file import File
 class Test(Base):
 
     def __init__(self):
+        from girder.plugins.edp.models.batch import Batch
         super(Test, self).__init__(
             name='edp.tests',
             props=(
@@ -22,7 +23,6 @@ class Test(Base):
                     'name': 'batchId',
                     'expose': True,
                     'create': True,
-                    'required': True
                 },
                 {
                     'name': 'startDate',
@@ -35,14 +35,16 @@ class Test(Base):
                     'expose': True,
                     'ensureIndex': True,
                     'create': True,
-                    'mutable': True
+                    'mutable': True,
+                    'required': True
                 },
                 {
                     'name': 'channel',
                     'expose': True,
                     'ensureIndex': True,
                     'create': True,
-                    'mutable': True
+                    'mutable': True,
+                    'required': True
                 },
                 {
                     'name': 'comments',
@@ -77,7 +79,7 @@ class Test(Base):
                     'type': 'file'
                 }
             ),
-            parent_key='batchId'
+            parent_model=Batch
         )
 
     def validate(self, test):

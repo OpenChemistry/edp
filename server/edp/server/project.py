@@ -6,9 +6,10 @@ from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
-from . import test
-from . import batch
+from . import resource
 from girder.plugins.edp.models.project import Project as ProjectModel
+from girder.plugins.edp.models.batch import Batch as BatchModel
+from girder.plugins.edp.models.test import Test as TestModel
 
 class Route(object):
 
@@ -31,8 +32,8 @@ class Project(Resource):
     def __init__(self):
         super(Project, self).__init__()
         project_route = self.add_route('projectId', self)
-        batch_route = project_route.add_child_route('batches', 'batchId', batch)
-        batch_route.add_child_route('tests', 'testId', test)
+        batch_route = project_route.add_child_route('batches', 'batchId', resource.create(BatchModel)())
+        batch_route.add_child_route('tests', 'testId', resource.create(TestModel)())
 
 
     def add_route(self, id_name, resource):

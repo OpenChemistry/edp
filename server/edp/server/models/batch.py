@@ -10,6 +10,7 @@ from girder.plugins.edp.models.test import Test
 class Batch(Base):
 
     def __init__(self):
+        from girder.plugins.edp.models.project import Project
         super(Batch, self).__init__(
             name='edp.batches',
             props=(
@@ -20,7 +21,8 @@ class Batch(Base):
                 {
                     'name': 'startDate',
                     'expose': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name': 'title',
@@ -28,29 +30,34 @@ class Batch(Base):
                     'ensureIndex': True,
                     'ensureTextIndex': True,
                     'mutable': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name': 'motivation',
                     'expose': True,
                     'ensureTextIndex': True,
                     'mutable': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name': 'experimentalDesign',
                     'mutable': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name':'experimentalNotes',
                     'mutable': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name':'dataNotes',
                     'mutable': True,
-                    'create': True
+                    'create': True,
+                    'required': True
                 },
                 {
                     'name':'completed',
@@ -69,6 +76,6 @@ class Batch(Base):
                     'create': True
                 }
             ),
-            parent_key='projectId',
+            parent_model=Project,
             child_model=Test
         )

@@ -9,8 +9,7 @@ from girder.api.rest import getCurrentUser
 
 class Base(AccessControlledModel):
 
-    def __init__(self, name=None, props=None, parent_key=None, child_model=None):
-        print('NAME: %s' % name)
+    def __init__(self, name=None, props=None, parent_model=None, child_model=None):
         self.collection_name = name
         self.ensure_indices = [ p['name'] for p in props if p.get('ensure_index')]
         self.ensure_text_indices = [ p['name'] for p in props if p.get('ensure_text_index')]
@@ -18,7 +17,11 @@ class Base(AccessControlledModel):
         self.mutable_props = [ p['name'] for p in props if p.get('mutable')]
         self.create_props = [ p for p in props if p.get('create')]
         self.file_props = [ p['name'] for p in props if p.get('type') == 'file']
-        self.parent_key = parent_key
+        self.required_props = [ p['name'] for p in props if p.get('required')]
+        self.parent_model = parent_model
+        if self.parent_model is not None:
+            self.parent_key = '%sId' % self.parent_model.__name__.lower()
+
         self.child_model = child_model
 
         super(Base, self).__init__()
