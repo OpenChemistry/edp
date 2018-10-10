@@ -39,6 +39,28 @@ class CycleTest(Base):
                     'required': True
                 },
                 {
+                    'name': 'batteryType',
+                    'expose': True,
+                    'ensureIndex': True,
+                    'create': True,
+                    'mutable': True,
+                    'required': True
+                },
+                {
+                    'name': 'supplier',
+                    'expose': True,
+                    'ensureTextIndex': True,
+                    'create': True,
+                    'mutable': True
+                },
+                {
+                    'name': 'packingDate',
+                    'expose': True,
+                    'ensureTextIndex': True,
+                    'create': True,
+                    'mutable': True
+                },
+                {
                     'name': 'channel',
                     'expose': True,
                     'ensureIndex': True,

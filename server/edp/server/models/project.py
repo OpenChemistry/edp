@@ -20,22 +20,24 @@ class Project(AccessControlledModel):
         self.ensureIndices(('title'))
         self.ensureTextIndex({
             'title': 1,
-            'objective': 1
+            'objective': 1,
+            'motivation': 1
         })
 
         self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'startDate', 'title', 'objective', 'public'))
+            '_id', 'startDate', 'title', 'objective', 'motivation', 'public'))
 
     def validate(self, project):
 
         return project
 
-    def create(self, start_date, title, objective, user, public=False):
+    def create(self, start_date, title, objective, motivation, user, public=False):
 
         project = {
             'startDate': start_date,
             'title': title,
             'objective': objective,
+            'motivation': motivation,
             'owner': user['_id']
         }
 
@@ -51,7 +53,7 @@ class Project(AccessControlledModel):
         }
         updates = {}
 
-        mutable_props = ['startDate', 'title', 'objective', 'public']
+        mutable_props = ['startDate', 'title', 'objective', 'motivation', 'public']
 
         for prop in project_updates:
             if prop in mutable_props:

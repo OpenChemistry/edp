@@ -110,6 +110,7 @@ def create_cycletest_request():
     yield {
         'startDate': datetime.datetime.utcnow().timestamp(),
         'cellId': 'cell',
+        'batteryType': 'NiCd',
         'channel': '2',
         'comments': 'comments',
         'scheduleFile': 'schedule0123.zip',

@@ -1,33 +1,132 @@
 import { required } from './formValidation';
 
-export function createExperimentFields(experiment) {
+import {
+  PROJECT_NODE,
+  CYCLE_NODE,
+  POSTMORTEM_NODE,
+  BATCH_NODE,
+  TEST0_NODE,
+  TEST1_NODE
+} from './nodes';
+
+export function createFieldsFactory(nodeType) {
+  switch (nodeType) {
+    case PROJECT_NODE : {
+      return createProjectFields;
+    }
+
+    case CYCLE_NODE : {
+      return createCycleFields;
+    }
+
+    case POSTMORTEM_NODE : {
+      return createPostmortemFields;
+    }
+
+    case BATCH_NODE : {
+      return createBatchFields
+    }
+
+    case TEST0_NODE : {
+      return createTest0Fields;
+    }
+
+    case TEST1_NODE : {
+      return createTest1Fields;
+    }
+
+    default : {
+      return () => ({});
+    }
+  }
+}
+
+function createProjectFields(project) {
   let fields = {
     'startDate' : {
       label: 'Start date',
       type: 'date',
-      value: experiment ? experiment.startDate : (new Date()).toISOString().slice(0,10),
+      value: project ? project.startDate : (new Date()).toISOString().slice(0,10),
       error: '',
       validate: [required]
     },
     'title' : {
       label: 'Title',
       type: 'text',
-      value: experiment ? experiment.title : '',
+      value: project ? project.title : '',
       error: '',
       validate: [required]
     },
     'objective' : {
       label: 'Objective',
       type: 'text',
-      value: experiment ? experiment.objective : '',
+      value: project ? project.objective : '',
       error: '',
       validate: [required]
+    },
+    'motivation' : {
+      label: 'Motivation',
+      type: 'textarea',
+      value: project ? project.motivation : '',
+      error: ''
+    }
+  }
+  return fields;
+}
+
+function createCycleFields(cycle) {
+  let fields = {
+    'startDate' : {
+      label: 'Start date',
+      type: 'date',
+      value: cycle ? cycle.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'title' : {
+      label: 'Title',
+      type: 'text',
+      value: cycle ? cycle.title : 'Cell cycling',
+      error: '',
+      validate: [required]
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: cycle ? cycle.comments : '',
+      error: ''
     },
   }
   return fields;
 }
 
-export function createBatchFields(batch) {
+function createPostmortemFields(postmortem) {
+  let fields = {
+    'startDate' : {
+      label: 'Start date',
+      type: 'date',
+      value: postmortem ? postmortem.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'title' : {
+      label: 'Title',
+      type: 'text',
+      value: postmortem ? postmortem.title : 'Post cycle dissection',
+      error: '',
+      validate: [required]
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: postmortem ? postmortem.comments : '',
+      error: ''
+    },
+  }
+  return fields;
+}
+
+function createBatchFields(batch) {
   let fields = {
     'startDate' : {
       label: 'Start date',
@@ -47,8 +146,7 @@ export function createBatchFields(batch) {
       label: 'Motivation',
       type: 'textarea',
       value: batch ? batch.motivation : '',
-      error: '',
-      validate: [required]
+      error: ''
     },
     'experimentalDesign': {
       label: 'Experimental design',
@@ -89,12 +187,19 @@ export function createBatchFields(batch) {
   return fields;
 }
 
-export function createTestFields(test = undefined) {
+function createTest0Fields(test = undefined) {
   let fields = {
     'startDate' : {
       label: 'Start date',
       type: 'date',
       value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'batteryType' : {
+      label: 'Battery type',
+      type: 'text',
+      value: test ? test.batteryType : '',
       error: '',
       validate: [required]
     },
@@ -104,6 +209,18 @@ export function createTestFields(test = undefined) {
       value: test ? test.cellId : '',
       error: '',
       validate: [required]
+    },
+    'supplier' : {
+      label: 'Supplier',
+      type: 'text',
+      value: test ? test.supplier : '',
+      error: ''
+    },
+    'packingDate' : {
+      label: 'Packing date',
+      type: 'date',
+      value: test ? test.packingDate : '',
+      error: ''
     },
     'channel' : {
       label: 'Channel',
@@ -149,6 +266,44 @@ export function createTestFields(test = undefined) {
       value: test ? test.dataFileId : null,
       error: ''
     },
+  }
+  return fields;
+}
+
+function createTest1Fields(test = undefined) {
+  let fields = {
+    'startDate' : {
+      label: 'Start date',
+      type: 'date',
+      value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'cellId' : {
+      label: 'Cell ID',
+      type: 'text',
+      value: test ? test.cellId : '',
+      error: '',
+      validate: [required]
+    },
+    'imageFile' : {
+      label: 'Image file',
+      type: 'file',
+      value: test ? test.imageFile : '',
+      error: ''
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: test ? test.comments : '',
+      error: ''
+    },
+    'imageFileId' : {
+      label: 'Image file',
+      type: 'fileId',
+      value: test ? test.imageFileId : null,
+      error: ''
+    }
   }
   return fields;
 }

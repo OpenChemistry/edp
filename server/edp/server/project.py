@@ -62,10 +62,11 @@ class Project(Resource):
         start_date = project.get('startDate')
         title = project.get('title')
         objective = project.get('objective')
+        motivation = project.get('motivation', None)
         public = project.get('public', False)
 
         project = ProjectModel().create(start_date, title,
-            objective, self.getCurrentUser(), public)
+            objective, motivation, self.getCurrentUser(), public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/projects/%s' % project['_id']
