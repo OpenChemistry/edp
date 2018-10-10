@@ -4,7 +4,7 @@ jobs:
   test:
     working_directory: ~/repo
     docker:
-      - image: girder/girder:latest-py3
+      - image: girder/girder:2.x-maintenance-py3
       - image: mongo:latest
     steps:
       - checkout
