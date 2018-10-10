@@ -8,21 +8,16 @@ from girder.models.group import Group
 from girder.models.file import File
 
 
-class Test(Base):
+class PostmortemTest(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.batch import Batch
-        super(Test, self).__init__(
-            name='edp.tests',
+        from girder.plugins.edp.models.postmortem import Postmortem
+        super(PostmortemTest, self).__init__(
+            name='edp.postmortemtests',
             props=(
                 {
                     'name': '_id',
                     'expose': True
-                },
-                {
-                    'name': 'batchId',
-                    'expose': True,
-                    'create': True,
                 },
                 {
                     'name': 'startDate',
@@ -35,16 +30,7 @@ class Test(Base):
                     'expose': True,
                     'ensureIndex': True,
                     'create': True,
-                    'mutable': True,
-                    'required': True
-                },
-                {
-                    'name': 'channel',
-                    'expose': True,
-                    'ensureIndex': True,
-                    'create': True,
-                    'mutable': True,
-                    'required': True
+                    'mutable': True
                 },
                 {
                     'name': 'comments',
@@ -54,37 +40,18 @@ class Test(Base):
                     'mutable': True
                 },
                 {
-                    'name': 'scheduleFile',
-                    'expose': True,
-                    'create': True,
-                    'mutable': True
-                },
-                {
-                    'name': 'public',
-                    'expose': True,
-                    'mutable': True
-                },
-                {
-                    'name': 'metaDataFileId',
+                    'name': 'imageFileId',
                     'expose': True,
                     'create': True,
                     'mutable': True,
                     'type': 'file'
                 },
                 {
-                    'name': 'dataFileId',
+                    'name': 'postmortemId',
                     'expose': True,
                     'create': True,
-                    'mutable': True,
-                    'type': 'file'
-                }
+                },
+
             ),
-            parent_model=Batch
+            parent_model=Postmortem
         )
-
-    def validate(self, test):
-        if 'batchId' not in test:
-            raise ValidationException('Test must be associated with a batch.')
-
-        return test
-

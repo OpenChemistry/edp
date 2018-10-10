@@ -5,12 +5,12 @@ from girder.constants import AccessType
 from girder.models.model_base import ValidationException
 from girder.models.group import Group
 
-from girder.plugins.edp.models.test import Test
+from girder.plugins.edp.models.cycletest import CycleTest
 
 class Batch(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp.models.cycle import Cycle
         super(Batch, self).__init__(
             name='edp.batches',
             props=(
@@ -72,10 +72,10 @@ class Batch(Base):
 
                 },
                 {
-                    'name': 'projectId',
+                    'name': 'cycleId',
                     'create': True
                 }
             ),
-            parent_model=Project,
-            child_model=Test
+            parent_model=Cycle,
+            child_model=CycleTest
         )

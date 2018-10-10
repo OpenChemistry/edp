@@ -5,7 +5,8 @@ from girder.constants import AccessType
 from girder.models.model_base import ValidationException
 from girder.models.group import Group
 
-from girder.plugins.edp.models.batch import Batch
+from girder.plugins.edp.models.cycle import Cycle
+from girder.plugins.edp.models.postmortem import Postmortem
 
 
 class Project(AccessControlledModel):
@@ -87,8 +88,14 @@ class Project(AccessControlledModel):
     def remove(self, project, user=None, force=False):
         super(Project, self).remove(project)
 
-        for batch in Batch().find(project, force=True):
-            if not force and not self.hasAccess(batch, user=user, level=AccessType.WRITE):
-                raise ValidationException('Unable to remove batch associated with project.')
+        for cycle in Cycle().find(project, force=True):
+            if not force and not self.hasAccess(cycle, user=user, level=AccessType.WRITE):
+                raise ValidationException('Unable to remove cycle associated with project.')
 
-            Batch().remove(batch, user)
+            Cycle().remove(cycle, user)
+
+        for postmortem in Postmortem().find(project, force=True):
+            if not force and not self.hasAccess(cycle, user=user, level=AccessType.WRITE):
+                raise ValidationException('Unable to remove cycle associated with project.')
+
+            Postmortem().remove(postmortem, user)

@@ -78,9 +78,9 @@ def test_delete(server, user, project):
     assert project is None
 
 @pytest.mark.plugin('edp')
-def test_delete_with_batch(server, user, project, batch):
+def test_delete_with_cycle(server, user, project, cycle):
     from girder.plugins.edp.models.project import Project
-    from girder.plugins.edp.models.batch import Batch
+    from girder.plugins.edp.models.cycle import Cycle
 
     r = server.request('/edp/projects/%s' % project['_id'],
                        method='DELETE', user=user)
@@ -89,8 +89,8 @@ def test_delete_with_batch(server, user, project, batch):
     project = Project().load(project['_id'], force=True)
     assert project is None
 
-    batch = Batch().load(batch['_id'], force=True)
-    assert batch is None
+    cycle = Cycle().load(cycle['_id'], force=True)
+    assert cycle is None
 
 @pytest.mark.plugin('edp')
 def test_find(server, user, project):

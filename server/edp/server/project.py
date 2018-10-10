@@ -9,7 +9,10 @@ from girder.models.file import File
 from . import resource
 from girder.plugins.edp.models.project import Project as ProjectModel
 from girder.plugins.edp.models.batch import Batch as BatchModel
-from girder.plugins.edp.models.test import Test as TestModel
+from girder.plugins.edp.models.cycletest import CycleTest as CycleTestModel
+from girder.plugins.edp.models.cycle import Cycle as CycleModel
+from girder.plugins.edp.models.postmortem import Postmortem as PostmortemModel
+from girder.plugins.edp.models.postmortemtest import PostmortemTest as PostmortemTestModel
 
 class Route(object):
 
@@ -32,9 +35,11 @@ class Project(Resource):
     def __init__(self):
         super(Project, self).__init__()
         project_route = self.add_route('projectId', self)
-        batch_route = project_route.add_child_route('batches', 'batchId', resource.create(BatchModel)())
-        batch_route.add_child_route('tests', 'testId', resource.create(TestModel)())
-
+        postmortem_route = project_route.add_child_route('postmortems', 'postmortemId', resource.create(PostmortemModel)())
+        cycle_route = project_route.add_child_route('cycles', 'cycleId', resource.create(CycleModel)())
+        batch_route = cycle_route.add_child_route('batches', 'batchId', resource.create(BatchModel)())
+        batch_route.add_child_route('tests', 'cycletestId', resource.create(CycleTestModel)())
+        postmortem_route.add_child_route('tests', 'postmortemtestId', resource.create(PostmortemTestModel)())
 
     def add_route(self, id_name, resource):
         self.route('POST', (), resource.create)
