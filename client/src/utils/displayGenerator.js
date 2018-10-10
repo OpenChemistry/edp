@@ -40,6 +40,7 @@ export function renderDisplayFields(fields, exclude = null) {
         break;
       }
 
+      case 'date':
       case 'textarea':
       case 'text': {
         displayFields.push(
