@@ -41,5 +41,6 @@ class Cycle(Base):
                 }
             ),
             parent_model=Project,
-            child_model=Batch
+            child_model=Batch,
+            url='cycles'
         )

@@ -1,3 +1,5 @@
+import re
+
 from bson.objectid import ObjectId
 
 from girder.models.model_base import AccessControlledModel
@@ -9,7 +11,7 @@ from girder.api.rest import getCurrentUser
 
 class Base(AccessControlledModel):
 
-    def __init__(self, name=None, props=None, parent_model=None, child_model=None):
+    def __init__(self, name=None, props=None, parent_model=None, child_model=None, url=''):
         self.collection_name = name
         self.ensure_indices = [ p['name'] for p in props if p.get('ensure_index')]
         self.ensure_text_indices = [ p['name'] for p in props if p.get('ensure_text_index')]
@@ -19,6 +21,7 @@ class Base(AccessControlledModel):
         self.file_props = [ p['name'] for p in props if p.get('type') == 'file']
         self.required_props = [ p['name'] for p in props if p.get('required')]
         self.parent_model = parent_model
+        self.url = url
         if self.parent_model is not None:
             self.parent_key = '%sId' % self.parent_model.__name__.lower()
 
@@ -94,7 +97,7 @@ class Base(AccessControlledModel):
 
         return model
 
-    def find(self, parent=None, owner=None, force=False, offset=0, limit=None,
+    def find(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
              sort=None, user=None):
         query = {}
 
@@ -103,6 +106,14 @@ class Base(AccessControlledModel):
 
         if parent is not None:
             query[self.parent_key] = parent['_id']
+
+        if fields is not None:
+            for key, value in fields.items():
+                if value is not None:
+                    regex = re.compile('.*%s.*' % value, re.IGNORECASE)
+                    query[key] = {
+                        '$regex': regex
+                    }
 
         cursor = super(Base, self).find(query=query, offset=offset,
                                               sort=sort, user=user)

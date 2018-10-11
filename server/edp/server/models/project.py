@@ -14,6 +14,8 @@ class Project(AccessControlledModel):
     def __init__(self):
         super(Project, self).__init__()
         self.parent_model = None
+        self.parent_key = None
+        self.url = 'projects'
 
     def initialize(self):
         self.name = 'edp.projects'

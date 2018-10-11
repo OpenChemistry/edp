@@ -35,11 +35,11 @@ class Project(Resource):
     def __init__(self):
         super(Project, self).__init__()
         project_route = self.add_route('projectId', self)
-        postmortem_route = project_route.add_child_route('postmortems', 'postmortemId', resource.create(PostmortemModel)())
-        cycle_route = project_route.add_child_route('cycles', 'cycleId', resource.create(CycleModel)())
-        batch_route = cycle_route.add_child_route('batches', 'batchId', resource.create(BatchModel)())
-        batch_route.add_child_route('tests', 'cycletestId', resource.create(CycleTestModel)())
-        postmortem_route.add_child_route('tests', 'postmortemtestId', resource.create(PostmortemTestModel)())
+        postmortem_route = project_route.add_child_route(PostmortemModel().url, 'postmortemId', resource.create(PostmortemModel)())
+        cycle_route = project_route.add_child_route(CycleModel().url, 'cycleId', resource.create(CycleModel)())
+        batch_route = cycle_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
+        batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
+        postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
 
     def add_route(self, id_name, resource):
         self.route('POST', (), resource.create)
