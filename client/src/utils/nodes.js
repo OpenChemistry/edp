@@ -1,5 +1,22 @@
 import { has, isNil } from 'lodash-es';
 
+import {
+  Autorenew,
+  Layers,
+  Folder,
+  ChangeHistory,
+  Crop
+} from '@material-ui/icons';
+
+import {
+  lightBlue,
+  lightGreen,
+  amber,
+  deepOrange,
+  teal,
+  indigo
+} from '@material-ui/core/colors';
+
 export const PROJECT_NODE = 'PROJECT_NODE';
 export const CYCLE_NODE = 'CYCLE_NODE';
 export const POSTMORTEM_NODE = 'POSTMORTEM_NODE';
@@ -22,6 +39,8 @@ export const NODES = {
     parentId: null,
     primaryField: 'title',
     secondaryField: 'startDate',
+    color: indigo[500],
+    icon: Folder
   },
   [CYCLE_NODE] : {
     label: 'Cycle',
@@ -30,6 +49,8 @@ export const NODES = {
     parentId: 'projectId',
     primaryField: 'title',
     secondaryField: 'startDate',
+    color: teal[500],
+    icon: Autorenew
   },
   [BATCH_NODE] : {
     label: 'Batch',
@@ -38,6 +59,8 @@ export const NODES = {
     parentId: 'cycleId',
     primaryField: 'title',
     secondaryField: 'startDate',
+    color: deepOrange[500],
+    icon: Layers
   },
   [TEST0_NODE] : {
     label: 'Test',
@@ -48,6 +71,8 @@ export const NODES = {
     primaryField: 'channel',
     primaryPrefix: 'Channel',
     secondaryField: 'startDate',
+    color: lightBlue[500],
+    icon: ChangeHistory
   },
   [POSTMORTEM_NODE] : {
     label: 'Post mortem',
@@ -55,7 +80,9 @@ export const NODES = {
     children: [TEST1_NODE],
     parentId: 'projectId',
     primaryField: 'title',
-    secondaryField: 'startDate'
+    secondaryField: 'startDate',
+    color: amber[500],
+    icon: Crop
   },
   [TEST1_NODE] : {
     label: 'Test',
@@ -64,7 +91,9 @@ export const NODES = {
     parentId: 'postmortemId',
     fileFields: ['imageFile'],
     primaryField: 'cellId',
-    secondaryField: 'startDate'
+    secondaryField: 'startDate',
+    color: lightGreen[500],
+    icon: ChangeHistory
   },
 }
 

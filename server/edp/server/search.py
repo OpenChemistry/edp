@@ -24,22 +24,23 @@ class Search(Resource):
     @autoDescribeRoute(
         Description('Search models by fields.')
         .param('title', 'Search batches by title', required=False)
-        .param('cell_id', 'Search tests by cellId', required=False)
+        .param('cellId', 'Search tests by cellId', required=False)
         .param('supplier', 'Search tests by supplier', required=False)
         .pagingParams(defaultSort=None)
     )
-    def global_search(self, title=None, cell_id=None, supplier=None, offset=0,
+    def global_search(self, title=None, cellId=None, supplier=None, offset=0,
                       limit=None, sort=None):
         fields = {
             'title': title,
-            'cellId': cell_id,
+            'cellId': cellId,
             'supplier': supplier
         }
 
         models = [
             BatchModel,
             CycleTestModel,
-            PostmortemModel
+            PostmortemModel,
+            PostmortemTestModel
         ]
 
         tree_items = {
@@ -90,11 +91,10 @@ class Search(Resource):
 
             model = value['model']
             item = value['item']
-            children = value['children']
 
             parentId = 'root'
             if model().parent_model is not None:
-                parentId = str(value['item'][model().parent_key])
+                parentId = str(item[model().parent_key])
 
             tree_items[parentId]['children'].append(_id)
 

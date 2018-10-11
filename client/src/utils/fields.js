@@ -1,5 +1,7 @@
 import { required } from './formValidation';
 
+import { has } from 'lodash-es';
+
 import {
   PROJECT_NODE,
   CYCLE_NODE,
@@ -8,6 +10,10 @@ import {
   TEST0_NODE,
   TEST1_NODE
 } from './nodes';
+
+import {
+  GLOBAL_SEARCH
+} from './search';
 
 export function createFieldsFactory(nodeType) {
   switch (nodeType) {
@@ -33,6 +39,10 @@ export function createFieldsFactory(nodeType) {
 
     case TEST1_NODE : {
       return createTest1Fields;
+    }
+
+    case GLOBAL_SEARCH : {
+      return createGlobalSearchFields
     }
 
     default : {
@@ -302,6 +312,30 @@ function createTest1Fields(test = undefined) {
       label: 'Image file',
       type: 'fileId',
       value: test ? test.imageFileId : null,
+      error: ''
+    }
+  }
+  return fields;
+}
+
+function createGlobalSearchFields(filters) {
+  let fields = {
+    'title' : {
+      label: 'Title',
+      type: 'text',
+      value: has(filters, 'title') ? filters.title : '',
+      error: ''
+    },
+    'supplier' : {
+      label: 'Supplier',
+      type: 'text',
+      value: has(filters, 'supplier') ? filters.supplier : '',
+      error: ''
+    },
+    'cellId' : {
+      label: 'Cell ID',
+      type: 'text',
+      value: has(filters, 'cellId') ? filters.cellId : '',
       error: ''
     }
   }
