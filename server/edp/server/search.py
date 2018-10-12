@@ -55,7 +55,7 @@ class Search(Resource):
             parent_key = model().parent_key
             path = model().url + '/' + str(item['_id'])
             if parent_model is None:
-                return '/' + path
+                return '/%s' % path
             else :
                 if str(item[parent_key]) in tree_items:
                     parent = tree_items[str(item[parent_key])]['item']
@@ -68,7 +68,7 @@ class Search(Resource):
                         'model': parent_model,
                         'children': []
                     }
-                return parent['path'] + '/' + path
+                return '%s/%s' % (parent['path'], path)
 
         # Search for all the items matching these fields.
         # For each item, also include all of its ancestors
