@@ -7,12 +7,14 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Typography } from '@material-ui/core';
 
 class ItemListItem extends Component {
   render() {
     const {
       item,
-      hideDelete,
+      showLabel,
+      showDelete,
       onDelete,
       onOpen,
       primaryField,
@@ -22,7 +24,8 @@ class ItemListItem extends Component {
       secondaryPrefix,
       secondarySuffix,
       color,
-      icon
+      icon,
+      label
     } = this.props;
 
     const NodeIcon = icon;
@@ -42,13 +45,18 @@ class ItemListItem extends Component {
           primary={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
           secondary={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
         />
-        {!hideDelete &&
-          <ListItemSecondaryAction>
+        <ListItemSecondaryAction>
+          {showDelete &&
           <IconButton onClick={() => {onDelete(item)}}>
             <DeleteIcon />
           </IconButton>
+          }
+          {showLabel &&
+            <Typography color="textSecondary">
+              {label}&nbsp;
+            </Typography>
+          }
         </ListItemSecondaryAction>
-        }
       </ListItem>
     );
   }

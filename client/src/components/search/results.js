@@ -40,7 +40,7 @@ class SearchResults extends Component {
         <Paper style={itemStyle}>
           <ItemListItem
             item={item}
-            hideDelete
+            showLabel
             onOpen={onOpen}
             primaryField={NODES[item.type].primaryField}
             secondaryField={NODES[item.type].secondaryField}
@@ -48,8 +48,9 @@ class SearchResults extends Component {
             primarySuffix={NODES[item.type].primarySuffix}
             secondaryPrefix={NODES[item.type].secondaryPrefix}
             secondarySuffix={NODES[item.type].secondarySuffix}
-            color={NODES[item.type].color}
+            color={isLeaf ? NODES[item.type].color : null}
             icon={NODES[item.type].icon}
+            label={NODES[item.type].label}
           />
         </Paper>
         }

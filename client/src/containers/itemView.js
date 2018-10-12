@@ -76,6 +76,7 @@ class ItemViewContainer extends Component {
       childrenLists.push(
         <ItemList
           key={child.type}
+          showDelete
           items={child.items}
           title={NODES[child.type].label}
           primaryField={NODES[child.type].primaryField}
