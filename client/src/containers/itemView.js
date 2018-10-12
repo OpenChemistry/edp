@@ -78,7 +78,7 @@ class ItemViewContainer extends Component {
           key={child.type}
           showDelete
           items={child.items}
-          title={NODES[child.type].label}
+          title={NODES[child.type].labelPlural}
           primaryField={NODES[child.type].primaryField}
           secondaryField={NODES[child.type].secondaryField}
           primaryPrefix={NODES[child.type].primaryPrefix}

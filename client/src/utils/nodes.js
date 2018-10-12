@@ -34,6 +34,7 @@ export const NODES = {
   },
   [PROJECT_NODE] : {
     label: 'Project',
+    labelPlural: 'Projects',
     url: 'projects',
     children: [CYCLE_NODE, POSTMORTEM_NODE],
     parentId: null,
@@ -44,6 +45,7 @@ export const NODES = {
   },
   [CYCLE_NODE] : {
     label: 'Cycle',
+    labelPlural: 'Cycles',
     url: 'cycles',
     children: [BATCH_NODE],
     parentId: 'projectId',
@@ -54,6 +56,7 @@ export const NODES = {
   },
   [BATCH_NODE] : {
     label: 'Batch',
+    labelPlural: 'Batches',
     url: 'batches',
     children: [TEST0_NODE],
     parentId: 'cycleId',
@@ -64,6 +67,7 @@ export const NODES = {
   },
   [TEST0_NODE] : {
     label: 'Test',
+    labelPlural: 'Tests',
     url: 'tests',
     children: [],
     parentId: 'batchId',
@@ -75,7 +79,8 @@ export const NODES = {
     icon: ChangeHistory
   },
   [POSTMORTEM_NODE] : {
-    label: 'Post mortem',
+    label: 'Postmortem',
+    labelPlural: 'Postmortems',
     url: 'postmortems',
     children: [TEST1_NODE],
     parentId: 'projectId',
@@ -86,6 +91,7 @@ export const NODES = {
   },
   [TEST1_NODE] : {
     label: 'Test',
+    labelPlural: 'Tests',
     url: 'tests',
     children: [],
     parentId: 'postmortemId',
