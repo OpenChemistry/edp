@@ -76,14 +76,17 @@ class ItemViewContainer extends Component {
       childrenLists.push(
         <ItemList
           key={child.type}
+          showDelete
           items={child.items}
-          title={NODES[child.type].label}
+          title={NODES[child.type].labelPlural}
           primaryField={NODES[child.type].primaryField}
           secondaryField={NODES[child.type].secondaryField}
           primaryPrefix={NODES[child.type].primaryPrefix}
           primarySuffix={NODES[child.type].primarySuffix}
           secondaryPrefix={NODES[child.type].secondaryPrefix}
           secondarySuffix={NODES[child.type].secondarySuffix}
+          color={NODES[child.type].color}
+          icon={NODES[child.type].icon}
           onOpen={this.onOpenChild}
           onAdd={() => {this.onAddChild(child.type)}}
           onDelete={this.onDeleteChild}
@@ -104,6 +107,8 @@ class ItemViewContainer extends Component {
           primarySuffix={NODES[item.type].primarySuffix}
           secondaryPrefix={NODES[item.type].secondaryPrefix}
           secondarySuffix={NODES[item.type].secondarySuffix}
+          color={NODES[item.type].color}
+          icon={NODES[item.type].icon}
         />
         }
         {childrenLists}

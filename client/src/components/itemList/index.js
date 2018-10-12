@@ -5,13 +5,13 @@ import { isEmpty } from 'lodash-es';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Typography from '@material-ui/core/Typography';
 
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
+
+import ItemListItem from './item';
 
 class ItemList extends Component {
   render() {
@@ -19,15 +19,7 @@ class ItemList extends Component {
     const {
       items,
       title,
-      onAdd,
-      onDelete,
-      onOpen,
-      primaryField,
-      primaryPrefix,
-      primarySuffix,
-      secondaryField,
-      secondaryPrefix,
-      secondarySuffix,
+      onAdd
     } = this.props;
 
     return (
@@ -55,21 +47,11 @@ class ItemList extends Component {
             }
             {Object.values(items).map((item) => {
               return (
-                <ListItem
-                  button
+                <ItemListItem
+                  {...this.props}
                   key={item._id}
-                  onClick={() => {onOpen(item)}}
-                >
-                  <ListItemText
-                    primary={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
-                    secondary={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton onClick={() => {onDelete(item)}}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
+                  item={item}
+                />
               );
             })}
           </Paper>

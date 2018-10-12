@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 
 import { renderDisplayFields } from '../utils/displayGenerator';
+import { Avatar } from '@material-ui/core';
 
 class ItemView extends Component {
   render() {
@@ -20,12 +21,15 @@ class ItemView extends Component {
       secondaryField,
       secondaryPrefix,
       secondarySuffix,
+      color,
+      icon,
       onEdit
     } = this.props;
     let fields = renderDisplayFields(
       fieldsCreator(item),
       [primaryField, secondaryField]
     );
+    const NodeIcon = icon;
     return (
       <Card>
         <CardHeader
@@ -36,6 +40,7 @@ class ItemView extends Component {
           }
           title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
           subheader={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
+          avatar={<Avatar style={{backgroundColor: color}}>{<NodeIcon/>}</Avatar>}
         />
         <CardContent>
           {fields}

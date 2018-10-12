@@ -53,5 +53,6 @@ class PostmortemTest(Base):
                 },
 
             ),
-            parent_model=Postmortem
+            parent_model=Postmortem,
+            url='tests'
         )

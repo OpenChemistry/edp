@@ -15,10 +15,15 @@ class HeaderContainer extends Component {
     this.props.dispatch(push(ROOT_ROUTE));
   }
 
+  onSearchClick = () => {
+    this.props.dispatch(push(`${ROOT_ROUTE}search`));
+  }
+
   render() {
     return (
       <Header
         onLogoClick={this.onLogoClick}
+        onSearchClick={this.onSearchClick}
         loggedIn={this.props.loggedIn}
       />
     );

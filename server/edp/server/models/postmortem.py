@@ -42,5 +42,6 @@ class Postmortem(Base):
 
             ),
             parent_model=Project,
-            child_model=PostmortemTest
+            child_model=PostmortemTest,
+            url='postmortems'
         )

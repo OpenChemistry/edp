@@ -77,5 +77,6 @@ class Batch(Base):
                 }
             ),
             parent_model=Cycle,
-            child_model=CycleTest
+            child_model=CycleTest,
+            url='batches'
         )

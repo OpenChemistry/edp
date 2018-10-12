@@ -101,7 +101,8 @@ class CycleTest(Base):
                     'type': 'file'
                 }
             ),
-            parent_model=Batch
+            parent_model=Batch,
+            url='tests'
         )
 
     def validate(self, test):
