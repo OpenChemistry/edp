@@ -71,6 +71,23 @@ export function renderDisplayFields(fields, exclude = null) {
         break;
       }
 
+      case 'imageId': {
+        const downloadUrl = `/api/v1/file/${value}/download?contentDisposition=inline`;
+        displayFields.push(
+          <div key={key} hidden={hidden}>
+            <Typography gutterBottom variant="subheading" color="textSecondary">
+              {label}
+            </Typography>
+            <div style={{width: '100%', maxHeight: '20rem'}}>
+              <a href={downloadUrl}>
+                <img style={{width: '100%', maxHeight: '20rem', objectFit: 'contain'}} src={downloadUrl}/>
+              </a>
+            </div>
+          </div>
+        );
+        break;
+      }
+
       default: {
         break;
       }
