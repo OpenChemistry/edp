@@ -38,8 +38,7 @@ class Batch(Base):
                     'expose': True,
                     'ensureTextIndex': True,
                     'mutable': True,
-                    'create': True,
-                    'required': True
+                    'create': True
                 },
                 {
                     'name': 'experimentalDesign',
