@@ -5,6 +5,7 @@ import re
 import csv
 import types
 import sys
+import datetime
 from girder_client import GirderClient
 
 class GC(GirderClient):
@@ -103,6 +104,7 @@ def _ingest(project, cycle, api_url, api_key, dir):
             reader = csv.DictReader(f)
             row = next(reader)
             start_date = row['first_start_datetime']
+            start_date = datetime.datetime.fromtimestamp(int(start_date)).strftime('%Y-%m-%d')
             cell_id = row['item_id']
             schedule_file = row['schedule_file_name']
 
