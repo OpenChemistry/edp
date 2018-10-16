@@ -8,6 +8,7 @@ from girder.models.model_base import ValidationException
 from girder.models.group import Group
 from girder.models.file import File
 from girder.api.rest import getCurrentUser
+from . import edp_group
 
 class Base(AccessControlledModel):
 
@@ -62,6 +63,7 @@ class Base(AccessControlledModel):
         user = kwargs.get('user')
         self.setUserAccess(model, user=user, level=AccessType.ADMIN)
         model['owner'] = user['_id']
+        self.setGroupAccess(model, edp_group(), AccessType.ADMIN)
 
         return self.save(model)
 
