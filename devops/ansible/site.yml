@@ -35,9 +35,42 @@
         password: "{{ edpadmin_password }}"
         group:
           name: "edp"
-          description: "The edp group"
+          description: "The EDP group"
         state: present
 
+    - name: Create edp collection
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        collection:
+          name: "edp"
+          description: "EDP collection"
+          public: no
+        state: present
+      register: edp_collection
+
+    - name: Create data folder
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        folder:
+          parentType: "collection"
+          parentId: "{{edp_collection['gc_return']['_id'] }}"
+          name: "data"
+          description: "EDP data folder"
+          public: no
+          access:
+            groups:
+              - name: edp
+                type: admin
+        state: present
+        
     - name: Enable EDP plugins
       girder:
         host: "{{girder_host}}"
