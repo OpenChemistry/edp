@@ -47,7 +47,8 @@ class Project(AccessControlledModel):
 
         self.setPublic(project, public=public)
         self.setUserAccess(project, user=user, level=AccessType.ADMIN)
-        self.setGroupAccess(project, edp_group(), AccessType.ADMIN)
+        if edp_group() is not None:
+            self.setGroupAccess(project, edp_group(), AccessType.ADMIN)
 
         return self.save(project)
 

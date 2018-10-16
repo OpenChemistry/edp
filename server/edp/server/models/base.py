@@ -63,7 +63,8 @@ class Base(AccessControlledModel):
         user = kwargs.get('user')
         self.setUserAccess(model, user=user, level=AccessType.ADMIN)
         model['owner'] = user['_id']
-        self.setGroupAccess(model, edp_group(), AccessType.ADMIN)
+        if edp_group() is not None:
+            self.setGroupAccess(model, edp_group(), AccessType.ADMIN)
 
         return self.save(model)
 
