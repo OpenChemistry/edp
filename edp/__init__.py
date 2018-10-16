@@ -62,15 +62,21 @@ def cli():
 def _ingest(project, cycle, api_url, api_key, dir):
     gc = GC(api_url=api_url, api_key=api_key)
 
-    me = gc.get('/user/me')
-    private_folder = next(gc.listFolder(me['_id'], 'user', 'Private'))
+    # Try to get edp data folder
+    data_folder = gc.resourceLookup('collection/edp/data')
 
-    folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
-    try:
-        folder = next(folder)
-    except StopIteration:
-        folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
-                                 public=False)
+    # Create a private folder
+    if data_folder is None:
+
+        me = gc.get('/user/me')
+        private_folder = next(gc.listFolder(me['_id'], 'user', 'Private'))
+
+        data_folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
+        try:
+            data_folder = next(data_folder)
+        except StopIteration:
+            data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
+                                          public=False)
 
     batch_name = os.path.basename(dir)
 
@@ -101,9 +107,9 @@ def _ingest(project, cycle, api_url, api_key, dir):
             schedule_file = row['schedule_file_name']
 
         click.echo('Uploading meta data file')
-        meta_file = gc.uploadFileToFolder(folder['_id'], meta_file)
+        meta_file = gc.uploadFileToFolder(data_folder['_id'], meta_file)
         click.echo('Uploading data file')
-        data_file = gc.uploadFileToFolder(folder['_id'], data_file)
+        data_file = gc.uploadFileToFolder(data_folder['_id'], data_file)
 
         test = {
             'startDate': start_date,
