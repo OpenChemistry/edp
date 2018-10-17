@@ -46,7 +46,7 @@ jobs:
           name: release to PyPI
           command: |
             . ../venv/bin/activate
-            twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+            twine upload dist/*
 workflows:
   version: 2
   ci:
