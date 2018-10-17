@@ -64,7 +64,7 @@ def _ingest(project, cycle, api_url, api_key, dir):
     gc = GC(api_url=api_url, api_key=api_key)
 
     # Try to get edp data folder
-    data_folder = gc.resourceLookup('collection/edp/data')
+    data_folder = gc.resourceLookup('/collection/edp/data')
 
     # Create a private folder
     if data_folder is None:
