@@ -310,8 +310,9 @@ function createTest1Fields(test = undefined) {
     },
     'imageFileId' : {
       label: 'Image file',
-      type: 'imageId',
+      type: 'fileId',
       value: test ? test.imageFileId : null,
+      thumbnail: test ? test.imageFileIdThumbnail : null,
       error: ''
     }
   }

@@ -22,10 +22,22 @@ import {
   uploadFileChunk
 } from '../../rest/files';
 
+import { lookupResource } from '../../rest/resource';
+
 const chunkSize = 1024 * 1024 * 64; // 64MB
 
 export function* fetchRootFolder() {
   const state = yield select();
+
+  // First check for data folder in edp collection
+  const edpDataFolder = yield call(lookupResource, '/collection/edp/data');
+
+  if (!isNil(edpDataFolder)) {
+    yield put( receiveRootFolder(edpDataFolder))
+
+    return edpDataFolder
+  }
+
   const me = auth.selectors.getMe(state);
 
   let privateFolder = yield call(getFolder, me['_id'], 'user', 'Private');
@@ -52,9 +64,9 @@ export function* uploadFile(file, folderId, id=null) {
   let uploadModel = null;
   if (isNil(id)) {
     uploadModel = yield call(createFile, folderId, 'folder',
-      file.name, file.size);
+      file.name, file.size, file.type);
   } else {
-    uploadModel = yield call(updateFile, id, file.name);
+    uploadModel = yield call(updateFile, id, file.name, file.type);
     uploadModel = yield call(updateFileContent, id, file.size);
   }
 

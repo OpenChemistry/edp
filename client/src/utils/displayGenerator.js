@@ -2,6 +2,8 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 
+import { isNil } from 'lodash-es';
+
 export function renderDisplayFields(fields, exclude = null) {
   if (!exclude) {
     exclude = [];
@@ -58,16 +60,32 @@ export function renderDisplayFields(fields, exclude = null) {
 
       case 'fileId': {
         const downloadUrl = `/api/v1/file/${value}/download`;
-        displayFields.push(
-          <div key={key} hidden={hidden}>
-            <Typography gutterBottom variant="subheading" color="textSecondary">
-              {label}
-            </Typography>
-            <Typography  paragraph>
-              <a href={downloadUrl} download>Download</a>
-            </Typography>
-          </div>
-        );
+        if (!isNil(field['thumbnail'])) {
+          const thumbUrl = `/api/v1/file/${field['thumbnail']}/download?contentDisposition=inline`;
+          displayFields.push(
+            <div key={key} hidden={hidden}>
+              <Typography gutterBottom variant="subheading" color="textSecondary">
+                {label}
+              </Typography>
+              <div style={{width: '100%', maxHeight: '20rem'}}>
+                <a href={downloadUrl} download>
+                  <img style={{width: '100%', maxHeight: '20rem', objectFit: 'contain'}} src={thumbUrl}/>
+                </a>
+              </div>
+            </div>
+          );
+        } else {
+          displayFields.push(
+            <div key={key} hidden={hidden}>
+              <Typography gutterBottom variant="subheading" color="textSecondary">
+                {label}
+              </Typography>
+              <Typography  paragraph>
+                <a href={downloadUrl} download>Download</a>
+              </Typography>
+            </div>
+          );
+        }
         break;
       }
 
