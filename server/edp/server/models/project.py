@@ -8,6 +8,8 @@ from girder.models.group import Group
 from girder.plugins.edp.models.cycle import Cycle
 from girder.plugins.edp.models.postmortem import Postmortem
 
+from . import edp_group
+
 
 class Project(AccessControlledModel):
 
@@ -45,6 +47,8 @@ class Project(AccessControlledModel):
 
         self.setPublic(project, public=public)
         self.setUserAccess(project, user=user, level=AccessType.ADMIN)
+        if edp_group() is not None:
+            self.setGroupAccess(project, edp_group(), AccessType.ADMIN)
 
         return self.save(project)
 

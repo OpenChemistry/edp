@@ -13,6 +13,8 @@ from girder.api.rest import getCurrentUser
 from girder.plugins.jobs.models.job import Job
 from girder.plugins.jobs.constants import JobStatus
 
+from . import edp_group
+
 class Base(AccessControlledModel):
 
     def __init__(self, name=None, props=None, parent_model=None, child_model=None, url=''):
@@ -66,6 +68,8 @@ class Base(AccessControlledModel):
         user = kwargs.get('user')
         self.setUserAccess(model, user=user, level=AccessType.ADMIN)
         model['owner'] = user['_id']
+        if edp_group() is not None:
+            self.setGroupAccess(model, edp_group(), AccessType.ADMIN)
 
         saved_model = self.save(model)
 
