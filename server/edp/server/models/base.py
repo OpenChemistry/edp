@@ -2,12 +2,15 @@ import re
 
 from bson.objectid import ObjectId
 
+from girder import events
 from girder.models.model_base import AccessControlledModel
 from girder.constants import AccessType
 from girder.models.model_base import ValidationException
 from girder.models.group import Group
 from girder.models.file import File
+from girder.models.item import Item
 from girder.api.rest import getCurrentUser
+from girder.plugins.jobs.models.job import Job
 
 class Base(AccessControlledModel):
 
@@ -63,7 +66,26 @@ class Base(AccessControlledModel):
         self.setUserAccess(model, user=user, level=AccessType.ADMIN)
         model['owner'] = user['_id']
 
-        return self.save(model)
+        saved_model = self.save(model)
+
+        # Now spawn thumbnail jobs if the model contains any image
+        for prop in self.create_props:
+            prop_value = kwargs.get(prop['name'], prop.get('default'))
+            if prop_value is not None and prop.get('type') == 'file':
+                file = File().load(prop_value, user=getCurrentUser(),
+                        level=AccessType.READ)
+                mime_type = file.get('mimeType', '')
+                if mime_type is not None and  mime_type.startswith('image/'):
+                    max_height = 320
+
+                    file_id = file['_id']
+                    model_id = saved_model['_id']
+                    prop_name = prop['name'] + 'Thumbnail'
+
+                    events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
+                    job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
+
+        return saved_model
 
     def update(self, model, model_updates, user, parent=None):
 
@@ -85,6 +107,19 @@ class Base(AccessControlledModel):
 
                     if not isinstance(prop_value, ObjectId):
                         prop_value = ObjectId(prop_value)
+
+                    mime_type = file.get('mimeType', '')
+                    if mime_type is not None and  mime_type.startswith('image/'):
+                        max_height = 320
+
+                        file_id = file['_id']
+                        model_id = model['_id']
+                        prop_name = prop + 'Thumbnail'
+                        # clear the previous thumbnail
+                        updates.setdefault('$unset', {})[prop_name] = 1
+
+                        events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
+                        job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
 
                 updates.setdefault('$set', {})[prop] = prop_value
 
@@ -142,3 +177,65 @@ class Base(AccessControlledModel):
             if prop in model:
                 file = File().load(model[prop], level=AccessType.WRITE, user=user)
                 File().remove(file)
+
+def schedule_thumbnail_job(file, attachToType, attachToId, user, width=0, height=0, crop=True, async=False):
+    """
+    Schedule a local thumbnail creation job and return it.
+    """
+    job = Job().createLocalJob(
+        title='Generate thumbnail for %s' % file['name'], user=user, type='thumbnails.create',
+        public=False, module='girder.plugins.thumbnails.worker', kwargs={
+            'fileId': str(file['_id']),
+            'width': width,
+            'height': height,
+            'crop': crop,
+            'attachToType': attachToType,
+            'attachToId': str(attachToId)
+        },
+        async=async)
+    Job().scheduleJob(job)
+    return job
+
+
+def callback_factory(self, prop_name, file_id, model_id, user):
+
+    def callback(event):
+        job = event.info['job']
+
+        if job['kwargs'].get('fileId') != str(file_id):
+            return
+
+        SUCCESS = 3
+        ERROR = 4
+        CANCELED = 5
+
+        if job['status'] == SUCCESS:
+            item_id = job['kwargs']['attachToId']
+            item = Item().load(item_id, user=user, level=AccessType.READ)
+            thumbnails = item.get("_thumbnails", [])
+
+            if len(thumbnails) > 0:
+                thumbnail_id = thumbnails.pop()
+
+                # remove old thumbnails
+                if len(thumbnails) > 0:
+                    Item().update({'_id': item_id}, {'$set': {'_thumbnails': [thumbnail_id]}})
+                    for thumb_id in thumbnails:
+                        file = File().load(thumb_id, user=user, level=AccessType.WRITE)
+                        File().remove(file)
+
+                query = {
+                    '_id': model_id
+                }
+                updates = {}
+                updates.setdefault('$set', {})[prop_name] = thumbnail_id
+                update_result = super(Base, self).update(query, updates)
+                if update_result.matched_count == 0:
+                    raise ValidationException('Invalid id (%s)' % model_id)
+
+        if job['status'] in [SUCCESS, ERROR, CANCELED]:
+            events.unbind('jobs.job.update.after', str(file_id))
+
+        return
+
+    return callback
