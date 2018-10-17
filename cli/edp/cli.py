@@ -97,6 +97,10 @@ def _ingest(project, cycle, api_url, api_key, dir):
     for meta_file in glob.glob('%s/*Metadata.csv' % dir):
         name = os.path.basename(meta_file)
         match = metafile_regex.match(name)
+        if match is None:
+            click.echo(click.style('%s does not have expected filename format, skipping.' % meta_file, fg='yellow'))
+            continue
+
         channel = match.group(1)
         data_file = meta_file.replace('_Metadata.csv', '.csv')
 
@@ -125,6 +129,6 @@ def _ingest(project, cycle, api_url, api_key, dir):
 
         test = gc.post('edp/projects/%s/cycles/%s/batches/%s/tests' % (project, cycle, batch['_id']), json=test)
 
-        click.echo('Test created: %s' % test['_id'])
+        click.echo(click.style('Test created: %s' % test['_id'], fg='green'))
 
 
