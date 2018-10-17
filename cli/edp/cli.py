@@ -54,7 +54,7 @@ def cli():
 @cli.command('ingest', help='Ingest data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)
 @click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
-@click.option('-d', '--dir', help='path to an image to display with document',
+@click.option('-d', '--dir', help='path to batch to ingest',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
                    '(e.g https://girder.example.com/api/v1)')
