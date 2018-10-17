@@ -41,11 +41,13 @@ jobs:
           name: build the project
           command: |
             . ../venv/bin/activate
-            python3 cli/setup.py sdist
+            cd cli
+            python3 setup.py sdist
       - run:
           name: release to PyPI
           command: |
             . ../venv/bin/activate
+            cd cli
             twine upload dist/*
 workflows:
   version: 2
