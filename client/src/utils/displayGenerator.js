@@ -68,7 +68,7 @@ export function renderDisplayFields(fields, exclude = null) {
                 {label}
               </Typography>
               <div style={{width: '100%', maxHeight: '20rem'}}>
-                <a href={downloadUrl}>
+                <a href={downloadUrl} download>
                   <img style={{width: '100%', maxHeight: '20rem', objectFit: 'contain'}} src={thumbUrl}/>
                 </a>
               </div>
