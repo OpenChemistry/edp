@@ -11,6 +11,7 @@ from girder.models.file import File
 from girder.models.item import Item
 from girder.api.rest import getCurrentUser
 from girder.plugins.jobs.models.job import Job
+from girder.plugins.jobs.constants import JobStatus
 
 class Base(AccessControlledModel):
 
@@ -76,14 +77,7 @@ class Base(AccessControlledModel):
                         level=AccessType.READ)
                 mime_type = file.get('mimeType', '')
                 if mime_type is not None and  mime_type.startswith('image/'):
-                    max_height = 320
-
-                    file_id = file['_id']
-                    model_id = saved_model['_id']
-                    prop_name = prop['name'] + 'Thumbnail'
-
-                    events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
-                    job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
+                    self._create_thumbnail(file, saved_model, prop['name'], user)
 
         return saved_model
 
@@ -110,16 +104,7 @@ class Base(AccessControlledModel):
 
                     mime_type = file.get('mimeType', '')
                     if mime_type is not None and  mime_type.startswith('image/'):
-                        max_height = 320
-
-                        file_id = file['_id']
-                        model_id = model['_id']
-                        prop_name = prop + 'Thumbnail'
-                        # clear the previous thumbnail
-                        updates.setdefault('$unset', {})[prop_name] = 1
-
-                        events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
-                        job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
+                        self._create_thumbnail(file, model, prop, user, updates)
 
                 updates.setdefault('$set', {})[prop] = prop_value
 
@@ -131,6 +116,19 @@ class Base(AccessControlledModel):
             return self.load(model['_id'], user=user, level=AccessType.READ)
 
         return model
+
+    def _create_thumbnail(self, file, model, prop, user, updates=None):
+        max_height = 320
+
+        file_id = file['_id']
+        model_id = model['_id']
+        prop_name = prop + 'Thumbnail'
+        # clear the previous thumbnail
+        if updates is not None:
+            updates.setdefault('$unset', {})[prop_name] = 1
+
+        events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
+        job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
 
     def find(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
              sort=None, user=None):
@@ -205,9 +203,9 @@ def callback_factory(self, prop_name, file_id, model_id, user):
         if job['kwargs'].get('fileId') != str(file_id):
             return
 
-        SUCCESS = 3
-        ERROR = 4
-        CANCELED = 5
+        SUCCESS = JobStatus.SUCCESS
+        ERROR = JobStatus.ERROR
+        CANCELED = JobStatus.CANCELED
 
         if job['status'] == SUCCESS:
             item_id = job['kwargs']['attachToId']
