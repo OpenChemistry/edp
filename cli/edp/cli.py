@@ -84,7 +84,6 @@ def _ingest(project, cycle, api_url, api_key, dir):
 
     # Create the batch
     batch = {
-        'name': batch_name,
         'startDate': '',
         'title': batch_name,
         'motivation': '',
