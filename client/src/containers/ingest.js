@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isNil } from 'lodash-es';
 
+import { getIngestKey, fetchIngestKey } from '../redux/ducks/apiKeys';
 import Ingest from '../components/ingest';
 
 class IngestContainer extends Component {
+  componentDidMount() {
+    const { apiKey, dispatch } = this.props;
+    if (isNil(apiKey)) {
+      dispatch(fetchIngestKey());
+    }
+  }
   render() {
     let {ancestors, apiKey} = this.props;
-    apiKey = "asd12334";
 
     if (ancestors.length !== 2 || isNil(apiKey)) {
       return null;
@@ -20,7 +26,8 @@ class IngestContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  return {};
+  const apiKey = getIngestKey(state);
+  return {apiKey};
 }
 
 IngestContainer = connect(mapStateToProps)(IngestContainer);
