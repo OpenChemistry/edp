@@ -51,7 +51,7 @@ workflows:
   version: 2
   ci:
     jobs:
-      - test
+      - test:
           filters:
             tags:
               only: /.*?/
