@@ -54,8 +54,8 @@ def cli():
 @cli.command('ingest', help='Ingest data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)
 @click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
-@click.option('-d', '--dir', default=None, help='path to an image to display with document',
-              type=click.Path(exists=True, dir_okay=True, readable=True), required=True,)
+@click.option('-d', '--dir', help='path to an image to display with document',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
                    '(e.g https://girder.example.com/api.v1)')
 @click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
@@ -79,6 +79,7 @@ def _ingest(project, cycle, api_url, api_key, dir):
             data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
                                           public=False)
 
+    dir  = os.path.abspath(dir)
     batch_name = os.path.basename(dir)
 
     # Create the batch
