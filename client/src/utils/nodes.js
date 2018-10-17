@@ -17,6 +17,8 @@ import {
   indigo
 } from '@material-ui/core/colors';
 
+import Ingest from '../containers/ingest';
+
 export const PROJECT_NODE = 'PROJECT_NODE';
 export const CYCLE_NODE = 'CYCLE_NODE';
 export const POSTMORTEM_NODE = 'POSTMORTEM_NODE';
@@ -63,7 +65,8 @@ export const NODES = {
     primaryField: 'title',
     secondaryField: 'startDate',
     color: deepOrange[500],
-    icon: Layers
+    icon: Layers,
+    ingest: Ingest
   },
   [TEST0_NODE] : {
     label: 'Test',

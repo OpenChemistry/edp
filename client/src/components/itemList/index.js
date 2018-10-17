@@ -19,7 +19,8 @@ class ItemList extends Component {
     const {
       items,
       title,
-      onAdd
+      onAdd,
+      ingestComponent
     } = this.props;
 
     return (
@@ -30,7 +31,8 @@ class ItemList extends Component {
               <Typography variant='title'>
                 {title}
               </Typography>
-              <ListItemSecondaryAction>
+              <ListItemSecondaryAction style={{display: 'flex'}}>
+                {ingestComponent}
                 <IconButton onClick={() => {onAdd()}}>
                   <AddIcon />
                 </IconButton>
