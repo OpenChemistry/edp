@@ -22,10 +22,22 @@ import {
   uploadFileChunk
 } from '../../rest/files';
 
+import { lookupResource } from '../../rest/resource';
+
 const chunkSize = 1024 * 1024 * 64; // 64MB
 
 export function* fetchRootFolder() {
   const state = yield select();
+
+  // First check for data folder in edp collection
+  const edpDataFolder = yield call(lookupResource, '/collection/edp/data');
+
+  if (!isNil(edpDataFolder)) {
+    yield put( receiveRootFolder(edpDataFolder))
+
+    return edpDataFolder
+  }
+
   const me = auth.selectors.getMe(state);
 
   let privateFolder = yield call(getFolder, me['_id'], 'user', 'Private');
