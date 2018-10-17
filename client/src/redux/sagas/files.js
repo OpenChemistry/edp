@@ -64,9 +64,9 @@ export function* uploadFile(file, folderId, id=null) {
   let uploadModel = null;
   if (isNil(id)) {
     uploadModel = yield call(createFile, folderId, 'folder',
-      file.name, file.size);
+      file.name, file.size, file.type);
   } else {
-    uploadModel = yield call(updateFile, id, file.name);
+    uploadModel = yield call(updateFile, id, file.name, file.type);
     uploadModel = yield call(updateFileContent, id, file.size);
   }
 

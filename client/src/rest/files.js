@@ -27,7 +27,7 @@ export function createFolder(parentId, parentType, name, reuseExisting=true) {
 
 // File
 
-export function createFile(parentId, parentType, name, size, mimeType='application/octet-stream') {
+export function createFile(parentId, parentType, name, size, mimeType) {
   return girderClient().post('file', null, {
     params: {
       parentId,
@@ -40,10 +40,11 @@ export function createFile(parentId, parentType, name, size, mimeType='applicati
   .then(response => response.data );
 }
 
-export function updateFile(id, name) {
+export function updateFile(id, name, mimeType) {
   return girderClient().put(`file/${id}`, {},  {
     params: {
-      name
+      name,
+      mimeType
     }
   })
   .then(response => response.data )
