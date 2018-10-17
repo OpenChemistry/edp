@@ -57,7 +57,7 @@ def cli():
 @click.option('-d', '--dir', help='path to an image to display with document',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
-                   '(e.g https://girder.example.com/api.v1)')
+                   '(e.g https://girder.example.com/api/v1)')
 @click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
               help='[default: GIRDER_API_KEY env. variable]', required=True)
 def _ingest(project, cycle, api_url, api_key, dir):
