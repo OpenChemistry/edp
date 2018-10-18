@@ -11,8 +11,6 @@ import {
 } from '@material-ui/core';
 import { CloudUpload } from '@material-ui/icons';
 
-import Highlight from 'react-highlight'
-
 class IngestComponent extends Component {
 
   constructor(props) {
@@ -42,12 +40,7 @@ class IngestComponent extends Component {
   render() {
     const {ancestors, apiKey} = this.props;
 
-    const command =
-`pip install edp-cli && \\
-edp ingest -k ${apiKey} \\
-           -u ${window.location.origin}/api/v1 \\
-           -p ${ancestors[0]['_id']} \\
-           -c ${ancestors[1]['_id']}`;
+    const command = `python -m pip install edp-cli && edp ingest -k ${apiKey} -u ${window.location.origin}/api/v1 -p ${ancestors[0]['_id']} -c ${ancestors[1]['_id']}`;
 
     return (
       <div>
@@ -67,15 +60,15 @@ edp ingest -k ${apiKey} \\
               Navigate to the directory where the batch tests are located.
               The directory name will be used as batch title.
             </DialogContentText>
-            <Highlight language="bash">
+            <pre>
               cd /path/to/batch
-            </Highlight>
+            </pre>
             <DialogContentText>
               Run the command below
             </DialogContentText>
-            <Highlight>
+            <pre style={{whiteSpace: 'pre-wrap'}}>
               {command}
-            </Highlight>
+            </pre>
           </DialogContent>
           <DialogActions>
             <Button color="secondary"
