@@ -65,7 +65,7 @@ class ItemViewContainer extends Component {
   }
   
   render() {
-    const { item, children } = this.props;
+    const { ancestors, item, children } = this.props;
     
     if (item.type !== ROOT_NODE && isNil(item.fields)) {
       return <NotFoundPage />;
@@ -73,6 +73,13 @@ class ItemViewContainer extends Component {
     
     const childrenLists = [];
     for (let child of children) {
+      let ingestComponent;
+      if (!isNil(NODES[child.type].ingest)) {
+        ingestComponent = React.createElement(
+          NODES[child.type].ingest,
+          {ancestors: [...ancestors, item]}
+        );
+      }
       childrenLists.push(
         <ItemList
           key={child.type}
@@ -85,6 +92,7 @@ class ItemViewContainer extends Component {
           primarySuffix={NODES[child.type].primarySuffix}
           secondaryPrefix={NODES[child.type].secondaryPrefix}
           secondarySuffix={NODES[child.type].secondarySuffix}
+          ingestComponent={ingestComponent}
           color={NODES[child.type].color}
           icon={NODES[child.type].icon}
           onOpen={this.onOpenChild}

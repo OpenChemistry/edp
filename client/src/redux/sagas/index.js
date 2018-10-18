@@ -14,6 +14,10 @@ import {
   globalSearchSaga
 } from './search';
 
+import {
+  fetchIngestKeySaga
+} from './apiKeys';
+
 export default function* root() {
   yield fork(createItemSaga);
   yield fork(fetchItemSaga);
@@ -22,6 +26,8 @@ export default function* root() {
   yield fork(fetchItemsSaga);
 
   yield fork(globalSearchSaga);
+
+  yield fork(fetchIngestKeySaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);
