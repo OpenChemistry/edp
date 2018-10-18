@@ -30,13 +30,13 @@ class IngestComponent extends Component {
     this.setState({open: false});
   }
 
-  handleCopy = (text) => {
-    const el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
+  handleCopy = (event, text) => {
+    const dummyEl = document.createElement('textarea');
+    dummyEl.value = text;
+    event.target.appendChild(dummyEl);
+    dummyEl.select();
     document.execCommand('copy');
-    document.body.removeChild(el);
+    event.target.removeChild(dummyEl);
   }
 
   render() {
@@ -79,9 +79,9 @@ edp ingest -k ${apiKey} \\
           </DialogContent>
           <DialogActions>
             <Button color="secondary"
-              onClick={() => {this.handleCopy(command)}}
+              onClick={(e) => {this.handleCopy(e, command)}}
             >
-              Copy
+              Copy command
             </Button>
             <Button color="primary" onClick={this.handleClose}>
               Dismiss
