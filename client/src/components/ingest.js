@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogContentText
 } from '@material-ui/core';
-import { CreateNewFolder } from '@material-ui/icons';
+import { CloudUpload } from '@material-ui/icons';
 
 import Highlight from 'react-highlight'
 
@@ -52,7 +52,7 @@ edp ingest -k ${apiKey} \\
     return (
       <div>
         <IconButton onClick={this.handleOpen}>
-          <CreateNewFolder/>
+          <CloudUpload/>
         </IconButton>
         <Dialog
           open={this.state.open}
