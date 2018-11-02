@@ -143,7 +143,7 @@ class Base(AccessControlledModel):
         job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
 
     def find(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
-             sort=None, user=None):
+             sort=None, user=None, projection=None):
         query = {}
 
         if owner is not None:
@@ -169,7 +169,7 @@ class Base(AccessControlledModel):
                         }
 
         cursor = super(Base, self).find(query=query, offset=offset,
-                                              sort=sort, user=user)
+                                              sort=sort, user=user, fields=projection)
 
         if not force:
             for r in self.filterResultsByPermission(cursor=cursor, user=user,
