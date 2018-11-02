@@ -17,7 +17,7 @@ from . import edp_group
 
 class Base(AccessControlledModel):
 
-    def __init__(self, name=None, props=None, parent_model=None, child_model=None, url=''):
+    def __init__(self, name=None, props=None, parent_model=None, paging_key=None, child_model=None, url=''):
         self.collection_name = name
         self.ensure_indices = [ p['name'] for p in props if p.get('ensure_index')]
         self.ensure_text_indices = [ p['name'] for p in props if p.get('ensure_text_index')]
@@ -28,6 +28,7 @@ class Base(AccessControlledModel):
         self.required_props = [ p['name'] for p in props if p.get('required')]
         self.parent_model = parent_model
         self.url = url
+        self.paging_key = paging_key
         if self.parent_model is not None:
             self.parent_key = '%sId' % self.parent_model.__name__.lower()
 

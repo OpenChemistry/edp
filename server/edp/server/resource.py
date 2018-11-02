@@ -29,6 +29,8 @@ def _find_description(parent_models, model):
     des= Description('Find %s.' % name)
     _add_parents(des, parent_models)
     des.param('owner', 'The owner to return %ss for.' % name , required=False)
+    if model().paging_key is not None:
+        des.pagingParams(defaultSort=model().paging_key)
 
     return des
 
