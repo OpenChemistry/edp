@@ -32,6 +32,9 @@ def _find_description(parent_models, model):
     if model().paging_key is not None:
         des.pagingParams(defaultSort=model().paging_key)
 
+    for f in model().query_fields.keys():
+        des.param(f, '', required=False)
+
     return des
 
 def _get_description(parent_models, model):
@@ -134,10 +137,15 @@ def create(model):
         )
         def find(self, *parg, **kwargs):
             parents = self._extract_parents(kwargs)
+            fields = { }
+
+            for f in model().query_fields.keys():
+                if f in kwargs:
+                    fields[f] = kwargs[f]
 
             return list(model().find(parent=parents[-1],
                 owner=kwargs.get('owner'), offset=kwargs.get('offset', 0), limit=kwargs.get('limit', 50), sort=kwargs.get('sort', False),
-                user=self.getCurrentUser()))
+                user=self.getCurrentUser(), fields=fields))
 
         @access.user(scope=TokenScope.DATA_READ)
         @autoDescribeRoute(

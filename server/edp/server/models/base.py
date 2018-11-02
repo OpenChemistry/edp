@@ -26,6 +26,10 @@ class Base(AccessControlledModel):
         self.create_props = [ p for p in props if p.get('create')]
         self.file_props = [ p['name'] for p in props if p.get('type') == 'file']
         self.required_props = [ p['name'] for p in props if p.get('required')]
+        self.query_fields = [ {p['name']: p.get('query')} for p in props if p.get('query')]
+        self.query_fields = { k: v for d in self.query_fields for k, v in d.items() }
+        self.types = [ {p['name']: p.get('type')} for p in props if 'type' in p and p['name'] not in self.file_props ]
+        self.types = { k: v for d in self.types for k, v in d.items() }
         self.parent_model = parent_model
         self.url = url
         self.paging_key = paging_key
@@ -61,6 +65,9 @@ class Base(AccessControlledModel):
 
                 if not isinstance(prop_value, ObjectId):
                     prop_value = ObjectId(prop_value)
+
+            if prop_value is not None and prop.get('type') == ObjectId:
+                prop_value = ObjectId(prop_value)
 
             if prop_value is not None:
                 model[prop['name']] = prop_value
@@ -148,10 +155,18 @@ class Base(AccessControlledModel):
         if fields is not None:
             for key, value in fields.items():
                 if value is not None:
-                    regex = re.compile('.*%s.*' % value, re.IGNORECASE)
-                    query[key] = {
-                        '$regex': regex
-                    }
+                    if key in self.types:
+                        value = self.types[key](value)
+
+                    if key in self.query_fields:
+                        query[key] = {
+                            self.query_fields[key]['selector']: value
+                        }
+                    else:
+                        regex = re.compile('.*%s.*' % value, re.IGNORECASE)
+                        query[key] = {
+                            '$regex': regex
+                        }
 
         cursor = super(Base, self).find(query=query, offset=offset,
                                               sort=sort, user=user)
