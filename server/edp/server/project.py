@@ -7,12 +7,18 @@ from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
 from . import resource
+from . import comp_search
 from girder.plugins.edp.models.project import Project as ProjectModel
 from girder.plugins.edp.models.batch import Batch as BatchModel
 from girder.plugins.edp.models.cycletest import CycleTest as CycleTestModel
 from girder.plugins.edp.models.cycle import Cycle as CycleModel
 from girder.plugins.edp.models.postmortem import Postmortem as PostmortemModel
 from girder.plugins.edp.models.postmortemtest import PostmortemTest as PostmortemTestModel
+from girder.plugins.edp.models.run import Run as RunModel
+from girder.plugins.edp.models.sample import Sample as SampleModel
+from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
+from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
+
 
 class Route(object):
 
@@ -40,6 +46,15 @@ class Project(Resource):
         batch_route = cycle_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
         batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
         postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
+        project_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
+        sample_resource = resource.create(SampleModel)()
+        project_route.add_child_route(SampleModel().url, 'sampleId', sample_resource)
+        self.route('GET', ('comp_search', ), comp_search.search)
+        project_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
+        project_route.add_child_route(PlateMapModel().url, 'plateMapId', resource.create(PlateMapModel)())
+
+
+
 
     def add_route(self, id_name, resource):
         self.route('POST', (), resource.create)
