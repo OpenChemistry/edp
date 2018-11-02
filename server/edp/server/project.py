@@ -48,10 +48,10 @@ class Project(Resource):
         postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
         project_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
         sample_resource = resource.create(SampleModel)()
-        project_route.add_child_route(SampleModel().url, 'sampleId', sample_resource)
-        self.route('GET', ('comp_search', ), comp_search.search)
+        r = project_route.add_child_route(SampleModel().url, 'sampleId', sample_resource)
+        self.route('GET', (':projectId', 'samples', 'search', ), comp_search.search)
         project_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
-        project_route.add_child_route(PlateMapModel().url, 'plateMapId', resource.create(PlateMapModel)())
+        project_route.add_child_route(PlateMapModel().url, 'platemapId', resource.create(PlateMapModel)())
 
 
 

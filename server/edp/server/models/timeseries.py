@@ -10,7 +10,11 @@ class TimeSeries(Base):
             props=(
                 {
                     'name': 'projectId',
-                    'create': True
+                    'create': True,
+                    'ensure_index': True,
+                    'query': {
+                        'selector': '$eq'
+                    },
                 },
                 {
                     'name': 'data',

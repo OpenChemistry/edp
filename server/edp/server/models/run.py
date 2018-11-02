@@ -41,7 +41,11 @@ class Run(Base):
                 },
                 {
                     'name': 'projectId',
-                    'create': True
+                    'create': True,
+                    'ensure_index': True,
+                    'query': {
+                        'selector': '$eq'
+                    },
                 }
             ),
             parent_model=Project,

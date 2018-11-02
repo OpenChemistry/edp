@@ -28,7 +28,15 @@ class PlateMap(Base):
                     'query': {
                         'selector': '$all'
                      }
-                }
+                },
+                {
+                    'name': 'projectId',
+                    'create': True,
+                    'ensure_index': True,
+                    'query': {
+                        'selector': '$eq'
+                    },
+                },
             ),
             parent_model=Project,
             url='platemaps'

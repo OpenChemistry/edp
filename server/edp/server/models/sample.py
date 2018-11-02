@@ -62,7 +62,11 @@ class Sample(Base):
                 },
                 {
                     'name': 'projectId',
-                    'create': True
+                    'create': True,
+                    'ensure_index': True,
+                    'query': {
+                        'selector': '$eq'
+                     },
                 }
             ),
             paging_key='sampleId',
