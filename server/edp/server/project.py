@@ -54,12 +54,9 @@ class Project(Resource):
         composite_route = project_route.add_child_route(CompositeModel().url, 'compositeId', resource.create(CompositeModel)())
         composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
         platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
-        sample_route = platemap_route.add_child_route(SampleModel().url, 'sampleId', resource.create(SampleModel)())
+        sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', resource.create(SampleModel)())
         sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
         self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
-
-
-
 
 
     def add_route(self, id_name, resource):

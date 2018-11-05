@@ -38,8 +38,16 @@ class PlateMap(Base):
                         'selector': '$eq'
                     },
                 },
+                {
+                    'name': 'sampleIds',
+                    'create': True,
+                    'ensure_index': True,
+                    'query': {
+                        'selector': '$in'
+                    },
+                    'type': ObjectId
+                }
             ),
             parent_model=Composite,
-            child_model=Sample,
             url='platemaps'
         )

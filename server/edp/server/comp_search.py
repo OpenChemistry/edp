@@ -28,22 +28,6 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
     if elements is not None:
         elements = elements.split(',')
 
-    # Find the matching plate maps
-    fields = {
-        'compositeId': composite['_id']
-    }
-    if plateId is not None:
-        fields['plateId'] = plateId
-
-    if elements is not None:
-        fields['elements'] = elements
-
-    platemap_ids = [
-        x['_id'] for x in PlateMapModel().find(fields=fields,
-                                               projection=['_id'],
-                                               user=getCurrentUser())
-    ]
-
     # Find the matching runs
     fields = {
         'compositeId': composite['_id']
@@ -60,14 +44,34 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
                                           user=getCurrentUser())
     ]
 
-    # Now use a aggregation pipeline to get the sample sets.
     match = {
+        '$match': {}
+    }
+
+    if elements:
+        match['$match'] = {
+           'elements': {
+                '$all': elements
+            }
+        }
+
+    unwind_samples = {
+        '$unwind': '$sampleIds'
+    }
+
+    lookup_sample = {
+        '$lookup': {
+            'from': 'edp.samples',
+            'localField': 'sampleIds',
+            'foreignField': '_id',
+            'as': 'sample'
+        }
+    }
+
+    match_run = {
         '$match': {
-            'runId': {
+            'sample.runId': {
                 '$in': run_ids
-            },
-            'platemapId': {
-                '$in': platemap_ids
             }
         }
     }
@@ -75,8 +79,8 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
     group = {
         '$group': {
             '_id': {
-                'runId': '$runId',
-                'platemapId': "$platemapId"
+                'runId': '$sample.runId',
+                'platemapId': "$_id"
             }
         }
     }
@@ -90,6 +94,10 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         }
     }
 
+    unwind_run = {
+        '$unwind': '$_id.runId'
+    }
+
     lookup_run = {
         '$lookup': {
             'from': 'edp.runs',
@@ -99,26 +107,22 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         }
     }
 
-    unwind_platemap = {
-        '$unwind': '$platemap'
-    }
-
-    unwind_run = {
-        '$unwind': '$run'
-    }
-
 
     project = {
         '$project': {
             '_id': 0,
-            'platemap' : 1 ,
-            'run' : 1
+            'run._id': 1,
+            'run.solutionPh': 1,
+            'run.electrolyte': 1,
+            'run.plateId': 1,
+            'platemap._id': 1,
+            'platemap.elements': 1,
+            'platemap.plateId': 1
         }
     }
 
-
-    pipeline = [match, group, lookup_platemap, lookup_run, unwind_platemap,
-                unwind_run, project]
-    sample_sets = SampleModel().collection.aggregate(pipeline)
+    pipeline = [match, unwind_samples, lookup_sample, match_run, group,
+                unwind_run, lookup_platemap, lookup_run, project]
+    sample_sets = PlateMapModel().collection.aggregate(pipeline)
 
     return list(sample_sets)

@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 class Sample(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.platemap import PlateMap
+        from girder.plugins.edp.models.composite import Composite
         from girder.plugins.edp.models.timeseries import TimeSeries
         super(Sample, self).__init__(
             name='edp.samples',
@@ -39,17 +39,10 @@ class Sample(Base):
                     'expose': True,
                     'create': True,
                     'mutable': False
-                },
-                {
-                    'name': 'platemapId',
-                    'expose': False,
-                    'create': True,
-                    'mutable': False,
-                    'ensure_index': True
                 }
             ),
             paging_key='sampleId',
-            parent_model=PlateMap,
+            parent_model=Composite,
             child_model=TimeSeries,
             url='samples'
         )

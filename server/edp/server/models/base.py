@@ -67,7 +67,10 @@ class Base(AccessControlledModel):
                     prop_value = ObjectId(prop_value)
 
             if prop_value is not None and prop.get('type') == ObjectId:
-                prop_value = ObjectId(prop_value)
+                if isinstance(prop_value, list):
+                    prop_value = [ObjectId(x) for x in prop_value]
+                else:
+                    prop_value = ObjectId(prop_value)
 
             if prop_value is not None:
                 model[prop['name']] = prop_value
@@ -156,7 +159,10 @@ class Base(AccessControlledModel):
             for key, value in fields.items():
                 if value is not None:
                     if key in self.types:
-                        value = self.types[key](value)
+                        if isinstance(value, list):
+                            value = [self.types[key](x) for x in value]
+                        else:
+                            value = self.types[key](value)
 
                     if key in self.query_fields:
                         query[key] = {
