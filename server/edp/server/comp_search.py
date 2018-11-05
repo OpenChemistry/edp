@@ -76,11 +76,49 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         '$group': {
             '_id': {
                 'runId': '$runId',
-                'plateMapId': "$plateMapId"
+                'platemapId': "$platemapId"
             }
         }
     }
 
-    sample_sets = SampleModel().collection.aggregate([match, group])
+    lookup_platemap = {
+        '$lookup': {
+            'from': 'edp.platemaps',
+            'localField': '_id.platemapId',
+            'foreignField': '_id',
+            'as': 'platemap'
+        }
+    }
+
+    lookup_run = {
+        '$lookup': {
+            'from': 'edp.runs',
+            'localField': '_id.runId',
+            'foreignField': '_id',
+            'as': 'run'
+        }
+    }
+
+    unwind_platemap = {
+        '$unwind': '$platemap'
+    }
+
+    unwind_run = {
+        '$unwind': '$run'
+    }
+
+
+    project = {
+        '$project': {
+            '_id': 0,
+            'platemap' : 1 ,
+            'run' : 1
+        }
+    }
+
+
+    pipeline = [match, group, lookup_platemap, lookup_run, unwind_platemap,
+                unwind_run, project]
+    sample_sets = SampleModel().collection.aggregate(pipeline)
 
     return list(sample_sets)
