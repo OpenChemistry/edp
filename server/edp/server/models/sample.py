@@ -45,12 +45,7 @@ class Sample(Base):
                     'expose': False,
                     'create': True,
                     'mutable': False,
-                    'ensure_index': True,
-                    'query': {
-                        'selector': '$eq'
-                     },
-                    'type': ObjectId
-
+                    'ensure_index': True
                 }
             ),
             paging_key='sampleId',

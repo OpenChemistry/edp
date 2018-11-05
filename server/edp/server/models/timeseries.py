@@ -11,10 +11,7 @@ class TimeSeries(Base):
                 {
                     'name': 'sampleId',
                     'create': True,
-                    'ensure_index': True,
-                    'query': {
-                        'selector': '$eq'
-                    },
+                    'ensure_index': True
                 },
                 {
                     'name': 'data',
