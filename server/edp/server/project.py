@@ -14,6 +14,7 @@ from girder.plugins.edp.models.cycletest import CycleTest as CycleTestModel
 from girder.plugins.edp.models.cycle import Cycle as CycleModel
 from girder.plugins.edp.models.postmortem import Postmortem as PostmortemModel
 from girder.plugins.edp.models.postmortemtest import PostmortemTest as PostmortemTestModel
+from girder.plugins.edp.models.composite import Composite as CompositeModel
 from girder.plugins.edp.models.run import Run as RunModel
 from girder.plugins.edp.models.sample import Sample as SampleModel
 from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
@@ -27,9 +28,11 @@ class Route(object):
         self.route = route
 
     def add_child_route(self, name, id_name, resource):
-        self.resource.route('POST', self.route + (name,), resource.create)
-        self.resource.route('GET',  self.route + (name,), resource.find)
-        id_route = self.route + (name, ':%s' % id_name)
+        if not isinstance(name, tuple):
+            name = (name,)
+        self.resource.route('POST', self.route + name, resource.create)
+        self.resource.route('GET',  self.route + name, resource.find)
+        id_route = self.route + name + (':%s' % id_name,)
         self.resource.route('GET', id_route, resource.get)
         self.resource.route('PATCH', id_route, resource.update)
         self.resource.route('DELETE', id_route, resource.delete)
@@ -46,12 +49,15 @@ class Project(Resource):
         batch_route = cycle_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
         batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
         postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
-        project_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
-        sample_resource = resource.create(SampleModel)()
-        r = project_route.add_child_route(SampleModel().url, 'sampleId', sample_resource)
-        self.route('GET', (':projectId', 'samples', 'search', ), comp_search.search)
-        project_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
-        project_route.add_child_route(PlateMapModel().url, 'platemapId', resource.create(PlateMapModel)())
+
+        # Composite routes
+        composite_route = project_route.add_child_route(CompositeModel().url, 'compositeId', resource.create(CompositeModel)())
+        composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
+        platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
+        sample_route = platemap_route.add_child_route(SampleModel().url, 'sampleId', resource.create(SampleModel)())
+        sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
+        self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
+
 
 
 

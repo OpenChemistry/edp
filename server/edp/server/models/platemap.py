@@ -5,7 +5,8 @@ from bson.objectid import ObjectId
 class PlateMap(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp.models.composite import Composite
+        from girder.plugins.edp.models.sample import Sample
         super(PlateMap, self).__init__(
             name='edp.platemaps',
             props=(
@@ -30,7 +31,7 @@ class PlateMap(Base):
                      }
                 },
                 {
-                    'name': 'projectId',
+                    'name': 'compositeId',
                     'create': True,
                     'ensure_index': True,
                     'query': {
@@ -38,6 +39,7 @@ class PlateMap(Base):
                     },
                 },
             ),
-            parent_model=Project,
+            parent_model=Composite,
+            child_model=Sample,
             url='platemaps'
         )

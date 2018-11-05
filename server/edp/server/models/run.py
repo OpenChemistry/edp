@@ -4,7 +4,7 @@ from .base import Base
 class Run(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp.models.composite import Composite
         super(Run, self).__init__(
             name='edp.runs',
             props=(
@@ -40,7 +40,7 @@ class Run(Base):
                      },
                 },
                 {
-                    'name': 'projectId',
+                    'name': 'compositeId',
                     'create': True,
                     'ensure_index': True,
                     'query': {
@@ -48,6 +48,6 @@ class Run(Base):
                     },
                 }
             ),
-            parent_model=Project,
+            parent_model=Composite,
             url='runs'
         )

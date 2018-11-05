@@ -4,6 +4,7 @@ from girder.api.describe import Description, autoDescribeRoute, getCurrentUser
 from girder.constants import AccessType, TokenScope
 
 from girder.plugins.edp.models.project import Project as ProjectModel
+from girder.plugins.edp.models.composite import Composite as CompositeModel
 from girder.plugins.edp.models.run import Run as RunModel
 from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
 from girder.plugins.edp.models.sample import Sample as SampleModel
@@ -15,18 +16,21 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
     .modelParam('projectId', 'The project id',
                     model=ProjectModel, destName='project',
                     level=AccessType.READ, paramType='path')
+    .modelParam('compositeId', 'The composite id',
+                    model=CompositeModel, destName='composite',
+                    level=AccessType.READ, paramType='path')
     .param('elements', 'The elements in the plate map', required=False)
     .param('ph', 'The pH', required=False)
     .param('electrolyte', 'The electrolyte used', required=False)
     .param('plateId', 'The plate id', required=False)
 )
-def search(project, elements=None, ph=None, electrolyte=None, plateId=None):
+def search(project, composite, elements=None, ph=None, electrolyte=None, plateId=None):
     if elements is not None:
         elements = elements.split(',')
 
     # Find the matching plate maps
     fields = {
-        'projectId': project['_id']
+        'compositeId': composite['_id']
     }
     if plateId is not None:
         fields['plateId'] = plateId
@@ -40,9 +44,9 @@ def search(project, elements=None, ph=None, electrolyte=None, plateId=None):
                                                user=getCurrentUser())
     ]
 
-    # Fin the matching runs
+    # Find the matching runs
     fields = {
-        'projectId': project['_id']
+        'compositeId': composite['_id']
     }
     if ph is not None:
         fields['solutionPh'] = ph
@@ -62,7 +66,7 @@ def search(project, elements=None, ph=None, electrolyte=None, plateId=None):
             'runId': {
                 '$in': run_ids
             },
-            'plateMapId': {
+            'platemapId': {
                 '$in': platemap_ids
             }
         }

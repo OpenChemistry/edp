@@ -5,7 +5,8 @@ from bson.objectid import ObjectId
 class Sample(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp.models.platemap import PlateMap
+        from girder.plugins.edp.models.timeseries import TimeSeries
         super(Sample, self).__init__(
             name='edp.samples',
             props=(
@@ -40,16 +41,7 @@ class Sample(Base):
                     'mutable': False
                 },
                 {
-                    'name': 'timeseriesId',
-                    'expose': False,
-                    'create': True,
-                    'mutable': False,
-                    'ensure_index': True,
-                    'type': ObjectId
-
-                },
-                {
-                    'name': 'plateMapId',
+                    'name': 'platemapId',
                     'expose': False,
                     'create': True,
                     'mutable': False,
@@ -59,17 +51,10 @@ class Sample(Base):
                      },
                     'type': ObjectId
 
-                },
-                {
-                    'name': 'projectId',
-                    'create': True,
-                    'ensure_index': True,
-                    'query': {
-                        'selector': '$eq'
-                     },
                 }
             ),
             paging_key='sampleId',
-            parent_model=Project,
+            parent_model=PlateMap,
+            child_model=TimeSeries,
             url='samples'
         )
