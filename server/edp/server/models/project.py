@@ -96,13 +96,13 @@ class Project(AccessControlledModel):
     def remove(self, project, user=None, force=False):
         super(Project, self).remove(project)
 
-        for cycle in Cycle().find(project, force=True):
+        for cycle in Cycle().query(project, force=True):
             if not force and not self.hasAccess(cycle, user=user, level=AccessType.WRITE):
                 raise ValidationException('Unable to remove cycle associated with project.')
 
             Cycle().remove(cycle, user)
 
-        for postmortem in Postmortem().find(project, force=True):
+        for postmortem in Postmortem().query(project, force=True):
             if not force and not self.hasAccess(cycle, user=user, level=AccessType.WRITE):
                 raise ValidationException('Unable to remove cycle associated with project.')
 

@@ -190,7 +190,7 @@ class Base(AccessControlledModel):
         super(Base, self).remove(model)
 
         if self.child_model is not None:
-            for child in self.child_model().find(model, force=True):
+            for child in self.child_model().query(model, force=True):
                 if not force and not self.hasAccess(model, user=user, level=AccessType.WRITE):
                     raise ValidationException('Unable to remove child.')
 
