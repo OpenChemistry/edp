@@ -7,7 +7,7 @@ const initialState = {
 
 // Selectors
 export const getSamples = (state, platemapId, runId) => {
-  return state.composites.samples.filter(val => val.platemapId === platemapId && val.runId === runId);
+  return state.composites.samples.filter(val => val.platemapId === platemapId);
 }
 
 export const getTimeSerie = (state, sampleId) => state.composites.timeseries[sampleId];

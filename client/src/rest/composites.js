@@ -8,7 +8,7 @@ export function getSamples(ancestors, item, platemapId, runId) {
   return girderClient().get(`${url}/samples`, {
     params: {
       platemapId,
-      runId,
+      // runId,
       limit: Number.MAX_SAFE_INTEGER
     }
   })

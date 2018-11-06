@@ -5,7 +5,17 @@ import { has, isNil } from 'lodash-es';
 import { NODES, parseUrl } from '../../utils/nodes';
 
 export const getGlobalMatches = (state) => state.search.global;
-export const getCompositeMatches = (state) => state.search.composite;
+export const getCompositeMatches = (state) => {
+  const platemapIds = new Set();
+  return state.search.composite.filter(val => {
+    if (platemapIds.has(val.platemap._id)) {
+      return false;
+    } else {
+      platemapIds.add(val.platemap._id);
+      return true;
+    }
+  })
+};
 
 // Actions
 
