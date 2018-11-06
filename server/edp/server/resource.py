@@ -7,7 +7,6 @@ from girder.api.rest import Resource, RestException, boundHandler
 from girder.constants import AccessType, TokenScope
 from girder.models.file import File
 
-
 def _add_parents(des, parent_models):
     for parent_model in parent_models:
         parent_name = parent_model.__name__.lower()
@@ -143,7 +142,7 @@ def create(model):
                 if f in kwargs:
                     fields[f] = kwargs[f]
 
-            return list(model().find(parent=parents[-1],
+            return list(model().query(parent=parents[-1],
                 owner=kwargs.get('owner'), offset=kwargs.get('offset', 0), limit=kwargs.get('limit', 50), sort=kwargs.get('sort', False),
                 user=self.getCurrentUser(), fields=fields))
 

@@ -39,9 +39,9 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         fields['electrolyte'] = electrolyte
 
     run_ids = [
-        x['_id'] for x in RunModel().find(fields=fields,
-                                          projection=['_id'],
-                                          user=getCurrentUser())
+        x['_id'] for x in RunModel().query(fields=fields,
+                                           projection=['_id'],
+                                           user=getCurrentUser())
     ]
 
     match = {

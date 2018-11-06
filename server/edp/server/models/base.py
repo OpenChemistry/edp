@@ -145,7 +145,7 @@ class Base(AccessControlledModel):
         events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
         job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
 
-    def find(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
+    def query(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
              sort=None, user=None, projection=None):
         query = {}
 

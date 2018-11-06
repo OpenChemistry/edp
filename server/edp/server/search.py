@@ -74,7 +74,7 @@ class Search(Resource):
         # For each item, also include all of its ancestors
 
         for model in models:
-            model_matches = list(model().find(fields=fields, offset=offset,
+            model_matches = list(model().query(fields=fields, offset=offset,
                         limit=limit, sort=sort, user=self.getCurrentUser()))
             for match in model_matches:
                 if str(match['_id']) not in tree_items:
