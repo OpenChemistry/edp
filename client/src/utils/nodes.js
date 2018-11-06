@@ -5,7 +5,8 @@ import {
   Layers,
   Folder,
   ChangeHistory,
-  Crop
+  Crop,
+  Grain
 } from '@material-ui/icons';
 
 import {
@@ -14,10 +15,12 @@ import {
   amber,
   deepOrange,
   teal,
-  indigo
+  indigo,
+  cyan
 } from '@material-ui/core/colors';
 
 import Ingest from '../containers/ingest';
+import CompositeSearch from '../containers/composite-search';
 
 export const PROJECT_NODE = 'PROJECT_NODE';
 export const CYCLE_NODE = 'CYCLE_NODE';
@@ -25,6 +28,7 @@ export const POSTMORTEM_NODE = 'POSTMORTEM_NODE';
 export const BATCH_NODE = 'BATCH_NODE';
 export const TEST0_NODE = 'TEST0_NODE';
 export const TEST1_NODE = 'TEST1_NODE';
+export const COMPOSITION_NODE = 'COMPOSITION_NODE';
 
 export const ROOT_NODE = 'ROOT_NODE';
 
@@ -38,7 +42,7 @@ export const NODES = {
     label: 'Project',
     labelPlural: 'Projects',
     url: 'projects',
-    children: [CYCLE_NODE, POSTMORTEM_NODE],
+    children: [CYCLE_NODE, POSTMORTEM_NODE, COMPOSITION_NODE],
     parentId: null,
     primaryField: 'title',
     secondaryField: 'startDate',
@@ -104,6 +108,17 @@ export const NODES = {
     color: lightGreen[500],
     icon: ChangeHistory
   },
+  [COMPOSITION_NODE] : {
+    label: 'Composite',
+    labelPlural: 'Composites',
+    url: 'composites',
+    children: [],
+    parentId: 'projectId',
+    primaryField: 'name',
+    color: cyan[500],
+    icon: Grain,
+    viewComponent: CompositeSearch
+  }
 }
 
 export function getNodeType(url, index) {
@@ -113,7 +128,8 @@ export function getNodeType(url, index) {
     },
     1: {
       [NODES[CYCLE_NODE].url]: CYCLE_NODE,
-      [NODES[POSTMORTEM_NODE].url]: POSTMORTEM_NODE
+      [NODES[POSTMORTEM_NODE].url]: POSTMORTEM_NODE,
+      [NODES[COMPOSITION_NODE].url]: COMPOSITION_NODE
     },
     2: {
       [NODES[BATCH_NODE].url]: BATCH_NODE,
