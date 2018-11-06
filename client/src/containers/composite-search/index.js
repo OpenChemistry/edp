@@ -8,8 +8,26 @@ import { createFieldsFactory } from '../../utils/fields';
 import { makeUrl } from '../../utils/nodes';
 import { COMPOSITE_SEARCH } from '../../utils/search';
 import SearchForm from '../../components/search/form';
+import SearchResults from '../../components/composite-search/results';
 
 class CompositeSearch extends Component {
+  componentDidMount() {
+    this.compositeSearch();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { fields } = this.props;
+    const prevFields = prevProps.fields;
+    if (JSON.stringify(fields) !== JSON.stringify(prevFields)) {
+      this.compositeSearch();
+    }
+  }
+
+  compositeSearch() {
+    const { ancestors, item, fields, dispatch } = this.props;
+    dispatch(searchComposite({ancestors, item, fields}));
+  }
+
   onSearch = (values) => {
     const { dispatch, ancestors, item } = this.props;
     const baseUrl = `${makeUrl(ancestors, item)}`;
@@ -23,7 +41,12 @@ class CompositeSearch extends Component {
     dispatch(push(`${baseUrl}?${searchParams.toString()}`));
   }
 
+  onOpen = (match) => {
+
+  }
+
   render() {
+    const {matches} = this.props;
     return (
       <div>
         <SearchForm
@@ -31,7 +54,7 @@ class CompositeSearch extends Component {
           fieldsCreator={createFieldsFactory(COMPOSITE_SEARCH)}
           onSubmit={this.onSearch}
         />
-        {/* <SearchResults  matches={matches} onOpen={this.onOpen}/> */}
+        <SearchResults  matches={matches} onOpen={this.onOpen}/>
       </div>
     );
   }
