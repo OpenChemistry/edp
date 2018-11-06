@@ -19,6 +19,7 @@ import { ROOT_ROUTE } from './routes';
 import ItemView from './containers/itemView';
 import ItemEdit from './containers/itemEdit';
 import SearchContainer from './containers/search';
+import CompositeSamplesView from './containers/composite-samples';
 
 class App extends Component {
   render() {
@@ -40,6 +41,7 @@ class App extends Component {
 
               <PrivateRoute path={'/:url0/:id0/:url1/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(edit)'} exact component={ItemEdit} />
+              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:action(add)'} exact component={ItemEdit} />
