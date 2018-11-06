@@ -19,6 +19,10 @@ import {
   fetchIngestKeySaga
 } from './apiKeys';
 
+import {
+  fetchSamplesSaga
+} from './composites';
+
 export default function* root() {
   yield fork(createItemSaga);
   yield fork(fetchItemSaga);
@@ -30,6 +34,8 @@ export default function* root() {
   yield fork(compositeSearchSaga);
 
   yield fork(fetchIngestKeySaga);
+
+  yield fork(fetchSamplesSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

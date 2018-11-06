@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
 import { getCompositeMatches, searchComposite } from '../../redux/ducks/search';
+import { fetchSamples } from '../../redux/ducks/composites';
 import { createFieldsFactory } from '../../utils/fields';
 import { makeUrl } from '../../utils/nodes';
 import { COMPOSITE_SEARCH } from '../../utils/search';
@@ -42,7 +43,10 @@ class CompositeSearch extends Component {
   }
 
   onOpen = (match) => {
-
+    const { ancestors, item, dispatch } = this.props;
+    const platemapId = match.platemap._id;
+    const runId = match.run._id;
+    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
   }
 
   render() {
