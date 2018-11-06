@@ -94,7 +94,7 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         }
     }
 
-    unwind_run = {
+    unwind_id_run = {
         '$unwind': '$_id.runId'
     }
 
@@ -107,11 +107,19 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         }
     }
 
+    unwind_platemap = {
+        '$unwind': '$platemap'
+    }
+
+    unwind_run = {
+        '$unwind': '$run'
+    }
 
     project = {
         '$project': {
             '_id': 0,
             'run._id': 1,
+            'run.runId': 1,
             'run.solutionPh': 1,
             'run.electrolyte': 1,
             'run.plateId': 1,
@@ -122,7 +130,8 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
     }
 
     pipeline = [match, unwind_samples, lookup_sample, match_run, group,
-                unwind_run, lookup_platemap, lookup_run, project]
+                unwind_id_run, lookup_platemap, lookup_run, unwind_platemap,
+                unwind_run, project]
     sample_sets = PlateMapModel().collection.aggregate(pipeline)
 
     return list(sample_sets)

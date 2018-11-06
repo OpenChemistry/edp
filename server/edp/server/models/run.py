@@ -46,6 +46,12 @@ class Run(Base):
                     'query': {
                         'selector': '$eq'
                     },
+                },
+                {
+                    'name': 'runId',
+                    'expose': True,
+                    'create': True,
+                    'ensure_index': True
                 }
             ),
             parent_model=Composite,
