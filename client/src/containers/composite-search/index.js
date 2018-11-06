@@ -3,6 +3,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
+import { getCompositeMatches, searchComposite } from '../../redux/ducks/search';
 import { createFieldsFactory } from '../../utils/fields';
 import { makeUrl } from '../../utils/nodes';
 import { COMPOSITE_SEARCH } from '../../utils/search';
@@ -44,7 +45,7 @@ function mapStateToProps(state, ownProps) {
     fields[key] = value;
   }
   return {
-    // matches: getMatches(state),
+    matches: getCompositeMatches(state),
     fields,
     initialValues: fields,
     currentValues: getFormValues('compositeSearch')(state)

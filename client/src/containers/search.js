@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { has, isEmpty } from 'lodash-es';
 
-import { getMatches, seatchGlobal } from '../redux/ducks/search';
+import { getGlobalMatches, searchGlobal } from '../redux/ducks/search';
 
 import { GLOBAL_SEARCH } from '../utils/search';
 import { createFieldsFactory } from '../utils/fields';
@@ -33,7 +33,7 @@ class SearchContainer extends Component {
 
   globalSearch() {
     const { fields, dispatch } = this.props;
-    dispatch(seatchGlobal({fields}));
+    dispatch(searchGlobal({fields}));
   }
 
   onOpen = (item) => {
@@ -78,7 +78,7 @@ function mapStateToProps(state, ownProps) {
     fields[key] = value;
   }
   return {
-    matches: getMatches(state),
+    matches: getGlobalMatches(state),
     fields,
     initialValues: fields,
     currentValues: getFormValues('globalSearch')(state)

@@ -11,7 +11,8 @@ import {
 } from './items';
 
 import {
-  globalSearchSaga
+  globalSearchSaga,
+  compositeSearchSaga
 } from './search';
 
 import {
@@ -26,6 +27,7 @@ export default function* root() {
   yield fork(fetchItemsSaga);
 
   yield fork(globalSearchSaga);
+  yield fork(compositeSearchSaga);
 
   yield fork(fetchIngestKeySaga);
 
