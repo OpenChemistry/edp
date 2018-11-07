@@ -43,7 +43,7 @@ class ItemListItem extends Component {
         </Avatar>
         <ListItemText
           primary={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
-          secondary={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
+          secondary={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
         />
         <ListItemSecondaryAction>
           {showDelete &&
