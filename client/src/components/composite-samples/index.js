@@ -46,9 +46,10 @@ class PlotComponentContainer extends Component {
   }
 
   componentDidMount() {
+    const { onSampleDeselect, onSampleSelect } = this.props;
     this.dp = new DataProvider([], 4);
     this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
-    this.quaternaryPlot.setCallBacks(this.onSampleSelect, this.onSampleDeselect);
+    this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
 
     this.spectraPlot = new Spectrum(this.spectraElement);
     this.spectraPlot.setOffset(this.state.yOffset);
@@ -125,42 +126,6 @@ class PlotComponentContainer extends Component {
   onOffsetChange(yOffset) {
     this.spectraPlot.setOffset(yOffset);
     this.setState({...this.state, yOffset});
-  }
-
-  onSampleSelect = (d) => {
-    // fetchSample(d.id)
-    //   .then(sample => {
-    //     let spectrum = {};
-    //     for (let key in sample) {
-    //       spectrum[key] = sample[key].map((n) => parseFloat(n)).slice(100);
-    //     }
-    //     let metaData = {
-    //       elements: this.state.dataSet.elements,
-    //       components: d.components,
-    //       id: d.id
-    //     }
-    //     let selectedSamples = [...this.state.selectedSamples];
-    //     selectedSamples.push(d);
-    //     if (this.state.selectedSamples.length === 0) {
-    //       let sampleFields = [];
-    //       for (let key in sample) {
-    //         sampleFields.push(key);
-    //       }
-    //       let xField = sampleFields[0];
-    //       let yField = sampleFields[1];
-    //       this.spectraPlot.setAxes(xField, yField);
-    //       this.setState({...this.state, selectedSamples, sampleFields, xField, yField});
-    //     } else {
-    //       this.setState({...this.state, selectedSamples});
-    //     }
-    //     this.spectraPlot.appendSpectrum(spectrum, metaData);
-    //   });
-  }
-
-  onSampleDeselect = (d) => {
-    // let selectedSamples = this.state.selectedSamples.filter(val=> val.id !== d.id);
-    // this.setState({...this.state, selectedSamples});
-    // this.spectraPlot.removeSpectrum(d);
   }
 
   render() {

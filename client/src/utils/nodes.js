@@ -30,6 +30,9 @@ export const TEST0_NODE = 'TEST0_NODE';
 export const TEST1_NODE = 'TEST1_NODE';
 export const COMPOSITION_NODE = 'COMPOSITION_NODE';
 
+export const SAMPLE_NODE = 'SAMPLE_NODE';
+export const TIMESERIE_NODE = 'TIMESERIE_NODE';
+
 export const ROOT_NODE = 'ROOT_NODE';
 
 export const NODES = {
@@ -118,6 +121,13 @@ export const NODES = {
     color: cyan[500],
     icon: Grain,
     viewComponent: CompositeSearch
+  },
+  // Nodes only needed to create urls
+  [SAMPLE_NODE]: {
+    url: 'samples'
+  },
+  [TIMESERIE_NODE]: {
+    url: 'timeseries'
   }
 }
 
@@ -133,10 +143,12 @@ export function getNodeType(url, index) {
     },
     2: {
       [NODES[BATCH_NODE].url]: BATCH_NODE,
-      [NODES[TEST1_NODE].url]: TEST1_NODE
+      [NODES[TEST1_NODE].url]: TEST1_NODE,
+      [NODES[SAMPLE_NODE].url]: SAMPLE_NODE
     },
     3: {
-      [NODES[TEST0_NODE].url]: TEST0_NODE
+      [NODES[TEST0_NODE].url]: TEST0_NODE,
+      [NODES[TIMESERIE_NODE].url]: TIMESERIE_NODE
     },
   }
 

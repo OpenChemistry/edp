@@ -20,7 +20,8 @@ import {
 } from './apiKeys';
 
 import {
-  fetchSamplesSaga
+  fetchSamplesSaga,
+  fetchTimeserieSaga
 } from './composites';
 
 export default function* root() {
@@ -36,6 +37,7 @@ export default function* root() {
   yield fork(fetchIngestKeySaga);
 
   yield fork(fetchSamplesSaga);
+  yield fork(fetchTimeserieSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

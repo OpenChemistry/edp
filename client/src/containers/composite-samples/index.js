@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
-import { getSamples, fetchSamples } from '../../redux/ducks/composites';
+import { TIMESERIE_NODE, SAMPLE_NODE } from '../../utils/nodes';
+
+import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
 
 import { parseUrlMatch } from '../../utils/nodes';
 import CompositeSamples from '../../components/composite-samples';
@@ -15,6 +17,17 @@ class CompositeSamplesContainer extends Component {
     const { dispatch, ancestors, item, platemapId, runId} = this.props;
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
   }
+
+  onSampleSelect = (sample) => {
+    const { ancestors, item, dispatch } = this.props;
+    const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
+    const item_ = {type: TIMESERIE_NODE};
+    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
+  }
+
+  onSampleDeselect = (d) => {
+    console.log('Deselect', d);
+  }
   
   render() {
     const { samples } = this.props;
@@ -25,7 +38,11 @@ class CompositeSamplesContainer extends Component {
 
     return (
       <div>
-        <CompositeSamples samples={samples} />
+        <CompositeSamples
+          samples={samples}
+          onSampleSelect={this.onSampleSelect}
+          onSampleDeselect={this.onSampleDeselect}
+        />
       </div>
     );
   }

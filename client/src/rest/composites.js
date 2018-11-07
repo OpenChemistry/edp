@@ -14,3 +14,8 @@ export function getSamples(ancestors, item, platemapId, runId) {
   })
   .then(response => response.data);
 }
+
+export function getTimeseries(ancestors, item) {
+  const url = makeUrl(ancestors, item, prefix);
+  return girderClient().get(`${url}/`)
+}
