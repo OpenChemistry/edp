@@ -11,12 +11,18 @@ import {
 } from './items';
 
 import {
-  globalSearchSaga
+  globalSearchSaga,
+  compositeSearchSaga
 } from './search';
 
 import {
   fetchIngestKeySaga
 } from './apiKeys';
+
+import {
+  fetchSamplesSaga,
+  fetchTimeserieSaga
+} from './composites';
 
 export default function* root() {
   yield fork(createItemSaga);
@@ -26,8 +32,12 @@ export default function* root() {
   yield fork(fetchItemsSaga);
 
   yield fork(globalSearchSaga);
+  yield fork(compositeSearchSaga);
 
   yield fork(fetchIngestKeySaga);
+
+  yield fork(fetchSamplesSaga);
+  yield fork(fetchTimeserieSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

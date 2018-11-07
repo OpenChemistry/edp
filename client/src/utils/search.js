@@ -1,1 +1,2 @@
 export const GLOBAL_SEARCH = 'GLOBAL_SEARCH';
+export const COMPOSITE_SEARCH = 'COMPOSITE_SEARCH';

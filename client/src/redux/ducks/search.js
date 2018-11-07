@@ -4,7 +4,18 @@ import { has, isNil } from 'lodash-es';
 
 import { NODES, parseUrl } from '../../utils/nodes';
 
-export const getMatches = (state) => state.search;
+export const getGlobalMatches = (state) => state.search.global;
+export const getCompositeMatches = (state) => {
+  const platemapIds = new Set();
+  return state.search.composite.filter(val => {
+    if (platemapIds.has(val.platemap._id)) {
+      return false;
+    } else {
+      platemapIds.add(val.platemap._id);
+      return true;
+    }
+  })
+};
 
 // Actions
 
@@ -12,9 +23,14 @@ export const GLOBAL_SEARCH_REQUESTED = 'GLOBAL_SEARCH_REQUESTED';
 export const GLOBAL_SEARCH_SUCCEEDED = 'GLOBAL_SEARCH_SUCCEEDED';
 export const GLOBAL_SEARCH_FAILED = 'GLOBAL_SEARCH_FAILED';
 
+export const COMPOSITE_SEARCH_REQUESTED = 'COMPOSITE_SEARCH_REQUESTED';
+export const COMPOSITE_SEARCH_SUCCEEDED = 'COMPOSITE_SEARCH_SUCCEEDED';
+export const COMPOSITE_SEARCH_FAILED = 'COMPOSITE_SEARCH_FAILED';
+
 // Action creators
 
-export const seatchGlobal = createAction(GLOBAL_SEARCH_REQUESTED);
+export const searchGlobal = createAction(GLOBAL_SEARCH_REQUESTED);
+export const searchComposite = createAction(COMPOSITE_SEARCH_REQUESTED);
 
 // Reducer
 
@@ -33,18 +49,21 @@ function patchItem(item) {
 }
 
 const initialState = {
-  root: {
-    item: null,
-    children: []
-  }
+  global: {
+    root: {
+      item: null,
+      children: []
+    }
+  },
+  composite: []
 };
 
 const reducer = handleActions({
   [GLOBAL_SEARCH_REQUESTED]: (state, action) => {
-    return {...initialState};
+    return {...state, global: initialState.global};
   },
   [GLOBAL_SEARCH_SUCCEEDED]: (state, action) => {
-    return Object.entries(action.payload).reduce((result, pair) => {
+    const global = Object.entries(action.payload).reduce((result, pair) => {
       const [_id, value] = pair;
       let item = value['item'];
       if (!isNil(item)) {
@@ -54,6 +73,14 @@ const reducer = handleActions({
       result[_id] = value;
       return result;
     }, {});
+    return {...state, global};
+  },
+  [COMPOSITE_SEARCH_REQUESTED]: (state, action) => {
+    return {...state, composite: initialState.composite};
+  },
+  [COMPOSITE_SEARCH_SUCCEEDED]: (state, action) => {
+    const composite = action.payload;
+    return {...state, composite};
   },
 }, initialState);
 

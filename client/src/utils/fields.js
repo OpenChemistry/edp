@@ -8,11 +8,12 @@ import {
   POSTMORTEM_NODE,
   BATCH_NODE,
   TEST0_NODE,
-  TEST1_NODE
+  TEST1_NODE,
+  COMPOSITION_NODE
 } from './nodes';
 
 import {
-  GLOBAL_SEARCH
+  GLOBAL_SEARCH, COMPOSITE_SEARCH
 } from './search';
 
 export function createFieldsFactory(nodeType) {
@@ -30,7 +31,7 @@ export function createFieldsFactory(nodeType) {
     }
 
     case BATCH_NODE : {
-      return createBatchFields
+      return createBatchFields;
     }
 
     case TEST0_NODE : {
@@ -42,7 +43,15 @@ export function createFieldsFactory(nodeType) {
     }
 
     case GLOBAL_SEARCH : {
-      return createGlobalSearchFields
+      return createGlobalSearchFields;
+    }
+
+    case COMPOSITION_NODE : {
+      return createCompositeFields;
+    }
+
+    case COMPOSITE_SEARCH : {
+      return createCompositeSearchFields;
     }
 
     default : {
@@ -338,6 +347,43 @@ function createGlobalSearchFields(filters) {
       type: 'text',
       value: has(filters, 'cellId') ? filters.cellId : '',
       error: ''
+    }
+  }
+  return fields;
+}
+
+function createCompositeSearchFields(filters) {
+  let fields = {
+    'elements' : {
+      label: 'Elements (comma separated)',
+      type: 'text',
+      value: has(filters, 'elements') ? filters.elements : '',
+      error: ''
+    },
+    'ph' : {
+      label: 'pH',
+      type: 'text',
+      value: has(filters, 'ph') ? filters.ph : '',
+      error: ''
+    },
+    'electrolyte' : {
+      label: 'Electrolyte',
+      type: 'text',
+      value: has(filters, 'electrolyte') ? filters.electrolyte : '',
+      error: ''
+    }
+  }
+  return fields;
+}
+
+function createCompositeFields(composite) {
+  let fields = {
+    'name': {
+      label: 'Name',
+      type: 'text',
+      value: has(composite, 'name') ? composite.name : '',
+      error: '',
+      validate: [required]
     }
   }
   return fields;

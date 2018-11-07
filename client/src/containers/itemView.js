@@ -65,12 +65,17 @@ class ItemViewContainer extends Component {
   }
   
   render() {
-    const { ancestors, item, children } = this.props;
+    const { ancestors, item, children, location } = this.props;
     
     if (item.type !== ROOT_NODE && isNil(item.fields)) {
       return <NotFoundPage />;
     }
-    
+
+    const viewComponent = NODES[item.type].viewComponent ? React.createElement(
+      NODES[item.type].viewComponent,
+      {item, ancestors, location}
+    ) :  null;
+
     const childrenLists = [];
     for (let child of children) {
       let ingestComponent;
@@ -120,6 +125,7 @@ class ItemViewContainer extends Component {
         />
         }
         {childrenLists}
+        {viewComponent}
       </div>
     );
   }
