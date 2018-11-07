@@ -46,8 +46,6 @@ class Sample(resource.create(SampleModel)):
                 '$in': sample_ids
             }
 
-        print(query)
-
         cursor = SampleModel().find(query=query, offset=offset,
                                       sort=sort, user=getCurrentUser())
 

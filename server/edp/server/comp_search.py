@@ -1,3 +1,5 @@
+import itertools
+
 from bson.objectid import ObjectId
 from girder.api import access
 from girder.api.describe import Description, autoDescribeRoute, getCurrentUser
