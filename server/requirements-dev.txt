@@ -44,7 +44,7 @@ pytest==3.7.1
 python-dateutil==2.6.1    # via botocore, girder
 pytz==2018.5              # via girder, tempora
 pyyaml==3.13              # via girder
-requests==2.19.1          # via girder
+requests==2.20.0
 s3transfer==0.1.13        # via boto3
 sentinels==1.0.0          # via mongomock
 six==1.11.0               # via bcrypt, cheroot, cherrypy, girder, mock, mongomock, more-itertools, pytest, python-dateutil, tempora
