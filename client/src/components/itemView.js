@@ -39,7 +39,7 @@ class ItemView extends Component {
             </IconButton>
           }
           title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
-          subheader={`${secondaryPrefix || ''} ${item[secondaryField]} ${secondarySuffix || ''}`}
+          subheader={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
           avatar={<Avatar style={{backgroundColor: color}}>{<NodeIcon/>}</Avatar>}
         />
         <CardContent>
