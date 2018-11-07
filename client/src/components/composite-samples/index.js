@@ -64,7 +64,6 @@ class PlotComponentContainer extends Component {
 
     this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
     this.quaternaryPlot.dataUpdated();
-    this.quaternaryPlot.render();
     this.setState({...this.state, scalar, colorMapRange, dataRange});
   }
 
