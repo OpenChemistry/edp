@@ -12,14 +12,13 @@ import {
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
-import { QuaternaryPlot, Spectrum, colors } from 'composition-plot';
+import { QuaternaryPlot, colors } from 'composition-plot';
 
 import { DataProvider } from 'composition-plot';
 
 class PlotComponentContainer extends Component {
 
   compositionElement;
-  spectraElement;
   quaternaryPlot;
 
   constructor(props) {
@@ -29,12 +28,7 @@ class PlotComponentContainer extends Component {
       colorMap: colors.viridis,
       colorMapRange: [0, 1],
       scalar: null,
-      activeMap: 'Viridis',
-      selectedSamples: [],
-      sampleFields: [],
-      xField: null,
-      yField: null,
-      yOffset: 0
+      activeMap: 'Viridis'
     }
 
     this.colorMaps = {
@@ -50,9 +44,6 @@ class PlotComponentContainer extends Component {
     this.dp = new DataProvider([], 4);
     this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
     this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
-
-    this.spectraPlot = new Spectrum(this.spectraElement);
-    this.spectraPlot.setOffset(this.state.yOffset);
 
     const { samples } = this.props;
     this.onNewSamples(samples);
@@ -70,14 +61,11 @@ class PlotComponentContainer extends Component {
     this.dp.setActiveScalar(scalar);
     const dataRange = this.dp.getScalarRange(scalar);
     const colorMapRange = [...dataRange];
-    const selectedSamples = [];
-    const sampleFields = [];
 
     this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
     this.quaternaryPlot.dataUpdated();
     this.quaternaryPlot.render();
-    this.spectraPlot.removeSpectra();
-    this.setState({...this.state, scalar, colorMapRange, dataRange, selectedSamples, sampleFields});
+    this.setState({...this.state, scalar, colorMapRange, dataRange});
   }
 
   onScalarChange(scalar) {
@@ -111,23 +99,6 @@ class PlotComponentContainer extends Component {
     this.quaternaryPlot.setColorMap(this.state.colorMap, range);
   }
 
-  onSampleFieldChange(field, index) {
-    let xField = this.state.xField;
-    let yField = this.state.yField;
-    if (index === 0) {
-      xField = field;
-    } else {
-      yField = field;
-    }
-    this.spectraPlot.setAxes(xField, yField);
-    this.setState({...this.state, xField, yField});
-  }
-
-  onOffsetChange(yOffset) {
-    this.spectraPlot.setOffset(yOffset);
-    this.setState({...this.state, yOffset});
-  }
-
   render() {
     const scalars = this.dp ? this.dp.getScalars() : [];
     
@@ -139,11 +110,6 @@ class PlotComponentContainer extends Component {
     let colorMapSelectOptions = [];
     for (let name in this.colorMaps) {
       colorMapSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
-    }
-
-    let sampleFieldsSelectOptions = [];
-    for (let name of this.state.sampleFields) {
-      sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
     }
 
     return (
@@ -214,65 +180,6 @@ class PlotComponentContainer extends Component {
             <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
           </div>
         </div>
-
-        {this.state.selectedSamples.length >= 0 &&
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>X Axis</TableCell>
-              <TableCell>Y Axis</TableCell>
-              <TableCell>Offset</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <FormControl fullWidth>
-                  {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
-                  <Select
-                    value={this.state.xField || ""}
-                    onChange={(e) => {this.onSampleFieldChange(e.target.value, 0)}}
-                    inputProps={{name: 'scalar', id: 'select-scalar'}}
-                  >
-                    {sampleFieldsSelectOptions}
-                  </Select>
-                </FormControl>
-              </TableCell>
-              <TableCell>
-                <FormControl fullWidth>
-                  {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
-                  <Select
-                    value={this.state.yField || ""}
-                    onChange={(e) => {this.onSampleFieldChange(e.target.value, 1)}}
-                    inputProps={{name: 'colorMap', id: 'select-map'}}
-                  >
-                    {sampleFieldsSelectOptions}
-                  </Select>
-                </FormControl>
-              </TableCell>
-              <TableCell>
-                <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                  <div>
-                    {this.state.yOffset.toFixed(3)}
-                  </div>
-                  <div style={{flexGrow: 1, paddingRight: 16}}>
-                    <Slider 
-                      min={0} max={10} step={0.1}
-                      value={this.state.yOffset}
-                      onChange={(e, val) => {this.onOffsetChange(val)}}
-                    />
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        }
-
-        <div style={{width: '100%', height: '40rem', position: 'relative'}}>
-          <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.spectraElement = ref;}}></svg>
-        </div>
-
         
       </div>
     );

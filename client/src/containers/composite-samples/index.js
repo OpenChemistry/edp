@@ -8,10 +8,18 @@ import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/comp
 
 import { parseUrlMatch } from '../../utils/nodes';
 import CompositeSamples from '../../components/composite-samples';
+import SpectrumComponent from './spectrum';
 
 import NotFoundPage from '../../components/notFound.js';
 
 class CompositeSamplesContainer extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedSamples: []
+    }
+  }
 
   componentDidMount() {
     const { dispatch, ancestors, item, platemapId, runId} = this.props;
@@ -23,17 +31,26 @@ class CompositeSamplesContainer extends Component {
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
     dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
+    this.setState((state, props) => {
+      state.selectedSamples.push(sample);
+      return state;
+    });
   }
 
-  onSampleDeselect = (d) => {
-    console.log('Deselect', d);
+  onSampleDeselect = (sample) => {
+    this.setState(state => {
+      state.selectedSamples = state.selectedSamples.filter( s => s._id !== sample._id);
+      return state;
+    });
   }
-  
+
   render() {
     const { samples } = this.props;
+    const { selectedSamples } = this.state;
 
     if (samples.length === 0) {
-      return <NotFoundPage />;
+      // return <NotFoundPage />;
+      return null;
     }
 
     return (
@@ -42,6 +59,9 @@ class CompositeSamplesContainer extends Component {
           samples={samples}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
+        />
+        <SpectrumComponent
+          selectedSamples={selectedSamples}
         />
       </div>
     );
