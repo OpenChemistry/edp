@@ -17,7 +17,7 @@ from . import edp_group
 
 class Base(AccessControlledModel):
 
-    def __init__(self, name=None, props=None, parent_model=None, child_model=None, url=''):
+    def __init__(self, name=None, props=None, parent_model=None, paging_key=None, child_model=None, url=''):
         self.collection_name = name
         self.ensure_indices = [ p['name'] for p in props if p.get('ensure_index')]
         self.ensure_text_indices = [ p['name'] for p in props if p.get('ensure_text_index')]
@@ -26,8 +26,13 @@ class Base(AccessControlledModel):
         self.create_props = [ p for p in props if p.get('create')]
         self.file_props = [ p['name'] for p in props if p.get('type') == 'file']
         self.required_props = [ p['name'] for p in props if p.get('required')]
+        self.query_fields = [ {p['name']: p.get('query')} for p in props if p.get('query')]
+        self.query_fields = { k: v for d in self.query_fields for k, v in d.items() }
+        self.types = [ {p['name']: p.get('type')} for p in props if 'type' in p and p['name'] not in self.file_props ]
+        self.types = { k: v for d in self.types for k, v in d.items() }
         self.parent_model = parent_model
         self.url = url
+        self.paging_key = paging_key
         if self.parent_model is not None:
             self.parent_key = '%sId' % self.parent_model.__name__.lower()
 
@@ -59,6 +64,12 @@ class Base(AccessControlledModel):
                     raise ValidationException('File doesn\'t exists: %s' % prop_value)
 
                 if not isinstance(prop_value, ObjectId):
+                    prop_value = ObjectId(prop_value)
+
+            if prop_value is not None and prop.get('type') == ObjectId:
+                if isinstance(prop_value, list):
+                    prop_value = [ObjectId(x) for x in prop_value]
+                else:
                     prop_value = ObjectId(prop_value)
 
             if prop_value is not None:
@@ -134,8 +145,8 @@ class Base(AccessControlledModel):
         events.bind('jobs.job.update.after', str(file_id), callback_factory(self, prop_name, file_id, model_id, user))
         job = schedule_thumbnail_job(file, 'item', file['itemId'], user, height=max_height, async=True)
 
-    def find(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
-             sort=None, user=None):
+    def query(self, parent=None, owner=None, fields=None, force=False, offset=0, limit=None,
+             sort=None, user=None, projection=None):
         query = {}
 
         if owner is not None:
@@ -147,13 +158,24 @@ class Base(AccessControlledModel):
         if fields is not None:
             for key, value in fields.items():
                 if value is not None:
-                    regex = re.compile('.*%s.*' % value, re.IGNORECASE)
-                    query[key] = {
-                        '$regex': regex
-                    }
+                    if key in self.types:
+                        if isinstance(value, list):
+                            value = [self.types[key](x) for x in value]
+                        else:
+                            value = self.types[key](value)
+
+                    if key in self.query_fields:
+                        query[key] = {
+                            self.query_fields[key]['selector']: value
+                        }
+                    else:
+                        regex = re.compile('.*%s.*' % value, re.IGNORECASE)
+                        query[key] = {
+                            '$regex': regex
+                        }
 
         cursor = super(Base, self).find(query=query, offset=offset,
-                                              sort=sort, user=user)
+                                              sort=sort, user=user, fields=projection)
 
         if not force:
             for r in self.filterResultsByPermission(cursor=cursor, user=user,
@@ -168,7 +190,7 @@ class Base(AccessControlledModel):
         super(Base, self).remove(model)
 
         if self.child_model is not None:
-            for child in self.child_model().find(model, force=True):
+            for child in self.child_model().query(model, force=True):
                 if not force and not self.hasAccess(model, user=user, level=AccessType.WRITE):
                     raise ValidationException('Unable to remove child.')
 

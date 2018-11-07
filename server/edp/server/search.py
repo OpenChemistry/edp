@@ -60,7 +60,7 @@ class Search(Resource):
                 if str(item[parent_key]) in tree_items:
                     parent = tree_items[str(item[parent_key])]['item']
                 else:
-                    parent = parent_model().load(item[parent_key], 
+                    parent = parent_model().load(item[parent_key],
                         level=AccessType.READ, user=self.getCurrentUser())
                     parent['path'] = _make_absolute_path(parent, parent_model, tree_items)
                     tree_items[str(parent['_id'])] = {
@@ -74,7 +74,7 @@ class Search(Resource):
         # For each item, also include all of its ancestors
 
         for model in models:
-            model_matches = list(model().find(fields=fields, offset=offset,
+            model_matches = list(model().query(fields=fields, offset=offset,
                         limit=limit, sort=sort, user=self.getCurrentUser()))
             for match in model_matches:
                 if str(match['_id']) not in tree_items:
