@@ -42,7 +42,7 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
 
     run_ids = [
         x['_id'] for x in RunModel().query(fields=fields,
-                                           projection=['_id'],
+                                           projection=['_id', 'access'],
                                            user=getCurrentUser())
     ]
 
