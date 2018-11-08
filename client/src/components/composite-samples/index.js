@@ -174,12 +174,12 @@ class PlotComponentContainer extends Component {
           </TableBody>
         </Table>
 
-        <div style={{width: '100%', height: '30rem', position: 'relative', overflowX: 'scroll'}}>
-          <div style={{width: '95rem', height: '100%'}}>
+        <div style={{width: '100%', height: '22.5rem', position: 'relative', overflowX: 'scroll', overflowY: 'hidden'}}>
+          <div style={{width: '70rem', height: '100%'}}>
             <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
           </div>
         </div>
-        
+
       </div>
     );
   }
