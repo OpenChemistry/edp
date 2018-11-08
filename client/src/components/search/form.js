@@ -20,7 +20,8 @@ class SearchForm extends Component {
       submitting,
       invalid,
       initialValues,
-      currentValues
+      currentValues,
+      liveSearch
     } = this.props;
 
     let fields;
@@ -30,6 +31,8 @@ class SearchForm extends Component {
       fields = fieldsCreator(currentValues);
     }
     let formFields = renderFormFields(fields);
+
+    const onChange = liveSearch ? () => {setTimeout(handleSubmit(onSubmit))} : () => {};
 
     return (
       <div>
@@ -41,10 +44,11 @@ class SearchForm extends Component {
           </ListItem>
         </div>
         <Card elevation={1}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} onChange={onChange}>
           <CardContent>
             {formFields}
           </CardContent>
+          { !liveSearch &&
           <CardActions >
             <Button
               variant="contained" color="secondary" type='submit'
@@ -53,6 +57,7 @@ class SearchForm extends Component {
               Search
             </Button>
           </CardActions>
+          }
           </form>
         </Card>
       </div>

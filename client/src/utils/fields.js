@@ -371,6 +371,12 @@ function createCompositeSearchFields(filters) {
       type: 'text',
       value: has(filters, 'electrolyte') ? filters.electrolyte : '',
       error: ''
+    },
+    'plateId' : {
+      label: 'Plate ID',
+      type: 'text',
+      value: has(filters, 'plateId') ? filters.plateId : '',
+      error: ''
     }
   }
   return fields;

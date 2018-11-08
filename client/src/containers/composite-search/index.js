@@ -62,6 +62,7 @@ class CompositeSearch extends Component {
           {...this.props}
           fieldsCreator={createFieldsFactory(COMPOSITE_SEARCH)}
           onSubmit={this.onSearch}
+          liveSearch
         />
         <SearchResults  matches={matches} onOpen={this.onOpen}/>
       </div>
