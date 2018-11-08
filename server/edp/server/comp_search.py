@@ -57,8 +57,7 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         match['$match'] = {
            'elements': {
                 '$all': elements
-            },
-           'plateId': plateId
+            }
         }
 
     unwind_samples = {
