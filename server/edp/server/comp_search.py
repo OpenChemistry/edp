@@ -28,7 +28,7 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
 )
 def search(project, composite, elements=None, ph=None, electrolyte=None, plateId=None):
     if elements is not None:
-        elements = elements.split(',')
+        elements = [e.strip().lower() for e in elements.split(',')]
 
     # Find the matching runs
     fields = {
