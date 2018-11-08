@@ -40,6 +40,9 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
     if electrolyte is not None:
         fields['electrolyte'] = electrolyte
 
+    if plateId is not None:
+        fields['plateId'] = int(plateId)
+
     run_ids = [
         x['_id'] for x in RunModel().query(fields=fields,
                                            projection=['_id', 'access'],
@@ -54,7 +57,8 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         match['$match'] = {
            'elements': {
                 '$all': elements
-            }
+            },
+           'plateId': plateId
         }
 
     unwind_samples = {
