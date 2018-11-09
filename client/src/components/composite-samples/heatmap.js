@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spectrum } from 'composition-plot';
+import { HeatMap, HeatMapDataProvider } from 'composition-plot';
 
 import {
   Select,
@@ -9,12 +9,13 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TableHead
+  TableHead,
+  Switch
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
-class SpectrumComponent extends Component {
-  spectraElement;
+class HeatMapComponent extends Component {
+  heatMapElement;
 
   constructor(props) {
     super(props);
@@ -22,25 +23,27 @@ class SpectrumComponent extends Component {
       sampleFields: [],
       xField: null,
       yField: null,
-      yOffset: 0
+      yOffset: 0,
+      separateSlope: true,
+      nY: 50
     };
   }
 
   componentDidMount() {
-    this.spectraPlot = new Spectrum(this.spectraElement);
-    this.spectraPlot.setOffset(this.state.yOffset);
-    this.updateSpectra();
+    this.dp = new HeatMapDataProvider();
+    this.heatMap = new HeatMap(this.heatMapElement, this.dp);
+    this.onNewData();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
-      this.updateSpectra();
+      this.onNewData();
     }
   }
 
-  updateSpectra() {
+  onNewData() {
     const { timeseries } = this.props;
-    this.spectraPlot.setSpectra(this.props.timeseries);
+    // this.spectraPlot.setSpectra(timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
       const sampleFields = Object.keys(spectrum);
@@ -51,8 +54,24 @@ class SpectrumComponent extends Component {
       if (!(yField in spectrum)) {
         yField = sampleFields[1];
       }
+      // spectrum[xField] = [0, 0.2, 0.4, 0.6, 0.8, 1, 0.8, 0.6, 0.4, 0.2, 0];
+      // spectrum[yField] = [0, 0.04, 0.16, 0.36, 0.64, 1, 1 - 0.04, 1 - 0.16, 1 - 0.36, 1 - 0.64, 0];
+
       this.setState({xField, yField, sampleFields});
+      this.dp.setData(timeseries);
+      setTimeout(() => {
+        this.refreshHeatMap();
+      });
     }
+  }
+
+  refreshHeatMap() {
+    const { nY, separateSlope, xField, yField } = this.state;
+    this.dp.setNumY(nY);
+    this.dp.setActiveScalars([xField, yField]);
+    this.dp.setSeparateSlope(separateSlope);
+    this.dp.computeMaps();
+    this.heatMap.dataUpdated();
   }
 
   onSampleFieldChange(field, index) {
@@ -63,17 +82,32 @@ class SpectrumComponent extends Component {
     } else {
       yField = field;
     }
-    this.spectraPlot.setAxes(xField, yField);
+    // this.dp.setActiveScalars([xField, yField]);
+    // this.dp.computeMaps();
+    // this.heatMap.dataUpdated();
     this.setState({xField, yField});
+    setTimeout(() => {
+      this.refreshHeatMap();
+    });
   }
 
-  onOffsetChange(yOffset) {
-    this.spectraPlot.setOffset(yOffset);
-    this.setState({yOffset});
+  onSeparateSlopeChange(flag) {
+    this.setState({separateSlope: flag});
+    setTimeout(() => {
+      this.refreshHeatMap();
+    });
+  }
+
+  onNyChange(nY) {
+    this.setState({nY});
+    setTimeout(() => {
+      this.refreshHeatMap();
+    });
   }
 
   render() {
     const {visSelector} = this.props;
+    const {separateSlope, nY} = this.state;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -87,9 +121,9 @@ class SpectrumComponent extends Component {
               {visSelector &&
               <TableCell>Display</TableCell>
               }
-              <TableCell>X Axis</TableCell>
               <TableCell>Y Axis</TableCell>
-              <TableCell>Offset</TableCell>
+              <TableCell>Z Axis</TableCell>
+              <TableCell>Separate by slope</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -126,29 +160,46 @@ class SpectrumComponent extends Component {
                 </FormControl>
               </TableCell>
               <TableCell>
+                <FormControl fullWidth>
+                  <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
+                </FormControl>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+          {/* <TableHead>
+            <TableRow>
+              <TableCell>Separate by slope</TableCell>
+              <TableCell>Y bins</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>
+                <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
+              </TableCell>
+              <TableCell>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   <div>
-                    {this.state.yOffset.toFixed(3)}
+                    {nY}
                   </div>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
                     <Slider 
-                      min={0} max={10} step={0.1}
-                      value={this.state.yOffset}
-                      onChange={(e, val) => {this.onOffsetChange(val)}}
+                      min={2} max={100} step={1}
+                      value={nY}
+                      onChange={(e, val) => {this.onNyChange(val)}}
                     />
                   </div>
                 </div>
               </TableCell>
             </TableRow>
-          </TableBody>
+          </TableBody> */}
         </Table>
 
-        <div style={{width: '100%', height: '40rem', position: 'relative'}}>
-          <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.spectraElement = ref;}}></svg>
+        <div style={{width: '100%', height: '40rem'}} ref={(ref)=>{this.heatMapElement = ref;}}>
         </div>
       </div>
     );
   }
 }
 
-export default SpectrumComponent;
+export default HeatMapComponent;

@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 
 import { getTimeSerie } from '../../redux/ducks/composites';
 
-import SpectrumComponent from '../../components/composite-samples/spectrum';
+import SamplesDetails from '../../components/composite-samples/details';
 
-class SpectrumContainer extends Component {
+class SamplesDetailsContainer extends Component {
   
   render() {
     const { timeseries } = this.props;
@@ -16,7 +16,7 @@ class SpectrumContainer extends Component {
     }
 
     return (
-      <SpectrumComponent timeseries={timeseries} />
+      <SamplesDetails timeseries={timeseries} />
     );
   }
 }
@@ -32,4 +32,4 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-export default connect(mapStateToProps)(SpectrumContainer);
+export default connect(mapStateToProps)(SamplesDetailsContainer);
