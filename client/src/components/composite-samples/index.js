@@ -103,7 +103,7 @@ class PlotComponentContainer extends Component {
     
     let scalarSelectOptions = [];
     for (let scalar of scalars) {
-      scalarSelectOptions.push(<MenuItem key={scalar} value={scalar}>{scalar}</MenuItem>)
+      scalarSelectOptions.push(<MenuItem key={scalar} value={scalar}>{scalar.replace('\\u002', '.')}</MenuItem>)
     }
 
     let colorMapSelectOptions = [];
