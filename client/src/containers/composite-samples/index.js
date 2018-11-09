@@ -8,7 +8,7 @@ import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/comp
 
 import { parseUrlMatch } from '../../utils/nodes';
 import CompositeSamples from '../../components/composite-samples';
-import SpectrumComponent from './spectrum';
+import SamplesDetails from './details';
 
 import NotFoundPage from '../../components/notFound.js';
 
@@ -60,7 +60,7 @@ class CompositeSamplesContainer extends Component {
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
         />
-        <SpectrumComponent
+        <SamplesDetails
           selectedSamples={selectedSamples}
         />
       </div>
