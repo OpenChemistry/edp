@@ -12,7 +12,9 @@ class SamplesDetailsContainer extends Component {
     const { timeseries } = this.props;
 
     if (timeseries.length === 0) {
-      return null;
+      return (
+        <div style={{width: '100%', height: '48rem'}}></div>
+      );
     }
 
     return (
