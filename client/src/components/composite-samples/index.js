@@ -8,7 +8,9 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TableHead
+  TableHead,
+  TextField,
+  Button
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
@@ -47,6 +49,11 @@ class PlotComponentContainer extends Component {
 
     const { samples } = this.props;
     this.onNewSamples(samples);
+  }
+
+  componentDidUpdate() {
+    const { selectedSampleKeys } = this.props;
+    this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
   }
 
   onNewSamples(samples) {
@@ -99,6 +106,7 @@ class PlotComponentContainer extends Component {
   }
 
   render() {
+    const { onClearSelection, selectedSamples, onSampleSelectById } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
     
     let scalarSelectOptions = [];
@@ -179,6 +187,39 @@ class PlotComponentContainer extends Component {
             <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
           </div>
         </div>
+
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Selected samples</TableCell>
+              <TableCell>Add to selection</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>
+                <div style={{minWidth: '40rem', display: 'flex'}}>
+                  <TextField fullWidth
+                    disabled
+                    value={selectedSamples.map(sample => sample.sampleNum).join(', ')}
+                  ></TextField>
+                  <Button onClick={onClearSelection}>Clear</Button>
+                </div>
+              </TableCell>
+              <TableCell>
+                <TextField
+                  onKeyUp={(e) => {
+                    if (e.key === 'Enter') {
+                      onSampleSelectById(e.target.value);
+                      e.target.value = '';
+                    }
+                  }}
+                ></TextField>
+                <Button>Add</Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
       </div>
     );
