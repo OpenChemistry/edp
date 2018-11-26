@@ -215,7 +215,7 @@ class PlotComponentContainer extends Component {
                     }
                   }}
                 ></TextField>
-                <Button>Add</Button>
+                {/* <Button>Add</Button> */}
               </TableCell>
             </TableRow>
           </TableBody>
