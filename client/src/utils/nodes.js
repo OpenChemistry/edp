@@ -19,7 +19,8 @@ import {
   cyan
 } from '@material-ui/core/colors';
 
-import Ingest from '../containers/ingest';
+import IngestBatch from '../containers/ingest/batch';
+import IngestComposite from '../containers/ingest/composite';
 import CompositeSearch from '../containers/composite-search';
 
 export const PROJECT_NODE = 'PROJECT_NODE';
@@ -73,7 +74,7 @@ export const NODES = {
     secondaryField: 'startDate',
     color: deepOrange[500],
     icon: Layers,
-    ingest: Ingest
+    ingest: IngestBatch
   },
   [TEST0_NODE] : {
     label: 'Test',
@@ -120,7 +121,8 @@ export const NODES = {
     primaryField: 'name',
     color: cyan[500],
     icon: Grain,
-    viewComponent: CompositeSearch
+    viewComponent: CompositeSearch,
+    ingest: IngestComposite
   },
   // Nodes only needed to create urls
   [SAMPLE_NODE]: {
