@@ -1,7 +1,7 @@
 FROM node:8.11 as build
 COPY ./client /client
 RUN npm install -g npm
-RUN git clone https://github.com/alesgenova/composition-plot.git
+RUN git clone https://github.com/OpenChemistry/composition-plot.git
 RUN cd /composition-plot && \
   npm install && \
   npm run build && \
