@@ -29,8 +29,6 @@ def _ingest_runs(gc, project, composite, dir):
     # Find the exp file
     exp_paths = glob.glob('%s/**/*.exp' % dir, recursive=True)
 
-    #print(exp_paths)
-
     experiments = {}
 
     technque_file_regex = re.compile('files_technique__(.*)')
@@ -65,9 +63,6 @@ def _ingest_runs(gc, project, composite, dir):
 
                     run_dir = os.path.dirname(run_file)
                     technique_files[technique] = [os.path.join(run_dir, f) for f in value['pstat_files'].keys()]
-
-                #if key.startswith('echem_params'):
-                #    print(key)
 
             run = {
                 'runId': rcp_file,
@@ -107,7 +102,6 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
         click.echo('Ingesting sample %s on plate %s' % (sample_number, int(plate_id)))
         if sample_number not in samples.setdefault(plate_id, {}):
             sample_meta = {}
-            # TODO Enable when we have created a run
             sample_meta['runId'] = experiment[int(run_int)]['_id']
             sample_meta['sampleNum'] = sample_number
 

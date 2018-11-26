@@ -162,7 +162,7 @@ def _ingest_composite(project, dir, channel_map, api_url, api_key):
     channel_map = {channel.upper():element.lower() for (channel,element) in channel_map.items()}
 
     experiments = _ingest_runs(gc, project, composite, dir)
-    #(run_ids, runs) = _ingest_runs(gc, project, composite, dir)
+
     _ingest_samples(gc, project, composite, dir, experiments, channel_map)
 
 

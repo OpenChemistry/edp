@@ -8,11 +8,10 @@ import errno
 
 def _build_rawlen_parser():
     header = pp.Group(pp.LineStart().suppress() +  pp.Word(pp.printables) +
-              pp.ZeroOrMore( pp.White(ws='\t ').suppress() + pp.Word(pp.printables)))# +
-              #pp.LineEnd().suppress())
+              pp.ZeroOrMore( pp.White(ws='\t ').suppress() + pp.Word(pp.printables)))
+
     row = (pp.LineStart().suppress() +  pp.Word(pp.nums + '.+-e_') +
-           pp.ZeroOrMore(pp.White(ws='\t ').suppress() + pp.Word(pp.nums + '.+-e_'))) #+
-           #pp.LineEnd().suppress())
+           pp.ZeroOrMore(pp.White(ws='\t ').suppress() + pp.Word(pp.nums + '.+-e_')))
 
     return header.setResultsName('header') + \
         pp.Group(pp.OneOrMore(pp.Group(row))).setResultsName('values')

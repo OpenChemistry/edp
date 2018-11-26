@@ -5,7 +5,6 @@ from pyparsing import pyparsing_common
 def _build_exp_parser():
     separator = pp.Suppress(':')
     key = pp.Word(pp.printables, excludeChars=':')
-    #key = pp.Regex(r'^(?!run__\d+)[^:]*')
     value = pp.Regex(r'[^\n\r:]+') + pp.LineEnd().suppress()
 
     block_name = key + separator  + pp.LineEnd().suppress()
