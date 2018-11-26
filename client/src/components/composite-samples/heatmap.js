@@ -10,7 +10,9 @@ import {
   TableRow,
   TableCell,
   TableHead,
-  Switch
+  Switch,
+  Input,
+  TextField
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
@@ -25,7 +27,9 @@ class HeatMapComponent extends Component {
       yField: null,
       yOffset: 0,
       separateSlope: true,
-      nY: 50
+      nY: 50,
+      reduceFn: 'median',
+      selection: ''
     };
   }
 
@@ -66,10 +70,12 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { nY, separateSlope, xField, yField } = this.state;
+    const { nY, separateSlope, xField, yField, selection, reduceFn } = this.state;
     this.dp.setNumY(nY);
     this.dp.setActiveScalars([xField, yField]);
     this.dp.setSeparateSlope(separateSlope);
+    this.dp.selectSegments(selection);
+    this.dp.setReduceFn(reduceFn);
     this.dp.computeMaps();
     this.heatMap.dataUpdated();
   }
@@ -98,6 +104,20 @@ class HeatMapComponent extends Component {
     });
   }
 
+  onReduceFnChange(name) {
+    this.setState({reduceFn: name});
+    setTimeout(() => {
+      this.refreshHeatMap();
+    });
+  }
+
+  onSelectionChange(selection) {
+    this.setState({selection});
+    setTimeout(() => {
+      this.refreshHeatMap();
+    });
+  }
+
   onNyChange(nY) {
     this.setState({nY});
     setTimeout(() => {
@@ -113,6 +133,13 @@ class HeatMapComponent extends Component {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
     }
 
+    const reduceFnOptions = [];
+    for (let name of ['median', 'mean', 'min', 'max']) {
+      reduceFnOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
+    }
+
+    const nSegments = this.dp ? this.dp.getSegments().length : 0;
+
     return (
       <div>
         <Table>
@@ -123,7 +150,7 @@ class HeatMapComponent extends Component {
               }
               <TableCell>Y Axis</TableCell>
               <TableCell>Z Axis</TableCell>
-              <TableCell>Separate by slope</TableCell>
+              <TableCell>Reduce Function</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -161,15 +188,24 @@ class HeatMapComponent extends Component {
               </TableCell>
               <TableCell>
                 <FormControl fullWidth>
-                  <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
+                  <Select
+                    value={this.state.reduceFn}
+                    onChange={(e) => {this.onReduceFnChange(e.target.value, 1)}}
+                    inputProps={{name: 'reduceFn', id: 'select-reduce'}}
+                  >
+                    {reduceFnOptions}
+                  </Select>
                 </FormControl>
               </TableCell>
             </TableRow>
           </TableBody>
-          {/* <TableHead>
+          <TableHead>
             <TableRow>
-              <TableCell>Separate by slope</TableCell>
-              <TableCell>Y bins</TableCell>
+              <TableCell>Separate Slope</TableCell>
+              { separateSlope &&
+              <TableCell>Segments ({nSegments})</TableCell>
+              }
+              {/*<TableCell>NY</TableCell>*/}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -177,7 +213,16 @@ class HeatMapComponent extends Component {
               <TableCell>
                 <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
               </TableCell>
+              {separateSlope &&
               <TableCell>
+                <FormControl fullWidth>
+                  <TextField
+                    onChange={(e) => {this.onSelectionChange(e.target.value)}}
+                  ></TextField>
+                </FormControl>
+              </TableCell>
+              }
+              {/* <TableCell>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   <div>
                     {nY}
@@ -190,9 +235,9 @@ class HeatMapComponent extends Component {
                     />
                   </div>
                 </div>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
-          </TableBody> */}
+          </TableBody>
         </Table>
 
         <div style={{width: '100%', height: '40rem'}} ref={(ref)=>{this.heatMapElement = ref;}}>

@@ -17,13 +17,36 @@ class CompositeSamplesContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedSamples: []
+      selectedSamples: [],
+      selectedSampleKeys: new Set()
     }
   }
 
   componentDidMount() {
     const { dispatch, ancestors, item, platemapId, runId} = this.props;
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
+  }
+
+  onSampleSelectById = (id) => {
+    const { samples } = this.props;
+    const matches = samples.filter((s) => s.sampleNum == id);
+    if (matches.length === 0) {
+      return;
+    }
+
+    const sample = matches[0];
+    const {selectedSampleKeys} = this.state;
+    if (selectedSampleKeys.has(sample._id)) {
+      return;
+    }
+
+    this.onSampleSelect(sample);
+  }
+
+  onClearSelection = () => {
+    const selectedSamples = [];
+    const selectedSampleKeys = this.getSelectedSampleKeys(selectedSamples);
+    this.setState({selectedSamples, selectedSampleKeys});
   }
 
   onSampleSelect = (sample) => {
@@ -33,6 +56,7 @@ class CompositeSamplesContainer extends Component {
     dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
     this.setState((state, props) => {
       state.selectedSamples.push(sample);
+      state.selectedSampleKeys = this.getSelectedSampleKeys(state.selectedSamples);
       return state;
     });
   }
@@ -40,13 +64,22 @@ class CompositeSamplesContainer extends Component {
   onSampleDeselect = (sample) => {
     this.setState(state => {
       state.selectedSamples = state.selectedSamples.filter( s => s._id !== sample._id);
+      state.selectedSampleKeys = this.getSelectedSampleKeys(state.selectedSamples);
       return state;
     });
   }
 
+  getSelectedSampleKeys = (selectedSamples) => {
+    const selectedSampleKeys = new Set();
+    for (let sample of selectedSamples) {
+      selectedSampleKeys.add(sample._id);
+    }
+    return selectedSampleKeys;
+  }
+
   render() {
     const { samples } = this.props;
-    const { selectedSamples } = this.state;
+    const { selectedSamples, selectedSampleKeys } = this.state;
 
     if (samples.length === 0) {
       // return <NotFoundPage />;
@@ -57,8 +90,12 @@ class CompositeSamplesContainer extends Component {
       <div>
         <CompositeSamples
           samples={samples}
+          selectedSamples={selectedSamples}
+          selectedSampleKeys={selectedSampleKeys}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
+          onSampleSelectById={this.onSampleSelectById}
+          onClearSelection={this.onClearSelection}
         />
         <SamplesDetails
           selectedSamples={selectedSamples}
