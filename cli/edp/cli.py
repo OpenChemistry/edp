@@ -6,7 +6,9 @@ import csv
 import types
 import sys
 import datetime
+import json
 from girder_client import GirderClient
+from edp.composite import _ingest_runs, _ingest_samples
 
 class GC(GirderClient):
 
@@ -130,5 +132,37 @@ def _ingest(project, cycle, api_url, api_key, dir):
         test = gc.post('edp/projects/%s/cycles/%s/batches/%s/tests' % (project, cycle, batch['_id']), json=test)
 
         click.echo(click.style('Test created: %s' % test['_id'], fg='green'))
+
+
+@cli.command('ingest_composite', help='Ingest composite data')
+@click.option('-p', '--project', default=None, help='the project id', required=True)
+@click.option('-d', '--dir', help='base path to data to ingest',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
+@click.option('-m', '--channel-map', default=None, type=click.File('r'),
+              help='the mapping of channels to elements', required=True)
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
+                   '(e.g https://girder.example.com/api/v1)')
+@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
+              help='[default: GIRDER_API_KEY env. variable]', required=True)
+def _ingest_composite(project, dir, channel_map, api_url, api_key):
+    if dir[-1] != '/':
+        dir += '/'
+    gc = GirderClient(apiUrl=api_url)
+    gc.authenticate(apiKey=api_key)
+
+    dir  = os.path.abspath(dir)
+    composite_name = os.path.basename(dir)
+    composite = {
+        'name': composite_name
+    }
+    composite = gc.post('edp/projects/%s/composites' % project, json=composite)
+    composite = composite['_id']
+
+    channel_map = json.load(channel_map)
+    channel_map = {channel.upper():element.lower() for (channel,element) in channel_map.items()}
+
+    experiments = _ingest_runs(gc, project, composite, dir)
+
+    _ingest_samples(gc, project, composite, dir, experiments, channel_map)
 
 

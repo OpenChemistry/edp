@@ -21,7 +21,7 @@ setup(
     name='edp-cli',
     use_scm_version={
         'local_scheme': prerelease_local_scheme,
-        'root': '..', 
+        'root': '..',
         'relative_to': __file__
     },
     setup_requires=['setuptools_scm'],
@@ -39,7 +39,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'girder_client',
-        'click'
+        'click',
+        'pyparsing==2.2.0'
     ],
     entry_points= {
         'console_scripts': [
