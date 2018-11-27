@@ -35,7 +35,8 @@ class IngestContainer extends Component {
         <DialogContent>
           <DialogContentText>
             Navigate to the directory where the composite dataset is located.
-            The directory name will be used as composite title.
+            The directory name will be used as composite title. Note the dataset
+            files must be extracted from any archives/zips before ingestion.
           </DialogContentText>
           <pre>
             cd /path/to/composite
