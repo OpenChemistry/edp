@@ -12,6 +12,7 @@
     "connected-react-router": "^4.3.0",
     "core-js": "^2.5.7",
     "filesize": "^3.6.1",
+    "immer": "^1.8.0",
     "lodash-es": "^4.17.10",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",

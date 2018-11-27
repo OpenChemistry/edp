@@ -1,13 +1,14 @@
 import { createAction, handleActions } from 'redux-actions';
 
 import { has, isNil } from 'lodash-es';
+import produce from 'immer';
 
 import { NODES, parseUrl } from '../../utils/nodes';
 
 export const getGlobalMatches = (state) => state.search.global;
 export const getCompositeMatches = (state) => {
   const platemapIds = new Set();
-  return state.search.composite.filter(val => {
+  return state.search.composite.results.filter(val => {
     if (platemapIds.has(val.platemap._id)) {
       return false;
     } else {
@@ -16,6 +17,7 @@ export const getCompositeMatches = (state) => {
     }
   })
 };
+export const getCompositePending = state => state.search.composite.pending;
 
 // Actions
 
@@ -55,7 +57,12 @@ const initialState = {
       children: []
     }
   },
-  composite: []
+  composite: {
+    results: [],
+    pending: false,
+    error: null
+
+  }
 };
 
 const reducer = handleActions({
@@ -76,11 +83,17 @@ const reducer = handleActions({
     return {...state, global};
   },
   [COMPOSITE_SEARCH_REQUESTED]: (state, action) => {
-    return {...state, composite: initialState.composite};
+    return produce(state, draft => {
+      draft.composite.pending = true;
+      draft.composite.results = [];
+    });
   },
   [COMPOSITE_SEARCH_SUCCEEDED]: (state, action) => {
-    const composite = action.payload;
-    return {...state, composite};
+    const results = action.payload;
+    return produce(state, draft => {
+      draft.composite.pending = false;
+      draft.composite.results = results;
+    });
   },
 }, initialState);
 

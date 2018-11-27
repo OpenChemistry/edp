@@ -2,15 +2,22 @@ import React, { Component } from 'react';
 import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
+import { debounce } from 'lodash-es';
 
-import { getCompositeMatches, searchComposite } from '../../redux/ducks/search';
+import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
 import { createFieldsFactory } from '../../utils/fields';
 import { makeUrl } from '../../utils/nodes';
 import { COMPOSITE_SEARCH } from '../../utils/search';
 import SearchForm from '../../components/search/form';
 import SearchResults from '../../components/composite-search/results';
+import SearchPending from '../../components/search/pending';
 
 class CompositeSearch extends Component {
+  constructor(props) {
+    super(props);
+    this.onSearch = debounce(this.onSearch, 500);
+  }
+
   componentDidMount() {
     this.compositeSearch();
   }
@@ -55,7 +62,7 @@ class CompositeSearch extends Component {
   }
 
   render() {
-    const {matches} = this.props;
+    const {matches, pending} = this.props;
     return (
       <div>
         <SearchForm
@@ -64,7 +71,12 @@ class CompositeSearch extends Component {
           onSubmit={this.onSearch}
           liveSearch
         />
+        {!pending &&
         <SearchResults  matches={matches} onOpen={this.onOpen}/>
+        }
+        {pending &&
+        <SearchPending/>
+        }
       </div>
     );
   }
@@ -79,6 +91,7 @@ function mapStateToProps(state, ownProps) {
   }
   return {
     matches: getCompositeMatches(state),
+    pending: getCompositePending(state),
     fields,
     initialValues: fields,
     currentValues: getFormValues('compositeSearch')(state)
