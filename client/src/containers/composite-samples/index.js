@@ -52,6 +52,10 @@ const URL_PARAMS = {
   selectedSampleKeys: {
     serialize: defaultWrapper(setSerialize, '[]'),
     deserialize: defaultWrapper(setDeserialize, new Set())
+  },
+  display: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'spectrum')
   }
 }
 
@@ -129,7 +133,12 @@ class CompositeSamplesContainer extends Component {
   }
 
   render() {
-    const { samples, selectedSamples, selectedSampleKeys } = this.props;
+    const {
+      samples,
+      selectedSamples,
+      selectedSampleKeys,
+      display
+    } = this.props;
 
     if (samples.length === 0) {
       // return <NotFoundPage />;
@@ -148,7 +157,9 @@ class CompositeSamplesContainer extends Component {
           onClearSelection={this.onClearSelection}
         />
         <SamplesDetails
+          display={display}
           selectedSamples={selectedSamples}
+          onParamChanged={this.onParamChanged}
         />
       </div>
     );
