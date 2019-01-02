@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import { TIMESERIE_NODE, SAMPLE_NODE } from '../../utils/nodes';
 
@@ -12,30 +13,67 @@ import SamplesDetails from './details';
 
 import NotFoundPage from '../../components/notFound.js';
 
+const identity = val => val;
+const arraySerialize = val => JSON.stringify(val);
+const arrayDeserialize = val => JSON.parse(val);
+
+const setSerialize = val => JSON.stringify(Array.from(val));
+const setDeserialize = val => {
+  const arr = JSON.parse(val);
+  if (Array.isArray(arr)) {
+    return new Set(arr);
+  }
+  return new Set();
+};
+
+const defaultWrapper = (fn, def) => {
+  return (val) => {
+    if (val) {
+      try {
+        return fn(val);
+      } catch {
+        return def;
+      }
+    } else {
+      return def;
+    }
+  }
+}
+
+const URL_PARAMS = {
+  platemapId: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
+  },
+  runId: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
+  },
+  selectedSampleKeys: {
+    serialize: defaultWrapper(setSerialize, '[]'),
+    deserialize: defaultWrapper(setDeserialize, new Set())
+  }
+}
+
 class CompositeSamplesContainer extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedSamples: [],
-      selectedSampleKeys: new Set()
+  componentDidMount() {
+    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys } = this.props;
+    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
+    for (let _id of selectedSampleKeys.values()) {
+      this.fetchSampleTimeSeries({_id});
     }
   }
 
-  componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId} = this.props;
-    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
-  }
-
   onSampleSelectById = (id) => {
-    const { samples } = this.props;
+    const { samples, selectedSampleKeys } = this.props;
     const matches = samples.filter((s) => s.sampleNum == id);
     if (matches.length === 0) {
       return;
     }
 
     const sample = matches[0];
-    const {selectedSampleKeys} = this.state;
+
     if (selectedSampleKeys.has(sample._id)) {
       return;
     }
@@ -44,42 +82,54 @@ class CompositeSamplesContainer extends Component {
   }
 
   onClearSelection = () => {
-    const selectedSamples = [];
-    const selectedSampleKeys = this.getSelectedSampleKeys(selectedSamples);
-    this.setState({selectedSamples, selectedSampleKeys});
+    this.onParamChanged('selectedSampleKeys', new Set());
   }
 
   onSampleSelect = (sample) => {
+    this.fetchSampleTimeSeries(sample);
+    const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
+    selectedSampleKeys.add(sample._id);
+    this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
+  }
+
+  onSampleDeselect = (sample) => {
+    const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
+    selectedSampleKeys.delete(sample._id);
+    this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
+  }
+
+  fetchSampleTimeSeries = (sample) => {
     const { ancestors, item, dispatch } = this.props;
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
     dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
-    this.setState((state, props) => {
-      state.selectedSamples.push(sample);
-      state.selectedSampleKeys = this.getSelectedSampleKeys(state.selectedSamples);
-      return state;
-    });
   }
 
-  onSampleDeselect = (sample) => {
-    this.setState(state => {
-      state.selectedSamples = state.selectedSamples.filter( s => s._id !== sample._id);
-      state.selectedSampleKeys = this.getSelectedSampleKeys(state.selectedSamples);
-      return state;
-    });
-  }
-
-  getSelectedSampleKeys = (selectedSamples) => {
-    const selectedSampleKeys = new Set();
-    for (let sample of selectedSamples) {
-      selectedSampleKeys.add(sample._id);
+  onParamChanged = (key, value) => {
+    if (key in URL_PARAMS) {
+      const props = {
+        ...this.props,
+        [key]: value
+      }
+      this.updateParams(props);
     }
-    return selectedSampleKeys;
+  }
+
+  updateParams = (props) => {
+    const { dispatch, location } = props;
+    const searchParams = new URLSearchParams();
+    for (let key in URL_PARAMS) {
+      const val = URL_PARAMS[key].serialize(props[key]);
+      if (val) {
+        searchParams.set(key, val);
+      }
+    }
+    const url = `${location.pathname}?${searchParams.toString()}`;
+    dispatch(push(url));
   }
 
   render() {
-    const { samples } = this.props;
-    const { selectedSamples, selectedSampleKeys } = this.state;
+    const { samples, selectedSamples, selectedSampleKeys } = this.props;
 
     if (samples.length === 0) {
       // return <NotFoundPage />;
@@ -108,17 +158,22 @@ class CompositeSamplesContainer extends Component {
 function mapStateToProps(state, ownProps) {
   const ancestors = parseUrlMatch(ownProps.match);
   const item = ancestors.pop();
-  const searchParams = new URLSearchParams(ownProps.location.search);
-  const platemapId = searchParams.get('platemapId');
-  const runId = searchParams.get('runId');
-  let samples = getSamples(state, platemapId, runId);
-  return {
+  const props = {
     ancestors,
-    item,
-    platemapId,
-    runId,
-    samples
-  };
+    item
+  }
+  const searchParams = new URLSearchParams(ownProps.location.search);
+
+  for (let key in URL_PARAMS) {
+    props[key] = URL_PARAMS[key].deserialize(searchParams.get(key));
+  }
+
+  const samples = getSamples(state, props['platemapId'], props['runId']) || [];
+  const selectedSamples = samples.filter(el => props['selectedSampleKeys'].has(el._id));
+
+  props['samples'] = samples;
+  props['selectedSamples'] = selectedSamples;
+  return props;
 }
 
 export default connect(mapStateToProps)(CompositeSamplesContainer);

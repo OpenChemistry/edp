@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 
 import {
   Select,
-  MenuItem,
-  FormControl,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  MenuItem
 } from '@material-ui/core';
 
 import SpectrumComponent from './spectrum';
