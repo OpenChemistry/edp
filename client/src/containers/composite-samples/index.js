@@ -109,14 +109,28 @@ class CompositeSamplesContainer extends Component {
     dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
   }
 
-  onParamChanged = (key, value) => {
-    if (key in URL_PARAMS) {
-      const props = {
-        ...this.props,
-        [key]: value
-      }
-      this.updateParams(props);
+  onParamChanged = (...args) => {
+    // Either pass one single object with the key/value pairs to update
+    // or pass two arguments, (key first, value second)
+
+    let updates;
+    if (args.length === 1) {
+      updates = args[0];
+    } else if (args.length === 2) {
+      updates = {[args[0]]: args[1]};
+    } else {
+      return;
     }
+
+    const props = {...this.props};
+
+    for (let key in updates) {
+      if (key in URL_PARAMS) {
+        props[key] = updates[key];
+      }
+    }
+
+    this.updateParams(props);
   }
 
   updateParams = (props) => {
