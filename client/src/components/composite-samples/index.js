@@ -29,7 +29,6 @@ class PlotComponentContainer extends Component {
       dataRange: [0, 1],
       colorMap: colors.viridis,
       colorMapRange: [0, 1],
-      scalar: null,
       activeMap: 'Viridis'
     }
 
@@ -57,6 +56,7 @@ class PlotComponentContainer extends Component {
   }
 
   onNewSamples(samples) {
+    const { scalarField, onParamChanged} = this.props;
     this.dp.setData(samples);
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes();
@@ -64,14 +64,17 @@ class PlotComponentContainer extends Component {
       axes[key] = {...axes[key], range: [0, 1]};
     }
     this.dp.setAxes(axes);
-    const scalar = this.dp.getDefaultScalar(this.state.scalar);
+    const scalar = this.dp.getDefaultScalar(scalarField);
     this.dp.setActiveScalar(scalar);
     const dataRange = this.dp.getScalarRange(scalar);
     const colorMapRange = [...dataRange];
 
     this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
     this.quaternaryPlot.dataUpdated();
-    this.setState({...this.state, scalar, colorMapRange, dataRange});
+    this.setState({...this.state, colorMapRange, dataRange});
+    onParamChanged({
+      'scalarField': scalar
+    });
   }
 
   onScalarChange(scalar) {
@@ -79,7 +82,10 @@ class PlotComponentContainer extends Component {
     const dataRange = this.dp.getScalarRange(scalar);
     const colorMapRange = [...dataRange];
     this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
-    this.setState({...this.state, scalar, colorMapRange, dataRange});
+    this.props.onParamChanged({
+      'scalarField': scalar
+    });
+    this.setState({...this.state, colorMapRange, dataRange});
   }
 
   onColorMapChange(activeMap) {
@@ -106,7 +112,7 @@ class PlotComponentContainer extends Component {
   }
 
   render() {
-    const { onClearSelection, selectedSamples, onSampleSelectById } = this.props;
+    const { scalarField, onClearSelection, selectedSamples, onSampleSelectById } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
     
     let scalarSelectOptions = [];
@@ -135,7 +141,7 @@ class PlotComponentContainer extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
                   <Select
-                    value={this.state.scalar || ""}
+                    value={scalarField || ""}
                     onChange={(e) => {this.onScalarChange(e.target.value)}}
                     inputProps={{name: 'scalar', id: 'select-scalar'}}
                   >

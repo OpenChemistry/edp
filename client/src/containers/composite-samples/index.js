@@ -56,6 +56,10 @@ const URL_PARAMS = {
   display: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'spectrum')
+  },
+  scalarField: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
   }
 }
 
@@ -151,7 +155,8 @@ class CompositeSamplesContainer extends Component {
       samples,
       selectedSamples,
       selectedSampleKeys,
-      display
+      display,
+      scalarField
     } = this.props;
 
     if (samples.length === 0) {
@@ -163,12 +168,14 @@ class CompositeSamplesContainer extends Component {
       <div>
         <CompositeSamples
           samples={samples}
+          scalarField={scalarField}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
           onSampleSelectById={this.onSampleSelectById}
           onClearSelection={this.onClearSelection}
+          onParamChanged={this.onParamChanged}
         />
         <SamplesDetails
           display={display}
