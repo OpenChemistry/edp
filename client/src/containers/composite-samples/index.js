@@ -81,6 +81,14 @@ const URL_PARAMS = {
   yOffsetS: {
     serialize: defaultWrapper(numberSerialize, null),
     deserialize: defaultWrapper(numberDeserialize, 0)
+  },
+  yAxisH: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
+  },
+  zAxisH: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
   }
 }
 
@@ -182,7 +190,9 @@ class CompositeSamplesContainer extends Component {
       colorMapRange,
       xAxisS,
       yAxisS,
-      yOffsetS
+      yOffsetS,
+      yAxisH,
+      zAxisH
     } = this.props;
 
     if (samples.length === 0) {
@@ -212,6 +222,8 @@ class CompositeSamplesContainer extends Component {
           xAxisS={xAxisS}
           yAxisS={yAxisS}
           yOffsetS={yOffsetS}
+          yAxisH={yAxisH}
+          zAxisH={zAxisH}
         />
       </div>
     );

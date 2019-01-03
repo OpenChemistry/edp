@@ -23,9 +23,6 @@ class HeatMapComponent extends Component {
     super(props);
     this.state = {
       sampleFields: [],
-      xField: null,
-      yField: null,
-      yOffset: 0,
       separateSlope: true,
       nY: 50,
       reduceFn: 'median',
@@ -46,22 +43,23 @@ class HeatMapComponent extends Component {
   }
 
   onNewData() {
-    const { timeseries } = this.props;
+    const { timeseries, onParamChanged } = this.props;
     // this.spectraPlot.setSpectra(timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
       const sampleFields = Object.keys(spectrum);
-      let {xField, yField} = this.state;
-      if (!(xField in spectrum)) {
-        xField = sampleFields[0];
+      let { yAxisH, zAxisH } = this.props;
+      if (!(yAxisH in spectrum)) {
+        yAxisH = sampleFields[0];
       }
-      if (!(yField in spectrum)) {
-        yField = sampleFields[1];
+      if (!(zAxisH in spectrum)) {
+        zAxisH = sampleFields[1];
       }
       // spectrum[xField] = [0, 0.2, 0.4, 0.6, 0.8, 1, 0.8, 0.6, 0.4, 0.2, 0];
       // spectrum[yField] = [0, 0.04, 0.16, 0.36, 0.64, 1, 1 - 0.04, 1 - 0.16, 1 - 0.36, 1 - 0.64, 0];
 
-      this.setState({xField, yField, sampleFields});
+      this.setState({sampleFields});
+      onParamChanged({yAxisH, zAxisH});
       this.dp.setData(timeseries);
       setTimeout(() => {
         this.refreshHeatMap();
@@ -70,9 +68,10 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { nY, separateSlope, xField, yField, selection, reduceFn } = this.state;
+    const { yAxisH, zAxisH } = this.props;
+    const { nY, separateSlope, selection, reduceFn } = this.state;
     this.dp.setNumY(nY);
-    this.dp.setActiveScalars([xField, yField]);
+    this.dp.setActiveScalars([yAxisH, zAxisH]);
     this.dp.setSeparateSlope(separateSlope);
     this.dp.selectSegments(selection);
     this.dp.setReduceFn(reduceFn);
@@ -81,17 +80,13 @@ class HeatMapComponent extends Component {
   }
 
   onSampleFieldChange(field, index) {
-    let xField = this.state.xField;
-    let yField = this.state.yField;
+    let {yAxisH, zAxisH, onParamChanged} = this.props;
     if (index === 0) {
-      xField = field;
+      yAxisH = field;
     } else {
-      yField = field;
+      zAxisH = field;
     }
-    // this.dp.setActiveScalars([xField, yField]);
-    // this.dp.computeMaps();
-    // this.heatMap.dataUpdated();
-    this.setState({xField, yField});
+    onParamChanged({yAxisH, zAxisH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
@@ -126,7 +121,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const {visSelector} = this.props;
+    const { visSelector, yAxisH, zAxisH } = this.props;
     const {separateSlope, nY} = this.state;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
@@ -166,7 +161,7 @@ class HeatMapComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
                   <Select
-                    value={this.state.xField || ""}
+                    value={yAxisH || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 0)}}
                     inputProps={{name: 'scalar', id: 'select-scalar'}}
                   >
@@ -178,7 +173,7 @@ class HeatMapComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
                   <Select
-                    value={this.state.yField || ""}
+                    value={zAxisH || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 1)}}
                     inputProps={{name: 'colorMap', id: 'select-map'}}
                   >
