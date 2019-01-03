@@ -64,6 +64,10 @@ const URL_PARAMS = {
   activeMap: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'Viridis')
+  },
+  colorMapRange: {
+    serialize: defaultWrapper(arraySerialize, null),
+    deserialize: defaultWrapper(arrayDeserialize, [0, 1])
   }
 }
 
@@ -161,7 +165,8 @@ class CompositeSamplesContainer extends Component {
       selectedSampleKeys,
       display,
       scalarField,
-      activeMap
+      activeMap,
+      colorMapRange
     } = this.props;
 
     if (samples.length === 0) {
@@ -175,6 +180,7 @@ class CompositeSamplesContainer extends Component {
           samples={samples}
           scalarField={scalarField}
           activeMap={activeMap}
+          colorMapRange={colorMapRange}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
           onSampleSelect={this.onSampleSelect}
