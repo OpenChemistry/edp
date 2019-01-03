@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
+import { replace } from 'connected-react-router';
 
 import { TIMESERIE_NODE, SAMPLE_NODE } from '../../utils/nodes';
 
@@ -155,7 +155,7 @@ class CompositeSamplesContainer extends Component {
       }
     }
     const url = `${location.pathname}?${searchParams.toString()}`;
-    dispatch(push(url));
+    dispatch(replace(url));
   }
 
   render() {
