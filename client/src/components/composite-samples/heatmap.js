@@ -25,7 +25,6 @@ class HeatMapComponent extends Component {
       sampleFields: [],
       separateSlope: true,
       nY: 50,
-      reduceFn: 'median',
       selection: ''
     };
   }
@@ -68,13 +67,13 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { yAxisH, zAxisH } = this.props;
-    const { nY, separateSlope, selection, reduceFn } = this.state;
+    const { yAxisH, zAxisH,reduceFnH } = this.props;
+    const { nY, separateSlope, selection } = this.state;
     this.dp.setNumY(nY);
     this.dp.setActiveScalars([yAxisH, zAxisH]);
     this.dp.setSeparateSlope(separateSlope);
     this.dp.selectSegments(selection);
-    this.dp.setReduceFn(reduceFn);
+    this.dp.setReduceFn(reduceFnH);
     this.dp.computeMaps();
     this.heatMap.dataUpdated();
   }
@@ -99,8 +98,9 @@ class HeatMapComponent extends Component {
     });
   }
 
-  onReduceFnChange(name) {
-    this.setState({reduceFn: name});
+  onReduceFnChange(reduceFnH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({reduceFnH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
@@ -121,7 +121,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const { visSelector, yAxisH, zAxisH } = this.props;
+    const { visSelector, yAxisH, zAxisH, reduceFnH } = this.props;
     const {separateSlope, nY} = this.state;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
@@ -184,7 +184,7 @@ class HeatMapComponent extends Component {
               <TableCell>
                 <FormControl fullWidth>
                   <Select
-                    value={this.state.reduceFn}
+                    value={reduceFnH}
                     onChange={(e) => {this.onReduceFnChange(e.target.value, 1)}}
                     inputProps={{name: 'reduceFn', id: 'select-reduce'}}
                   >

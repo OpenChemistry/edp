@@ -89,6 +89,10 @@ const URL_PARAMS = {
   zAxisH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, null)
+  },
+  reduceFnH: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'median')
   }
 }
 
@@ -192,7 +196,8 @@ class CompositeSamplesContainer extends Component {
       yAxisS,
       yOffsetS,
       yAxisH,
-      zAxisH
+      zAxisH,
+      reduceFnH
     } = this.props;
 
     if (samples.length === 0) {
@@ -224,6 +229,7 @@ class CompositeSamplesContainer extends Component {
           yOffsetS={yOffsetS}
           yAxisH={yAxisH}
           zAxisH={zAxisH}
+          reduceFnH={reduceFnH}
         />
       </div>
     );
