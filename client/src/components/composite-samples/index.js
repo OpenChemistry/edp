@@ -28,8 +28,7 @@ class PlotComponentContainer extends Component {
     this.state = {
       dataRange: [0, 1],
       colorMap: colors.viridis,
-      colorMapRange: [0, 1],
-      activeMap: 'Viridis'
+      colorMapRange: [0, 1]
     }
 
     this.colorMaps = {
@@ -56,7 +55,7 @@ class PlotComponentContainer extends Component {
   }
 
   onNewSamples(samples) {
-    const { scalarField, onParamChanged} = this.props;
+    const { scalarField, activeMap, onParamChanged} = this.props;
     this.dp.setData(samples);
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes();
@@ -69,7 +68,8 @@ class PlotComponentContainer extends Component {
     const dataRange = this.dp.getScalarRange(scalar);
     const colorMapRange = [...dataRange];
 
-    this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
+    const colorMap = this.colorMaps[activeMap];
+    this.quaternaryPlot.setColorMap(colorMap, dataRange);
     this.quaternaryPlot.dataUpdated();
     this.setState({...this.state, colorMapRange, dataRange});
     onParamChanged({
@@ -78,20 +78,23 @@ class PlotComponentContainer extends Component {
   }
 
   onScalarChange(scalar) {
+    const { activeMap, onParamChanged} = this.props;
     this.dp.setActiveScalar(scalar);
     const dataRange = this.dp.getScalarRange(scalar);
     const colorMapRange = [...dataRange];
-    this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
-    this.props.onParamChanged({
+    const colorMap = this.colorMaps[activeMap];
+    this.quaternaryPlot.setColorMap(colorMap, dataRange);
+    onParamChanged({
       'scalarField': scalar
     });
     this.setState({...this.state, colorMapRange, dataRange});
   }
 
   onColorMapChange(activeMap) {
+    const { onParamChanged, colorMapRange } = this.props;
     let colorMap = this.colorMaps[activeMap];
     this.quaternaryPlot.setColorMap(colorMap, this.state.colorMapRange);
-    this.setState({...this.state, colorMap, activeMap});
+    onParamChanged({activeMap});
   }
 
   onColorMapRangeChange(value, index) {
@@ -112,7 +115,7 @@ class PlotComponentContainer extends Component {
   }
 
   render() {
-    const { scalarField, onClearSelection, selectedSamples, onSampleSelectById } = this.props;
+    const { scalarField, activeMap, onClearSelection, selectedSamples, onSampleSelectById } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
     
     let scalarSelectOptions = [];
@@ -153,7 +156,7 @@ class PlotComponentContainer extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
                   <Select
-                    value={this.state.activeMap || ""}
+                    value={activeMap || ""}
                     onChange={(e) => {this.onColorMapChange(e.target.value)}}
                     inputProps={{name: 'colorMap', id: 'select-map'}}
                   >

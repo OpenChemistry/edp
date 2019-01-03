@@ -60,6 +60,10 @@ const URL_PARAMS = {
   scalarField: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, null)
+  },
+  activeMap: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'Viridis')
   }
 }
 
@@ -156,7 +160,8 @@ class CompositeSamplesContainer extends Component {
       selectedSamples,
       selectedSampleKeys,
       display,
-      scalarField
+      scalarField,
+      activeMap
     } = this.props;
 
     if (samples.length === 0) {
@@ -169,6 +174,7 @@ class CompositeSamplesContainer extends Component {
         <CompositeSamples
           samples={samples}
           scalarField={scalarField}
+          activeMap={activeMap}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
           onSampleSelect={this.onSampleSelect}
