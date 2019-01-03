@@ -21,8 +21,8 @@ const arrayDeserialize = val => JSON.parse(val);
 const numberSerialize = val => val;
 const numberDeserialize = val => parseFloat(val);
 
-const boolSerialize = val => val ? 1 : 0;
-const boolDeserialize = val => parseInt(val) === 1;
+const boolSerialize = val => val ? 'true' : 'false';
+const boolDeserialize = val => val.toLowerCase() === 'true';
 
 const setSerialize = val => JSON.stringify(Array.from(val));
 const setDeserialize = val => {
