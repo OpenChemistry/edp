@@ -66,8 +66,8 @@ class PlotComponentContainer extends Component {
     this.dp.setActiveScalar(scalarField);
     const dataRange = this.dp.getScalarRange(scalarField);
     colorMapRange = [
-      Math.max(colorMapRange[0], dataRange[0]),
-      Math.min(colorMapRange[1], dataRange[1])
+      Math.min(Math.max(colorMapRange[0], dataRange[0]), dataRange[1] - 1e-6),
+      Math.max(Math.min(colorMapRange[1], dataRange[1]), dataRange[0] + 1e-6)
     ];
     const colorMap = this.colorMaps[activeMap];
     this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
@@ -84,10 +84,7 @@ class PlotComponentContainer extends Component {
     let { colorMapRange } = this.props;
     this.dp.setActiveScalar(scalarField);
     const dataRange = this.dp.getScalarRange(scalarField);
-    colorMapRange = [
-      Math.max(colorMapRange[0], dataRange[0]),
-      Math.min(colorMapRange[1], dataRange[1])
-    ];
+    colorMapRange = [...dataRange];
     const colorMap = this.colorMaps[activeMap];
     this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
     onParamChanged({
