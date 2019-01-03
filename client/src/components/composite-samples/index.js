@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { has } from 'lodash-es';
 import {
   Select,
   MenuItem,
