@@ -68,6 +68,14 @@ const URL_PARAMS = {
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
+  },
+  xAxisS: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
+  },
+  yAxisS: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
   }
 }
 
@@ -166,7 +174,9 @@ class CompositeSamplesContainer extends Component {
       display,
       scalarField,
       activeMap,
-      colorMapRange
+      colorMapRange,
+      xAxisS,
+      yAxisS
     } = this.props;
 
     if (samples.length === 0) {
@@ -193,6 +203,8 @@ class CompositeSamplesContainer extends Component {
           display={display}
           selectedSamples={selectedSamples}
           onParamChanged={this.onParamChanged}
+          xAxisS={xAxisS}
+          yAxisS={yAxisS}
         />
       </div>
     );

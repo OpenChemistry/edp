@@ -20,8 +20,6 @@ class SpectrumComponent extends Component {
     super(props);
     this.state = {
       sampleFields: [],
-      xField: null,
-      yField: null,
       yOffset: 0
     };
   }
@@ -39,32 +37,33 @@ class SpectrumComponent extends Component {
   }
 
   updateSpectra() {
-    const { timeseries } = this.props;
+    const { timeseries, onParamChanged } = this.props;
+    let { xAxisS, yAxisS } = this.props;
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
       const sampleFields = Object.keys(spectrum);
-      let {xField, yField} = this.state;
-      if (!(xField in spectrum)) {
-        xField = sampleFields[0];
+      if (!(xAxisS in spectrum)) {
+        xAxisS = sampleFields[0];
       }
-      if (!(yField in spectrum)) {
-        yField = sampleFields[1];
+      if (!(yAxisS in spectrum)) {
+        yAxisS = sampleFields[1];
       }
-      this.setState({xField, yField, sampleFields});
+      this.spectraPlot.setAxes(xAxisS, yAxisS);
+      this.setState({sampleFields});
+      onParamChanged({xAxisS, yAxisS});
     }
   }
 
   onSampleFieldChange(field, index) {
-    let xField = this.state.xField;
-    let yField = this.state.yField;
+    let { xAxisS, yAxisS, onParamChanged } = this.props;
     if (index === 0) {
-      xField = field;
+      xAxisS = field;
     } else {
-      yField = field;
+      yAxisS = field;
     }
-    this.spectraPlot.setAxes(xField, yField);
-    this.setState({xField, yField});
+    this.spectraPlot.setAxes(xAxisS, yAxisS);
+    onParamChanged({xAxisS, yAxisS});
   }
 
   onOffsetChange(yOffset) {
@@ -73,7 +72,7 @@ class SpectrumComponent extends Component {
   }
 
   render() {
-    const {visSelector} = this.props;
+    const { visSelector, xAxisS, yAxisS } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -105,7 +104,7 @@ class SpectrumComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
                   <Select
-                    value={this.state.xField || ""}
+                    value={xAxisS || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 0)}}
                     inputProps={{name: 'scalar', id: 'select-scalar'}}
                   >
@@ -117,7 +116,7 @@ class SpectrumComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
                   <Select
-                    value={this.state.yField || ""}
+                    value={yAxisS || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 1)}}
                     inputProps={{name: 'colorMap', id: 'select-map'}}
                   >

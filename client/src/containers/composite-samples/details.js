@@ -9,7 +9,7 @@ import SamplesDetails from '../../components/composite-samples/details';
 class SamplesDetailsContainer extends Component {
   
   render() {
-    const { timeseries, onParamChanged, display } = this.props;
+    const { timeseries } = this.props;
 
     if (timeseries.length === 0) {
       return (
@@ -18,7 +18,7 @@ class SamplesDetailsContainer extends Component {
     }
 
     return (
-      <SamplesDetails timeseries={timeseries} onParamChanged={onParamChanged} display={display}/>
+      <SamplesDetails {...this.props} />
     );
   }
 }
