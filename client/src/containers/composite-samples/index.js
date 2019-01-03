@@ -21,6 +21,9 @@ const arrayDeserialize = val => JSON.parse(val);
 const numberSerialize = val => val;
 const numberDeserialize = val => parseFloat(val);
 
+const boolSerialize = val => val ? 1 : 0;
+const boolDeserialize = val => parseInt(val) == 1;
+
 const setSerialize = val => JSON.stringify(Array.from(val));
 const setDeserialize = val => {
   const arr = JSON.parse(val);
@@ -29,7 +32,7 @@ const setDeserialize = val => {
 
 const defaultWrapper = (fn, def) => {
   return (val) => {
-    if (val) {
+    if (val !== null && val !== undefined) {
       try {
         return fn(val);
       } catch {
@@ -93,6 +96,10 @@ const URL_PARAMS = {
   reduceFnH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'median')
+  },
+  separateSlopeH: {
+    serialize: defaultWrapper(boolSerialize, null),
+    deserialize: defaultWrapper(boolDeserialize, true)
   }
 }
 
@@ -175,7 +182,7 @@ class CompositeSamplesContainer extends Component {
     const searchParams = new URLSearchParams();
     for (let key in URL_PARAMS) {
       const val = URL_PARAMS[key].serialize(props[key]);
-      if (val) {
+      if (val !== null && val !== undefined) {
         searchParams.set(key, val);
       }
     }
@@ -197,7 +204,8 @@ class CompositeSamplesContainer extends Component {
       yOffsetS,
       yAxisH,
       zAxisH,
-      reduceFnH
+      reduceFnH,
+      separateSlopeH
     } = this.props;
 
     if (samples.length === 0) {
@@ -230,6 +238,7 @@ class CompositeSamplesContainer extends Component {
           yAxisH={yAxisH}
           zAxisH={zAxisH}
           reduceFnH={reduceFnH}
+          separateSlopeH={separateSlopeH}
         />
       </div>
     );

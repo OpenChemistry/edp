@@ -23,7 +23,6 @@ class HeatMapComponent extends Component {
     super(props);
     this.state = {
       sampleFields: [],
-      separateSlope: true,
       nY: 50,
       selection: ''
     };
@@ -67,11 +66,11 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { yAxisH, zAxisH,reduceFnH } = this.props;
-    const { nY, separateSlope, selection } = this.state;
+    const { yAxisH, zAxisH,reduceFnH, separateSlopeH } = this.props;
+    const { nY, selection } = this.state;
     this.dp.setNumY(nY);
     this.dp.setActiveScalars([yAxisH, zAxisH]);
-    this.dp.setSeparateSlope(separateSlope);
+    this.dp.setSeparateSlope(separateSlopeH);
     this.dp.selectSegments(selection);
     this.dp.setReduceFn(reduceFnH);
     this.dp.computeMaps();
@@ -91,8 +90,9 @@ class HeatMapComponent extends Component {
     });
   }
 
-  onSeparateSlopeChange(flag) {
-    this.setState({separateSlope: flag});
+  onSeparateSlopeChange(separateSlopeH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({separateSlopeH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
@@ -121,8 +121,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const { visSelector, yAxisH, zAxisH, reduceFnH } = this.props;
-    const {separateSlope, nY} = this.state;
+    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -197,7 +196,7 @@ class HeatMapComponent extends Component {
           <TableHead>
             <TableRow>
               <TableCell>Separate Slope</TableCell>
-              { separateSlope &&
+              { separateSlopeH &&
               <TableCell>Segments ({nSegments})</TableCell>
               }
               {/*<TableCell>NY</TableCell>*/}
@@ -206,9 +205,9 @@ class HeatMapComponent extends Component {
           <TableBody>
             <TableRow>
               <TableCell>
-                <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
+                <Switch checked={separateSlopeH} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
               </TableCell>
-              {separateSlope &&
+              {separateSlopeH &&
               <TableCell>
                 <FormControl fullWidth>
                   <TextField
