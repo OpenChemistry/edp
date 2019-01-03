@@ -11,10 +11,8 @@ import {
   TableCell,
   TableHead,
   Switch,
-  Input,
   TextField
 } from '@material-ui/core';
-import { Slider} from '@material-ui/lab';
 
 class HeatMapComponent extends Component {
   heatMapElement;
@@ -23,12 +21,7 @@ class HeatMapComponent extends Component {
     super(props);
     this.state = {
       sampleFields: [],
-      xField: null,
-      yField: null,
-      yOffset: 0,
-      separateSlope: true,
       nY: 50,
-      reduceFn: 'median',
       selection: ''
     };
   }
@@ -46,22 +39,23 @@ class HeatMapComponent extends Component {
   }
 
   onNewData() {
-    const { timeseries } = this.props;
+    const { timeseries, onParamChanged } = this.props;
     // this.spectraPlot.setSpectra(timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
       const sampleFields = Object.keys(spectrum);
-      let {xField, yField} = this.state;
-      if (!(xField in spectrum)) {
-        xField = sampleFields[0];
+      let { yAxisH, zAxisH } = this.props;
+      if (!(yAxisH in spectrum)) {
+        yAxisH = sampleFields[0];
       }
-      if (!(yField in spectrum)) {
-        yField = sampleFields[1];
+      if (!(zAxisH in spectrum)) {
+        zAxisH = sampleFields[1];
       }
       // spectrum[xField] = [0, 0.2, 0.4, 0.6, 0.8, 1, 0.8, 0.6, 0.4, 0.2, 0];
       // spectrum[yField] = [0, 0.04, 0.16, 0.36, 0.64, 1, 1 - 0.04, 1 - 0.16, 1 - 0.36, 1 - 0.64, 0];
 
-      this.setState({xField, yField, sampleFields});
+      this.setState({sampleFields});
+      onParamChanged({yAxisH, zAxisH});
       this.dp.setData(timeseries);
       setTimeout(() => {
         this.refreshHeatMap();
@@ -70,49 +64,49 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { nY, separateSlope, xField, yField, selection, reduceFn } = this.state;
+    const { yAxisH, zAxisH,reduceFnH, separateSlopeH, selectionH } = this.props;
+    const { nY } = this.state;
     this.dp.setNumY(nY);
-    this.dp.setActiveScalars([xField, yField]);
-    this.dp.setSeparateSlope(separateSlope);
-    this.dp.selectSegments(selection);
-    this.dp.setReduceFn(reduceFn);
+    this.dp.setActiveScalars([yAxisH, zAxisH]);
+    this.dp.setSeparateSlope(separateSlopeH);
+    this.dp.selectSegments(selectionH);
+    this.dp.setReduceFn(reduceFnH);
     this.dp.computeMaps();
     this.heatMap.dataUpdated();
   }
 
   onSampleFieldChange(field, index) {
-    let xField = this.state.xField;
-    let yField = this.state.yField;
+    let {yAxisH, zAxisH, onParamChanged} = this.props;
     if (index === 0) {
-      xField = field;
+      yAxisH = field;
     } else {
-      yField = field;
+      zAxisH = field;
     }
-    // this.dp.setActiveScalars([xField, yField]);
-    // this.dp.computeMaps();
-    // this.heatMap.dataUpdated();
-    this.setState({xField, yField});
+    onParamChanged({yAxisH, zAxisH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
   }
 
-  onSeparateSlopeChange(flag) {
-    this.setState({separateSlope: flag});
+  onSeparateSlopeChange(separateSlopeH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({separateSlopeH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
   }
 
-  onReduceFnChange(name) {
-    this.setState({reduceFn: name});
+  onReduceFnChange(reduceFnH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({reduceFnH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
   }
 
-  onSelectionChange(selection) {
-    this.setState({selection});
+  onSelectionChange(selectionH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({selectionH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
@@ -126,8 +120,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const {visSelector} = this.props;
-    const {separateSlope, nY} = this.state;
+    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -166,7 +159,7 @@ class HeatMapComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
                   <Select
-                    value={this.state.xField || ""}
+                    value={yAxisH || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 0)}}
                     inputProps={{name: 'scalar', id: 'select-scalar'}}
                   >
@@ -178,7 +171,7 @@ class HeatMapComponent extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
                   <Select
-                    value={this.state.yField || ""}
+                    value={zAxisH || ""}
                     onChange={(e) => {this.onSampleFieldChange(e.target.value, 1)}}
                     inputProps={{name: 'colorMap', id: 'select-map'}}
                   >
@@ -189,7 +182,7 @@ class HeatMapComponent extends Component {
               <TableCell>
                 <FormControl fullWidth>
                   <Select
-                    value={this.state.reduceFn}
+                    value={reduceFnH}
                     onChange={(e) => {this.onReduceFnChange(e.target.value, 1)}}
                     inputProps={{name: 'reduceFn', id: 'select-reduce'}}
                   >
@@ -202,7 +195,7 @@ class HeatMapComponent extends Component {
           <TableHead>
             <TableRow>
               <TableCell>Separate Slope</TableCell>
-              { separateSlope &&
+              { separateSlopeH &&
               <TableCell>Segments ({nSegments})</TableCell>
               }
               {/*<TableCell>NY</TableCell>*/}
@@ -211,12 +204,13 @@ class HeatMapComponent extends Component {
           <TableBody>
             <TableRow>
               <TableCell>
-                <Switch checked={separateSlope} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
+                <Switch checked={separateSlopeH} onChange={(e) => {this.onSeparateSlopeChange(e.target.checked)}}/>
               </TableCell>
-              {separateSlope &&
+              {separateSlopeH &&
               <TableCell>
                 <FormControl fullWidth>
                   <TextField
+                    value={selectionH}
                     onChange={(e) => {this.onSelectionChange(e.target.value)}}
                   ></TextField>
                 </FormControl>

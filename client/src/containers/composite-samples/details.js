@@ -18,7 +18,7 @@ class SamplesDetailsContainer extends Component {
     }
 
     return (
-      <SamplesDetails timeseries={timeseries} />
+      <SamplesDetails {...this.props} />
     );
   }
 }

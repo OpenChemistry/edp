@@ -2,33 +2,18 @@ import React, { Component } from 'react';
 
 import {
   Select,
-  MenuItem,
-  FormControl,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  MenuItem
 } from '@material-ui/core';
 
 import SpectrumComponent from './spectrum';
 import HeatMapComponent from './heatmap';
 
 class SamplesDetails extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      display: 'spectrum'
-    }
-  }
-
-  onDisplayChange = (val) => {
-    this.setState({display: val});
-  }
 
   render() {
+    const { display, onParamChanged } = this.props;
     const visSelector = (
-      <Select value={this.state.display} onChange={(e) => {this.onDisplayChange(e.target.value)}}>
+      <Select value={display} onChange={(e) => { onParamChanged('display', e.target.value)}}>
         <MenuItem value={'spectrum'}>Spectrum</MenuItem>
         <MenuItem value={'heatmap'}>Heatmap</MenuItem>
       </Select>
@@ -36,10 +21,10 @@ class SamplesDetails extends Component {
 
     return (
       <div>
-        {this.state.display === 'spectrum' &&
+        {display === 'spectrum' &&
           <SpectrumComponent {...this.props} visSelector={visSelector} />
         }
-        {this.state.display === 'heatmap' &&
+        {display === 'heatmap' &&
           <HeatMapComponent {...this.props} visSelector={visSelector} />
         }
       </div>

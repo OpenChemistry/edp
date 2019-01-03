@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { has } from 'lodash-es';
 import {
   Select,
   MenuItem,
@@ -26,11 +25,7 @@ class PlotComponentContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataRange: [0, 1],
-      colorMap: colors.viridis,
-      colorMapRange: [0, 1],
-      scalar: null,
-      activeMap: 'Viridis'
+      dataRange: [0, 1]
     }
 
     this.colorMaps = {
@@ -57,6 +52,8 @@ class PlotComponentContainer extends Component {
   }
 
   onNewSamples(samples) {
+    const { activeMap, onParamChanged} = this.props;
+    let { scalarField, colorMapRange } = this.props;
     this.dp.setData(samples);
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes();
@@ -64,49 +61,65 @@ class PlotComponentContainer extends Component {
       axes[key] = {...axes[key], range: [0, 1]};
     }
     this.dp.setAxes(axes);
-    const scalar = this.dp.getDefaultScalar(this.state.scalar);
-    this.dp.setActiveScalar(scalar);
-    const dataRange = this.dp.getScalarRange(scalar);
-    const colorMapRange = [...dataRange];
-
-    this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
+    scalarField = this.dp.getDefaultScalar(scalarField);
+    this.dp.setActiveScalar(scalarField);
+    const dataRange = this.dp.getScalarRange(scalarField);
+    colorMapRange = [
+      Math.min(Math.max(colorMapRange[0], dataRange[0]), dataRange[1] - 1e-6),
+      Math.max(Math.min(colorMapRange[1], dataRange[1]), dataRange[0] + 1e-6)
+    ];
+    const colorMap = this.colorMaps[activeMap];
+    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
     this.quaternaryPlot.dataUpdated();
-    this.setState({...this.state, scalar, colorMapRange, dataRange});
+    this.setState({...this.state, dataRange});
+    onParamChanged({
+      scalarField,
+      colorMapRange
+    });
   }
 
-  onScalarChange(scalar) {
-    this.dp.setActiveScalar(scalar);
-    const dataRange = this.dp.getScalarRange(scalar);
-    const colorMapRange = [...dataRange];
-    this.quaternaryPlot.setColorMap(this.state.colorMap, dataRange);
-    this.setState({...this.state, scalar, colorMapRange, dataRange});
+  onScalarChange(scalarField) {
+    const { activeMap, onParamChanged} = this.props;
+    let { colorMapRange } = this.props;
+    this.dp.setActiveScalar(scalarField);
+    const dataRange = this.dp.getScalarRange(scalarField);
+    colorMapRange = [...dataRange];
+    const colorMap = this.colorMaps[activeMap];
+    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+    onParamChanged({
+      scalarField,
+      colorMapRange
+    });
+    this.setState({...this.state, dataRange});
   }
 
   onColorMapChange(activeMap) {
+    const { onParamChanged, colorMapRange } = this.props;
     let colorMap = this.colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, this.state.colorMapRange);
-    this.setState({...this.state, colorMap, activeMap});
+    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+    onParamChanged({activeMap});
   }
 
   onColorMapRangeChange(value, index) {
+    const { colorMapRange, activeMap, onParamChanged } = this.props;
     const otherIndex = index === 0 ? 1 : 0;
     if (index === 0) {
-      if (value >= this.state.colorMapRange[otherIndex]) {
+      if (value >= colorMapRange[otherIndex]) {
         return;
       }
     } else {
-      if (value <= this.state.colorMapRange[otherIndex]) {
+      if (value <= colorMapRange[otherIndex]) {
         return;
       }
     }
-    const range = [...this.state.colorMapRange];
+    const range = [...colorMapRange];
     range[index] = value;
-    this.setState({...this.state, colorMapRange: range});
-    this.quaternaryPlot.setColorMap(this.state.colorMap, range);
+    onParamChanged({colorMapRange: range});
+    this.quaternaryPlot.setColorMap(this.colorMaps[activeMap], range);
   }
 
   render() {
-    const { onClearSelection, selectedSamples, onSampleSelectById } = this.props;
+    const { scalarField, activeMap, colorMapRange, onClearSelection, selectedSamples, onSampleSelectById } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
     
     let scalarSelectOptions = [];
@@ -135,7 +148,7 @@ class PlotComponentContainer extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-scalar">Scalar</InputLabel> */}
                   <Select
-                    value={this.state.scalar || ""}
+                    value={scalarField || ""}
                     onChange={(e) => {this.onScalarChange(e.target.value)}}
                     inputProps={{name: 'scalar', id: 'select-scalar'}}
                   >
@@ -147,7 +160,7 @@ class PlotComponentContainer extends Component {
                 <FormControl fullWidth>
                   {/* <InputLabel htmlFor="select-map">Color Map</InputLabel> */}
                   <Select
-                    value={this.state.activeMap || ""}
+                    value={activeMap || ""}
                     onChange={(e) => {this.onColorMapChange(e.target.value)}}
                     inputProps={{name: 'colorMap', id: 'select-map'}}
                   >
@@ -158,23 +171,23 @@ class PlotComponentContainer extends Component {
               <TableCell>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   <div>
-                    {this.state.colorMapRange[0].toFixed(3)}
+                    {colorMapRange[0].toFixed(3)}
                   </div>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
                     <Slider 
                       aria-labelledby="map-range-label"
                       min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.001}
-                      value={this.state.colorMapRange[0]}
+                      value={colorMapRange[0]}
                       onChange={(e, val) => {this.onColorMapRangeChange(val, 0)}}
                     />
                     <Slider
                       min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.001}
-                      value={this.state.colorMapRange[1]}
+                      value={colorMapRange[1]}
                       onChange={(e, val) => {this.onColorMapRangeChange(val, 1)}}
                     />
                   </div>
                   <div>
-                    {this.state.colorMapRange[1].toFixed(3)}
+                    {colorMapRange[1].toFixed(3)}
                   </div>
                 </div>
               </TableCell>
