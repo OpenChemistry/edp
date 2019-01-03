@@ -14,16 +14,17 @@ import SamplesDetails from './details';
 import NotFoundPage from '../../components/notFound.js';
 
 const identity = val => val;
+
 const arraySerialize = val => JSON.stringify(val);
 const arrayDeserialize = val => JSON.parse(val);
+
+const numberSerialize = val => val;
+const numberDeserialize = val => parseFloat(val);
 
 const setSerialize = val => JSON.stringify(Array.from(val));
 const setDeserialize = val => {
   const arr = JSON.parse(val);
-  if (Array.isArray(arr)) {
-    return new Set(arr);
-  }
-  return new Set();
+  return Array.isArray(arr) ? new Set(arr) : new Set();
 };
 
 const defaultWrapper = (fn, def) => {
@@ -76,6 +77,10 @@ const URL_PARAMS = {
   yAxisS: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, null)
+  },
+  yOffsetS: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 0)
   }
 }
 
@@ -176,7 +181,8 @@ class CompositeSamplesContainer extends Component {
       activeMap,
       colorMapRange,
       xAxisS,
-      yAxisS
+      yAxisS,
+      yOffsetS
     } = this.props;
 
     if (samples.length === 0) {
@@ -205,6 +211,7 @@ class CompositeSamplesContainer extends Component {
           onParamChanged={this.onParamChanged}
           xAxisS={xAxisS}
           yAxisS={yAxisS}
+          yOffsetS={yOffsetS}
         />
       </div>
     );

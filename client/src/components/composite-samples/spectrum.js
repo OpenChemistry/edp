@@ -19,14 +19,14 @@ class SpectrumComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      sampleFields: [],
-      yOffset: 0
+      sampleFields: []
     };
   }
 
   componentDidMount() {
+    const { yOffsetS } = this.props;
     this.spectraPlot = new Spectrum(this.spectraElement);
-    this.spectraPlot.setOffset(this.state.yOffset);
+    this.spectraPlot.setOffset(yOffsetS);
     this.updateSpectra();
   }
 
@@ -66,13 +66,14 @@ class SpectrumComponent extends Component {
     onParamChanged({xAxisS, yAxisS});
   }
 
-  onOffsetChange(yOffset) {
-    this.spectraPlot.setOffset(yOffset);
-    this.setState({yOffset});
+  onOffsetChange(yOffsetS) {
+    const { onParamChanged } = this.props;
+    this.spectraPlot.setOffset(yOffsetS);
+    onParamChanged({yOffsetS});
   }
 
   render() {
-    const { visSelector, xAxisS, yAxisS } = this.props;
+    const { visSelector, xAxisS, yAxisS, yOffsetS } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -127,12 +128,12 @@ class SpectrumComponent extends Component {
               <TableCell>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   <div>
-                    {this.state.yOffset.toFixed(3)}
+                    {yOffsetS.toFixed(3)}
                   </div>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
                     <Slider 
                       min={0} max={10} step={0.1}
-                      value={this.state.yOffset}
+                      value={yOffsetS}
                       onChange={(e, val) => {this.onOffsetChange(val)}}
                     />
                   </div>
