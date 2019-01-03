@@ -11,10 +11,8 @@ import {
   TableCell,
   TableHead,
   Switch,
-  Input,
   TextField
 } from '@material-ui/core';
-import { Slider} from '@material-ui/lab';
 
 class HeatMapComponent extends Component {
   heatMapElement;
@@ -66,12 +64,12 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { yAxisH, zAxisH,reduceFnH, separateSlopeH } = this.props;
-    const { nY, selection } = this.state;
+    const { yAxisH, zAxisH,reduceFnH, separateSlopeH, selectionH } = this.props;
+    const { nY } = this.state;
     this.dp.setNumY(nY);
     this.dp.setActiveScalars([yAxisH, zAxisH]);
     this.dp.setSeparateSlope(separateSlopeH);
-    this.dp.selectSegments(selection);
+    this.dp.selectSegments(selectionH);
     this.dp.setReduceFn(reduceFnH);
     this.dp.computeMaps();
     this.heatMap.dataUpdated();
@@ -106,8 +104,9 @@ class HeatMapComponent extends Component {
     });
   }
 
-  onSelectionChange(selection) {
-    this.setState({selection});
+  onSelectionChange(selectionH) {
+    const { onParamChanged } = this.props;
+    onParamChanged({selectionH});
     setTimeout(() => {
       this.refreshHeatMap();
     });
@@ -121,7 +120,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH } = this.props;
+    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -211,6 +210,7 @@ class HeatMapComponent extends Component {
               <TableCell>
                 <FormControl fullWidth>
                   <TextField
+                    value={selectionH}
                     onChange={(e) => {this.onSelectionChange(e.target.value)}}
                   ></TextField>
                 </FormControl>

@@ -100,6 +100,10 @@ const URL_PARAMS = {
   separateSlopeH: {
     serialize: defaultWrapper(boolSerialize, null),
     deserialize: defaultWrapper(boolDeserialize, true)
+  },
+  selectionH: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, '')
   }
 }
 
@@ -205,7 +209,8 @@ class CompositeSamplesContainer extends Component {
       yAxisH,
       zAxisH,
       reduceFnH,
-      separateSlopeH
+      separateSlopeH,
+      selectionH
     } = this.props;
 
     if (samples.length === 0) {
@@ -239,6 +244,7 @@ class CompositeSamplesContainer extends Component {
           zAxisH={zAxisH}
           reduceFnH={reduceFnH}
           separateSlopeH={separateSlopeH}
+          selectionH={selectionH}
         />
       </div>
     );
