@@ -17,6 +17,9 @@ services:
       - mongodb
     ports:
           - 8080:8080
+    environment:
+      - GIRDER_WORKER_BROKER=amqp://guest:guest@rabbit/
+      - GIRDER_WORKER_BACKEND=amqp://guest:guest@rabbit/
     depends_on:
       - mongodb
 
@@ -31,6 +34,26 @@ services:
       - girder
     depends_on:
       - girder
+
+  rabbit:
+    image: rabbitmq:latest
+
+  girder-worker:
+    image: openchemistry/girder_worker:edp
+    build:
+      context: ../../
+      dockerfile: devops/docker/girder_worker/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    links:
+      - rabbit
+      - girder
+    environment:
+      - GIRDER_WORKER_BROKER=amqp://guest:guest@rabbit/
+      - GIRDER_WORKER_BACKEND=amqp://guest:guest@rabbit/
+    depends_on:
+      - rabbit
+
 
 volumes:
     edp_assetstore:

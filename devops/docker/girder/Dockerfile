@@ -6,4 +6,4 @@ COPY ./devops/docker/girder/girder.local.conf /girder/girder/conf/girder.local.c
 COPY ./server/edp /edp
 
 # Install edp plugin
-RUN girder-install plugin /edp
+RUN girder-install plugin -s /edp
