@@ -31,112 +31,70 @@ def search(project, composite, elements=None, ph=None, electrolyte=None, plateId
         elements = [e.strip().lower() for e in elements.split(',') if e.strip()]
 
     # Find the matching runs
-    fields = {
+    match_runs = {
         'compositeId': composite['_id']
     }
     if ph is not None:
-        fields['solutionPh'] = ph
+        match_runs['solutionPh'] = float(ph)
 
     if electrolyte is not None:
-        fields['electrolyte'] = electrolyte
+        match_runs['electrolyte'] = electrolyte
 
     if plateId is not None:
-        fields['plateId'] = int(plateId)
+        match_runs['plateId'] = int(plateId)
 
-    run_ids = [
-        x['_id'] for x in RunModel().query(fields=fields,
-                                           projection=['_id', 'access'],
-                                           user=getCurrentUser())
-    ]
+    match_runs = {
+        '$match': match_runs
+    }
 
-    match = {
-        '$match': {}
+    lookup_platemaps_match = {
+        '$expr': {
+            '$and': [{
+                '$eq': ["$plateId",  "$$plateId"]
+            }]
+        }
     }
 
     if elements:
-        match['$match'] = {
-           'elements': {
-                '$all': elements
-            }
-        }
+        lookup_platemaps_match['$expr']['$and'].append({
+            '$setIsSubset': [elements, '$elements']
+        })
 
-    unwind_samples = {
-        '$unwind': '$sampleIds'
-    }
-
-    lookup_sample = {
-        '$lookup': {
-            'from': 'edp.samples',
-            'localField': 'sampleIds',
-            'foreignField': '_id',
-            'as': 'sample'
-        }
-    }
-
-    match_run = {
-        '$match': {
-            'sample.runId': {
-                '$in': run_ids
-            }
-        }
-    }
-
-    group = {
-        '$group': {
-            '_id': {
-                'runId': '$sample.runId',
-                'platemapId': "$_id"
-            }
-        }
-    }
-
-    lookup_platemap = {
-        '$lookup': {
-            'from': 'edp.platemaps',
-            'localField': '_id.platemapId',
-            'foreignField': '_id',
-            'as': 'platemap'
-        }
-    }
-
-    unwind_id_run = {
-        '$unwind': '$_id.runId'
-    }
-
-    lookup_run = {
-        '$lookup': {
-            'from': 'edp.runs',
-            'localField': '_id.runId',
-            'foreignField': '_id',
-            'as': 'run'
-        }
+    lookup_platemaps =   {
+        '$lookup':{
+           'from': 'edp.platemaps',
+           'let': {
+               'plateId': '$plateId'
+            },
+           'pipeline': [{
+               '$match': lookup_platemaps_match
+           }],
+           'as': 'platemap'
+         }
     }
 
     unwind_platemap = {
         '$unwind': '$platemap'
     }
 
-    unwind_run = {
-        '$unwind': '$run'
-    }
 
     project = {
         '$project': {
             '_id': 0,
-            'run._id': 1,
-            'run.runId': 1,
-            'run.solutionPh': 1,
-            'run.electrolyte': 1,
-            'run.plateId': 1,
+            'run': {
+                '_id': '$_id',
+                'runId': '$runId',
+                'solutionPh': '$solutionPh',
+                'electrolyte': '$electrolyte',
+                'plateId': '$plateId',
+            },
             'platemap._id': 1,
             'platemap.elements': 1,
             'platemap.plateId': 1
         }
     }
 
-    pipeline = [match, unwind_samples, lookup_sample, match_run, group,
-                unwind_id_run, lookup_platemap, lookup_run, unwind_platemap,
-                unwind_run, project]
-    sample_sets = PlateMapModel().collection.aggregate(pipeline)
+    pipeline = [match_runs, lookup_platemaps, unwind_platemap, project]
+    sample_sets = RunModel().collection.aggregate(pipeline)
 
     return list(sample_sets)
