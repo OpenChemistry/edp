@@ -38,9 +38,6 @@ class Sample(resource.create(SampleModel)):
 
         query = {}
 
-        if runId is not None:
-            query['runId'] = ObjectId(runId)
-
         if sample_ids is not None:
             query['_id']= {
                 '$in': sample_ids

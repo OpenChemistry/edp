@@ -25,7 +25,6 @@ scalars_to_extract = [
 ]
 
 def _ingest_runs(gc, project, composite, dir):
-    run_key_regex = re.compile('run__(\d?)')
     # Find the exp file
     exp_paths = glob.glob('%s/**/*.exp' % dir, recursive=True)
 
@@ -38,16 +37,9 @@ def _ingest_runs(gc, project, composite, dir):
             exp = parse_exp(f.read())
         name = exp['name']
         for run in exp['runs']:
-            run_key = run['run_key']
             rcp_file = run['rcp_file']
 
-            match = run_key_regex.match(run_key)
-            if not match:
-                raise Exception('Unable to extract run int')
-
-            run_int = int(match.group(1))
-
-            runs = experiments.setdefault(name, {})
+            runs = experiments.setdefault(name, [])
 
             [run_file] = glob.glob('%s/**/%s' % (dir, rcp_file), recursive=True)
             click.echo('Ingesting run: %s' % run_file)
@@ -73,12 +65,12 @@ def _ingest_runs(gc, project, composite, dir):
 
             run = gc.post('edp/projects/%s/composites/%s/runs' % (project, composite), json=run)
             run['sampleFiles'] = technique_files
-            runs[run_int] = run
+            runs.append(run)
 
     return experiments
 
 def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
-                    elements, experiment, samples, platemap, technique):
+                    elements, platemap, technique, samples):
     comp_regex = re.compile('([a-zA-Z]+)\.PM.AtFrac')
     sample_regex = re.compile('.*ana__.*_(.*)_rawlen.txt')
 
@@ -88,7 +80,6 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
         loading = parse_csv(f.read())
 
     sample_numbers = loading['sample_no']
-    run_ints = loading['runint']
     plate_ids = loading['plate_id']
     compositions = {}
     for key, value in loading.items():
@@ -98,11 +89,10 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
             if element in elements:
                 compositions[element] = value
 
-    for i, (plate_id, sample_number, run_int) in enumerate(zip(plate_ids, sample_numbers, run_ints)):
+    for i, (plate_id, sample_number) in enumerate(zip(plate_ids, sample_numbers)):
         click.echo('Ingesting sample %s on plate %s' % (sample_number, int(plate_id)))
         if sample_number not in samples.setdefault(plate_id, {}):
             sample_meta = {}
-            sample_meta['runId'] = experiment[int(run_int)]['_id']
             sample_meta['sampleNum'] = sample_number
 
             comp = {}
@@ -130,53 +120,79 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
             glob_path = '%s/**/ana__*__Sample%d_*_%s_rawlen.txt' % (dir, sample_number, t)
             sample_files = glob.glob(glob_path, recursive=True)
 
-            timeseries_data = {}
-            for sample_file in sample_files:
-                match = sample_regex.match(sample_file)
-                technique = match.group(1)
-                with open(sample_file) as f:
-                    timeseries = parse_rawlen(f.read())
+            if sample_files:
+                timeseries_data = {}
+                for sample_file in sample_files:
+                    match = sample_regex.match(sample_file)
+                    technique = match.group(1)
+                    with open(sample_file) as f:
+                        timeseries = parse_rawlen(f.read())
 
-                timeseries_data.update(
-                    {'%s(%s)' % (key.replace('.', '\\u002e'), technique):value for (key,value) in timeseries.items()}
-                )
+                    timeseries_data.update(
+                        {'%s(%s)' % (key.replace('.', '\\u002e'), technique):value for (key,value) in timeseries.items()}
+                    )
 
-                # Now look up techinque sample files
-                if technique is not None:
-                    technique_files = experiment[run_int]['sampleFiles'][technique]
-                    prefix = 'Sample%d' % sample_number
-                    for file_path in technique_files:
-                        name = os.path.basename(file_path)
-                        if name.startswith(prefix):
-                            with open(file_path, 'rb') as ff:
-                                data = ff.read().decode()
-                            s = parse_sample(data)
-                            for key, value in s.items():
-                                if key in scalars_to_extract:
-                                    key =  '%s(%s)' % (key.replace('.', '\\u002e'), technique)
-                                    timeseries_data[key] = value
-            timeseries = {
-                'data': timeseries_data
-            }
-            timeseries = gc.post(
-                'edp/projects/%s/composites/%s/samples/%s/timeseries'
-                % (project, composite, sample['_id']), json=timeseries)
+                timeseries = {
+                    'data': timeseries_data
+                }
+                timeseries = gc.post(
+                    'edp/projects/%s/composites/%s/samples/%s/timeseries'
+                    % (project, composite, sample['_id']), json=timeseries)
         else:
             sample = samples.setdefault(plate_id, {}).get(sample_number)
 
         platemap.setdefault('sampleIds', []).append(sample['_id'])
 
+    return samples
+
+
+def _ingest_run_data(gc, project, composite, experiments, samples):
+    # Now process the files associated with the runs in this experiment
+    sample_regex = re.compile(r'Sample(\d+)_.*._(.*)\.txt')
+
+    run_timeseries = {}
+    for _, experiment in experiments.items():
+        for run in experiment:
+            for technique, technique_files  in run['sampleFiles'].items():
+                technique_files = run['sampleFiles'][technique]
+                for file_path in technique_files:
+                    click.echo('Ingesting: %s' % file_path)
+                    match = sample_regex.match(os.path.basename(file_path))
+                    if not match:
+                        raise Exception('Unable to extract sample number.')
+                    sample_number = int(match.group(1))
+
+                    if sample_number not in samples[run['plateId']]:
+                        click.echo('Sample %s not in map.' % sample_number)
+                        continue
+
+                    timeseries_data = run_timeseries.setdefault(sample_number, {})
+                    with open(file_path, 'rb') as ff:
+                        data = ff.read().decode()
+                    s = parse_sample(data)
+                    for key, value in s.items():
+                        if key in scalars_to_extract:
+                            key =  '%s(%s)' % (key.replace('.', '\\u002e'), technique)
+                            timeseries_data[key] = value
+
+            for sample_number, timeseries_data in run_timeseries.items():
+                timeseries = {
+                    'data': timeseries_data,
+                    'runId': run['_id']
+                }
+                sample = samples[run['plateId']][sample_number]
+                timeseries = gc.post(
+                    'edp/projects/%s/composites/%s/samples/%s/timeseries'
+                    % (project, composite, sample['_id']), json=timeseries)
+
+
 def _ingest_samples(gc, project, composite, dir, experiments, channel_to_element):
-
-    samples = {}
-
     ana_files = glob.glob('%s/**/*.ana' % dir, recursive=True)
 
+    samples = {}
     for ana_file in ana_files:
         with open(ana_file) as f:
             ana = parse_ana_rcp(f.read())
-
-        experiment_name = ana['experiment_name']
 
         for key, value in ana.items():
             if key.startswith('ana__'):
@@ -195,7 +211,8 @@ def _ingest_samples(gc, project, composite, dir, experiments, channel_to_element
                     'elements': elements
                 }
                 _ingest_loading(gc, project, composite, os.path.dirname(ana_file),
-                                key, file_path, elements, experiments[experiment_name],
-                                samples, platemap, technique)
+                                key, file_path, elements, platemap, technique, samples)
                 # Now create the plate map
                 platemap = gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
+
+    return samples

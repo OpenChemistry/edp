@@ -9,6 +9,7 @@ import datetime
 import json
 from girder_client import GirderClient
 from edp.composite import _ingest_runs, _ingest_samples
+from cli.edp.composite import _ingest_run_data
 
 class GC(GirderClient):
 
@@ -163,6 +164,8 @@ def _ingest_composite(project, dir, channel_map, api_url, api_key):
 
     experiments = _ingest_runs(gc, project, composite, dir)
 
-    _ingest_samples(gc, project, composite, dir, experiments, channel_map)
+    samples = _ingest_samples(gc, project, composite, dir, experiments, channel_map)
+
+    _ingest_run_data(gc, project, composite, experiments, samples)
 
 

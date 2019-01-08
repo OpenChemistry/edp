@@ -20,6 +20,7 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
 from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
 from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
 from .sample import Sample
+from .timeseries import TimeSeries
 
 
 class Route(object):
@@ -56,7 +57,7 @@ class Project(Resource):
         composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
         platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
         sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
-        sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
+        sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
         self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
 
 
