@@ -151,10 +151,10 @@ class CompositeSamplesContainer extends Component {
   }
 
   fetchSampleTimeSeries = (sample) => {
-    const { ancestors, item, dispatch } = this.props;
+    const { ancestors, item, dispatch, runId } = this.props;
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
-    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_}));
+    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId}));
   }
 
   onParamChanged = (...args) => {

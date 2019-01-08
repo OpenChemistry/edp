@@ -4,15 +4,19 @@ import { makeUrl } from '../utils/nodes';
 
 const prefix = 'edp';
 
-export function getItems(ancestors, item) {
+export function getItems(ancestors, item, queryParams = {}) {
   const url = makeUrl(ancestors, item, prefix);
-  return girderClient().get(url)
+  return girderClient().get(url, {
+    params: queryParams
+  })
     .then(response => response.data );
 }
 
-export function getItem(ancestors, item) {
+export function getItem(ancestors, item, queryParams = {}) {
   const url = makeUrl(ancestors, item, prefix);
-  return girderClient().get(url)
+  return girderClient().get(url, {
+    params: queryParams
+  })
     .then(response => response.data );
 }
 
