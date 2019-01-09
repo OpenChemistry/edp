@@ -8,8 +8,7 @@ import sys
 import datetime
 import json
 from girder_client import GirderClient
-from edp.composite import _ingest_runs, _ingest_samples
-from cli.edp.composite import _ingest_run_data
+from edp.composite import _ingest_runs, _ingest_samples, _ingest_run_data
 
 class GC(GirderClient):
 
