@@ -10,8 +10,7 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
 from girder.plugins.edp.models.project import Project as ProjectModel
 from girder.plugins.edp.models.composite import Composite as CompositeModel
 from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
-
-
+from girder.plugins.edp.utils.spline import make_models
 
 class TimeSeries(resource.create(TimeSeriesModel)):
 
@@ -28,9 +27,11 @@ class TimeSeries(resource.create(TimeSeriesModel)):
             model=SampleModel, destName='sample',
             level=AccessType.READ, paramType='path')
         .param('runId', '', required=True)
+        .param('fitted', 'If true return a fit model of the data instead of the actual points',
+            paramType='query', dataType='boolean', default=False)
         .pagingParams(defaultSort='sampleNum')
     )
-    def find(self, project, composite, sample, runId, offset=0, limit=None, sort=None):
+    def find(self, project, composite, sample, runId, fitted=False, offset=0, limit=None, sort=None):
         query = {
             'sampleId': sample['_id'],
             'runId': {
@@ -41,7 +42,12 @@ class TimeSeries(resource.create(TimeSeriesModel)):
         cursor = TimeSeriesModel().find(query=query, offset=offset,
                                         sort=sort, user=getCurrentUser())
 
-        return  list(TimeSeriesModel().filterResultsByPermission(cursor=cursor, user=getCurrentUser(),
+        timeseries = list(TimeSeriesModel().filterResultsByPermission(cursor=cursor, user=getCurrentUser(),
                                                                  level=AccessType.READ,
                                                                  limit=limit, offset=offset))
 
+        if fitted:
+            for t in timeseries:
+                t['data'] = make_models(t['data'], (1, 3), 0.15)
+
+        return timeseries
