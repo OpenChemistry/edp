@@ -1,5 +1,6 @@
 import { createAction, handleActions } from 'redux-actions';
 import { merge } from "lodash"
+import { ArrayDataProvider } from 'composition-plot/dist/data-provider/spectrum';
 
 const initialState = {
   samples: [],
@@ -36,6 +37,14 @@ function patchSample(sample, platemapId, runId) {
   return sample;
 }
 
+function toArrayProvider(timeserie) {
+  const provider = new ArrayDataProvider();
+  for (let key in timeserie.data) {
+    provider.setArray(key, timeserie.data[key]);
+  }
+  return provider;
+}
+
 const reducer = handleActions({
   [FETCH_SAMPLES_REQUESTED]: (state, action) => {
     return {...state, samples: initialState.samples};
@@ -53,7 +62,7 @@ const reducer = handleActions({
     // For now merge into a single object
     const timeserie = merge({}, ...timeseries);
 
-    return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: timeserie.data}};
+    return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: toArrayProvider(timeserie)}};
   },
 }, initialState);
 

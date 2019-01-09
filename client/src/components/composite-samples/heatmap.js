@@ -43,12 +43,12 @@ class HeatMapComponent extends Component {
     // this.spectraPlot.setSpectra(timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
-      const sampleFields = Object.keys(spectrum);
+      const sampleFields = spectrum.getKeys();
       let { yAxisH, zAxisH } = this.props;
-      if (!(yAxisH in spectrum)) {
+      if (!(spectrum.hasKey(yAxisH))) {
         yAxisH = sampleFields[0];
       }
-      if (!(zAxisH in spectrum)) {
+      if (!(spectrum.hasKey(zAxisH))) {
         zAxisH = sampleFields[1];
       }
       // spectrum[xField] = [0, 0.2, 0.4, 0.6, 0.8, 1, 0.8, 0.6, 0.4, 0.2, 0];

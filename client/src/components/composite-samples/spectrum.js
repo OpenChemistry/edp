@@ -42,11 +42,11 @@ class SpectrumComponent extends Component {
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
-      const sampleFields = Object.keys(spectrum);
-      if (!(xAxisS in spectrum)) {
+      const sampleFields = spectrum.getKeys();
+      if (!(spectrum.hasKey(xAxisS))) {
         xAxisS = sampleFields[0];
       }
-      if (!(yAxisS in spectrum)) {
+      if (!(spectrum.hasKey(yAxisS))) {
         yAxisS = sampleFields[1];
       }
       this.spectraPlot.setAxes(xAxisS, yAxisS);
