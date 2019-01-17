@@ -68,7 +68,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public):
     }
 
     batch = gc.post('edp/projects/%s/cycles/%s/batches' % (project, cycle), json=batch)
-    metafile_regex =  re.compile(r'^\d{4}-\d{2}-\d{2}_.*_CH(\d)+_Metadata.csv$')
+    metafile_regex =  re.compile(r'^(\d{4}-\d{2}-\d{2}_.*_CH(\d+))_Metadata.csv$')
     for meta_file in glob.glob('%s/*Metadata.csv' % dir):
         name = os.path.basename(meta_file)
         match = metafile_regex.match(name)
@@ -76,7 +76,8 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public):
             click.echo(click.style('%s does not have expected filename format, skipping.' % meta_file, fg='yellow'))
             continue
 
-        channel = match.group(1)
+        test_name = match.group(1)
+        channel = match.group(2)
         data_file = meta_file.replace('_Metadata.csv', '.csv')
 
         with open(meta_file, 'r') as f:
@@ -93,6 +94,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public):
         data_file = gc.uploadFileToFolder(data_folder['_id'], data_file)
 
         test = {
+            'name': test_name,
             'startDate': start_date,
             'cellId': cell_id,
             'batteryType': '',

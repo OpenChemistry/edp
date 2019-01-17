@@ -25,6 +25,12 @@ class CycleTest(Base):
                     'create': True,
                 },
                 {
+                    'name': 'name',
+                    'expose': True,
+                    'create': True,
+                    'mutable': True
+                },
+                {
                     'name': 'startDate',
                     'expose': True,
                     'create': True,
