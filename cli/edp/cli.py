@@ -53,35 +53,7 @@ class GC(GirderClient):
 def cli():
     pass
 
-@cli.command('ingest', help='Ingest data')
-@click.option('-p', '--project', default=None, help='the project id', required=True)
-@click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
-@click.option('-d', '--dir', help='path to batch to ingest',
-              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
-@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
-                   '(e.g https://girder.example.com/api/v1)')
-@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
-              help='[default: GIRDER_API_KEY env. variable]', required=True)
-def _ingest(project, cycle, api_url, api_key, dir):
-    gc = GC(api_url=api_url, api_key=api_key)
-
-    # Try to get edp data folder
-    data_folder = gc.resourceLookup('/collection/edp/data')
-
-    # Create a private folder
-    if data_folder is None:
-
-        me = gc.get('/user/me')
-        private_folder = next(gc.listFolder(me['_id'], 'user', 'Private'))
-
-        data_folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
-        try:
-            data_folder = next(data_folder)
-        except StopIteration:
-            data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
-                                          public=False)
-
-    dir  = os.path.abspath(dir)
+def _ingest_batch(gc, data_folder, project, cycle, dir, public):
     batch_name = os.path.basename(dir)
 
     # Create the batch
@@ -91,7 +63,8 @@ def _ingest(project, cycle, api_url, api_key, dir):
         'motivation': '',
         'experimentalDesign': '',
         'experimentalNotes': '',
-        'dataNotes': ''
+        'dataNotes': '',
+        'public': public
     }
 
     batch = gc.post('edp/projects/%s/cycles/%s/batches' % (project, cycle), json=batch)
@@ -126,13 +99,56 @@ def _ingest(project, cycle, api_url, api_key, dir):
             'channel': channel,
             'scheduleFile': schedule_file,
             'metaDataFileId': meta_file['_id'],
-            'dataFileId': data_file['_id']
+            'dataFileId': data_file['_id'],
+            'public': 'public'
         }
 
         test = gc.post('edp/projects/%s/cycles/%s/batches/%s/tests' % (project, cycle, batch['_id']), json=test)
 
         click.echo(click.style('Test created: %s' % test['_id'], fg='green'))
 
+@cli.command('ingest', help='Ingest data')
+@click.option('-p', '--project', default=None, help='the project id', required=True)
+@click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
+@click.option('-d', '--dir', help='path to batch(es) to ingest',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
+                   '(e.g https://girder.example.com/api/v1)')
+@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
+              help='[default: GIRDER_API_KEY env. variable]', required=True)
+@click.option('-b', '--public', is_flag=True,
+              help='Marked the data as public')
+def _ingest(project, cycle, api_url, api_key, dir, public):
+    gc = GC(api_url=api_url, api_key=api_key)
+
+    # Try to get edp data folder
+    data_folder = gc.resourceLookup('/collection/edp/data', test=True)
+
+    # Create a private folder
+    if data_folder is None:
+
+        me = gc.get('/user/me')
+        private_folder = next(gc.listFolder(me['_id'], 'user', 'Public' if public else 'Private' ))
+
+        data_folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
+        try:
+            data_folder = next(data_folder)
+        except StopIteration:
+            data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
+                                          public=public)
+
+    dir  = os.path.abspath(dir)
+
+    # See if the input directory contains directories then assume each of them is
+    # a batch to ingest.
+    batch_dirs = os.listdir(dir)
+    if len(batch_dirs) > 0:
+        batch_dirs = [os.path.join(dir, b) for b in batch_dirs]
+    else:
+        batch_dirs = [dir]
+
+    for batch_dir in batch_dirs:
+        _ingest_batch(gc, data_folder, project, cycle, batch_dir, public)
 
 @cli.command('ingest_composite', help='Ingest composite data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)
