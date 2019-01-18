@@ -56,6 +56,12 @@ def cli():
 def _ingest_batch(gc, data_folder, project, cycle, dir, public):
     batch_name = os.path.basename(dir)
 
+    # See if we have a MatLab struct
+    struct_file = glob.glob('%s/*.mat' % dir)
+    if struct_file:
+        click.echo(click.style('Uploading MatLab struct file', fg='red'))
+        struct_file = gc.uploadFileToFolder(data_folder['_id'], struct_file[0])
+
     # Create the batch
     batch = {
         'startDate': '',
@@ -66,6 +72,9 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public):
         'dataNotes': '',
         'public': public
     }
+
+    if struct_file:
+        batch['structFileId'] = struct_file['_id']
 
     batch = gc.post('edp/projects/%s/cycles/%s/batches' % (project, cycle), json=batch)
     metafile_regex =  re.compile(r'^(\d{4}-\d{2}-\d{2}_.*_CH(\d+))_Metadata.csv$')
