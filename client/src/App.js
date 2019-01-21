@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import './App.css';
 
-import { Switch } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router'
 
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -37,24 +37,24 @@ class App extends Component {
             <Switch>
               <PrivateRoute path={'/:url0/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:action(edit)'} exact component={ItemEdit} />
-              <PrivateRoute path={'/:url0/:id0'} exact component={ItemView} />
+              <Route path={'/:url0/:id0'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(edit)'} exact component={ItemEdit} />
-              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
-              <PrivateRoute path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
+              <Route path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
+              <Route path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:action(edit)'} exact component={ItemEdit} />
-              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
+              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3/:action(edit)'} exact component={ItemEdit} />
-              <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
+              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
 
-              <PrivateRoute path={'/search'} exact component={SearchContainer} />
+              <Route path={'/search'} exact component={SearchContainer} />
 
-              <PrivateRoute path={ROOT_ROUTE} exact component={ItemView} />
+              <Route path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
           </div>
         </ConnectedRouter>
