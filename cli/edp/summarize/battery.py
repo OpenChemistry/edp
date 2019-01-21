@@ -27,5 +27,13 @@ def summarize(filepath):
         raise Exception('Missing max discharge capacity.')
 
     return {
-        "Maximum discharge capacity per cycle": max_discharge_capacities
+        'Maximum Discharge Capacity Per Cycle': {
+            'x': {
+                'label': 'Cycle Index'
+            },
+            'y': {
+                'label': 'Maximum Discharge Capacity (Ah)',
+                'data': max_discharge_capacities
+            }
+        }
     }
