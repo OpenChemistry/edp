@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.interpolate import UnivariateSpline as Spline
 
-def make_models(data, ks, s):
+def make_models(data, ks, smooth):
     model = {}
     for key in data.keys():
         for k in ks:
-            spl = smooth_spline(data, key, k, s)
+            spl = smooth_spline(data, key, k, smooth)
             keep_prev = False
             prev_spl = model.get(key, None)
             if prev_spl is not None:

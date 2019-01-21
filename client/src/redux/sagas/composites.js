@@ -27,9 +27,9 @@ export function* fetchSamplesSaga() {
 
 function* onFetchTimeserie(action) {
   try {
-    const { ancestors, item, runId } = action.payload;
-    const timeseries = yield call(getItemsRest, ancestors, item, {runId});
-    yield put({type: FETCH_TIMESERIE_SUCCEEDED, payload: timeseries});
+    const { ancestors, item, runId, fitted } = action.payload;
+    const timeseries = yield call(getItemsRest, ancestors, item, {runId, fitted});
+    yield put({type: FETCH_TIMESERIE_SUCCEEDED, payload: {timeseries, fitted}});
   } catch (e) {
     yield put({type: FETCH_TIMESERIE_FAILED, error: e});
   }

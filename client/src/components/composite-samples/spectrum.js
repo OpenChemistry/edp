@@ -31,7 +31,17 @@ class SpectrumComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    let doUpdate = false;
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
+      doUpdate = true;
+    }
+
+    if (this.props.fitted !== prevProps.fitted) {
+      doUpdate = true;
+    }
+
+    if (doUpdate) {
       this.updateSpectra();
     }
   }
@@ -73,7 +83,7 @@ class SpectrumComponent extends Component {
   }
 
   render() {
-    const { visSelector, xAxisS, yAxisS, yOffsetS } = this.props;
+    const { visSelector, detailSelector, xAxisS, yAxisS, yOffsetS } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -84,6 +94,9 @@ class SpectrumComponent extends Component {
         <Table>
           <TableHead>
             <TableRow>
+              {detailSelector &&
+              <TableCell>Data</TableCell>
+              }
               {visSelector &&
               <TableCell>Display</TableCell>
               }
@@ -94,6 +107,13 @@ class SpectrumComponent extends Component {
           </TableHead>
           <TableBody>
             <TableRow>
+              {detailSelector &&
+              <TableCell>
+                <FormControl fullWidth>
+                  {detailSelector}
+                </FormControl>
+              </TableCell>
+              }
               {visSelector &&
               <TableCell>
                 <FormControl fullWidth>

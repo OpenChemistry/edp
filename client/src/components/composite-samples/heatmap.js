@@ -33,7 +33,17 @@ class HeatMapComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    let doUpdate = false;
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
+      doUpdate = true;
+    }
+
+    if (this.props.fitted !== prevProps.fitted) {
+      doUpdate = true;
+    }
+
+    if (doUpdate) {
       this.onNewData();
     }
   }
@@ -120,7 +130,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
+    const { visSelector, detailSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -138,6 +148,9 @@ class HeatMapComponent extends Component {
         <Table>
           <TableHead>
             <TableRow>
+              {detailSelector &&
+              <TableCell>Data</TableCell>
+              }
               {visSelector &&
               <TableCell>Display</TableCell>
               }
@@ -148,6 +161,13 @@ class HeatMapComponent extends Component {
           </TableHead>
           <TableBody>
             <TableRow>
+              {detailSelector &&
+              <TableCell>
+                <FormControl fullWidth>
+                  {detailSelector}
+                </FormControl>
+              </TableCell>
+              }
               {visSelector &&
               <TableCell>
                 <FormControl fullWidth>

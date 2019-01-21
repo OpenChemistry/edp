@@ -24,9 +24,9 @@ class SamplesDetailsContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  const { selectedSamples } = ownProps;
+  const { selectedSamples, fitted } = ownProps;
   const timeseries = selectedSamples
-    .map(sample => ({sample, spectrum: getTimeSerie(state, sample._id)}))
+    .map(sample => ({sample, spectrum: getTimeSerie(state, sample._id, fitted)}))
     .filter(timeserie => timeserie.spectrum);
 
   return {

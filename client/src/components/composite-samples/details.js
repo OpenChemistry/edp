@@ -11,7 +11,7 @@ import HeatMapComponent from './heatmap';
 class SamplesDetails extends Component {
 
   render() {
-    const { display, onParamChanged } = this.props;
+    const { display, fitted, onParamChanged } = this.props;
     const visSelector = (
       <Select value={display} onChange={(e) => { onParamChanged('display', e.target.value)}}>
         <MenuItem value={'spectrum'}>Spectrum</MenuItem>
@@ -19,13 +19,20 @@ class SamplesDetails extends Component {
       </Select>
     );
 
+    const  detailSelector = (
+      <Select value={fitted} onChange={(e) => { onParamChanged('fitted', e.target.value)}}>
+        <MenuItem value={true}>Fitted Data</MenuItem>
+        <MenuItem value={false}>Raw Data</MenuItem>
+      </Select>
+    );
+
     return (
       <div>
         {display === 'spectrum' &&
-          <SpectrumComponent {...this.props} visSelector={visSelector} />
+          <SpectrumComponent {...this.props} visSelector={visSelector} detailSelector={detailSelector} />
         }
         {display === 'heatmap' &&
-          <HeatMapComponent {...this.props} visSelector={visSelector} />
+          <HeatMapComponent {...this.props} visSelector={visSelector} detailSelector={detailSelector} />
         }
       </div>
     );

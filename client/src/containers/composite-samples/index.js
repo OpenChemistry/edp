@@ -104,16 +104,32 @@ const URL_PARAMS = {
   selectionH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '')
+  },
+  fitted: {
+    serialize: defaultWrapper(boolSerialize, null),
+    deserialize: defaultWrapper(boolDeserialize, false)
   }
 }
 
 class CompositeSamplesContainer extends Component {
 
+  constructor(props) {
+    super(props);
+    this.callbacks = {
+      fitted: (currValue, nextValue) => {
+        const { selectedSampleKeys } = this.props;
+        for (let _id of selectedSampleKeys.values()) {
+          this.fetchSampleTimeSeries({_id}, nextValue);
+        }
+      }
+    }
+  }
+
   componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys } = this.props;
+    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, fitted } = this.props;
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
     for (let _id of selectedSampleKeys.values()) {
-      this.fetchSampleTimeSeries({_id});
+      this.fetchSampleTimeSeries({_id}, fitted);
     }
   }
 
@@ -150,11 +166,11 @@ class CompositeSamplesContainer extends Component {
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
   }
 
-  fetchSampleTimeSeries = (sample) => {
+  fetchSampleTimeSeries = (sample, fitted) => {
     const { ancestors, item, dispatch, runId } = this.props;
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
-    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId}));
+    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted}));
   }
 
   onParamChanged = (...args) => {
@@ -174,6 +190,9 @@ class CompositeSamplesContainer extends Component {
 
     for (let key in updates) {
       if (key in URL_PARAMS) {
+        if (this.callbacks[key]) {
+          this.callbacks[key](props[key], updates[key]);
+        }
         props[key] = updates[key];
       }
     }
@@ -210,7 +229,8 @@ class CompositeSamplesContainer extends Component {
       zAxisH,
       reduceFnH,
       separateSlopeH,
-      selectionH
+      selectionH,
+      fitted
     } = this.props;
 
     if (samples.length === 0) {
@@ -245,6 +265,7 @@ class CompositeSamplesContainer extends Component {
           reduceFnH={reduceFnH}
           separateSlopeH={separateSlopeH}
           selectionH={selectionH}
+          fitted={fitted}
         />
       </div>
     );
