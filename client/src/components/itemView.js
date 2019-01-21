@@ -13,6 +13,7 @@ import { Avatar } from '@material-ui/core';
 class ItemView extends Component {
   render() {
     const {
+      canEdit,
       item,
       fieldsCreator,
       primaryField,
@@ -30,14 +31,11 @@ class ItemView extends Component {
       [primaryField, secondaryField]
     );
     const NodeIcon = icon;
+    const editAction = canEdit ? <IconButton onClick={() => {onEdit()}}><EditIcon /></IconButton> : null;
     return (
       <Card>
         <CardHeader
-          action={
-            <IconButton onClick={() => {onEdit()}}>
-              <EditIcon />
-            </IconButton>
-          }
+          action={editAction}
           title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
           subheader={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
           avatar={<Avatar style={{backgroundColor: color}}>{<NodeIcon/>}</Avatar>}

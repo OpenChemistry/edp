@@ -14,7 +14,7 @@ class ItemListItem extends Component {
     const {
       item,
       showLabel,
-      showDelete,
+      canEdit,
       onDelete,
       onOpen,
       primaryField,
@@ -46,7 +46,7 @@ class ItemListItem extends Component {
           secondary={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
         />
         <ListItemSecondaryAction>
-          {showDelete &&
+          {canEdit &&
           <IconButton onClick={() => {onDelete(item)}}>
             <DeleteIcon />
           </IconButton>
