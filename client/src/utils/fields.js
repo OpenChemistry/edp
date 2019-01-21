@@ -88,6 +88,11 @@ function createProjectFields(project) {
       type: 'textarea',
       value: project ? project.motivation : '',
       error: ''
+    },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
     }
   }
   return fields;
@@ -115,6 +120,11 @@ function createCycleFields(cycle) {
       value: cycle ? cycle.comments : '',
       error: ''
     },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
+    }
   }
   return fields;
 }
@@ -141,6 +151,11 @@ function createPostmortemFields(postmortem) {
       value: postmortem ? postmortem.comments : '',
       error: ''
     },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
+    }
   }
   return fields;
 }
@@ -202,6 +217,11 @@ function createBatchFields(batch) {
       hidden: batch ? !batch.completed : true,
       error: ''
     },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
+    }
   }
   return fields;
 }
@@ -285,6 +305,11 @@ function createTest0Fields(test = undefined) {
       value: test ? test.dataFileId : null,
       error: ''
     },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
+    }
   }
   return fields;
 }
@@ -322,6 +347,11 @@ function createTest1Fields(test = undefined) {
       type: 'fileId',
       value: test ? test.imageFileId : null,
       thumbnail: test ? test.imageFileIdThumbnail : null,
+      error: ''
+    },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
       error: ''
     }
   }
