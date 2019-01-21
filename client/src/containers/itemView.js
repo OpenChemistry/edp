@@ -130,6 +130,7 @@ class ItemViewContainer extends Component {
           primarySuffix={NODES[item.type].primarySuffix}
           secondaryPrefix={NODES[item.type].secondaryPrefix}
           secondarySuffix={NODES[item.type].secondarySuffix}
+          visualizationField={NODES[item.type].visualizationField}
           color={NODES[item.type].color}
           icon={NODES[item.type].icon}
         />

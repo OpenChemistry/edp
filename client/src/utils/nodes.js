@@ -87,7 +87,8 @@ export const NODES = {
     primaryPrefix: 'Channel',
     secondaryField: 'startDate',
     color: lightBlue[500],
-    icon: ChangeHistory
+    icon: ChangeHistory,
+    visualizationField: 'summary'
   },
   [POSTMORTEM_NODE] : {
     label: 'Postmortem',

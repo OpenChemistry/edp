@@ -7,8 +7,10 @@ import IconButton from '@material-ui/core/IconButton';
 
 import EditIcon from '@material-ui/icons/Edit';
 
-import { renderDisplayFields } from '../utils/displayGenerator';
+import { renderDisplayFields } from '../../utils/displayGenerator';
 import { Avatar } from '@material-ui/core';
+
+import Visualization from './visualization';
 
 class ItemView extends Component {
   render() {
@@ -22,6 +24,7 @@ class ItemView extends Component {
       secondaryField,
       secondaryPrefix,
       secondarySuffix,
+      visualizationField,
       color,
       icon,
       onEdit
@@ -32,18 +35,22 @@ class ItemView extends Component {
     );
     const NodeIcon = icon;
     const editAction = canEdit ? <IconButton onClick={() => {onEdit()}}><EditIcon /></IconButton> : null;
+    const visualizationData = item[visualizationField];
     return (
-      <Card>
-        <CardHeader
-          action={editAction}
-          title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
-          subheader={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
-          avatar={<Avatar style={{backgroundColor: color}}>{<NodeIcon/>}</Avatar>}
-        />
-        <CardContent>
-          {fields}
-        </CardContent>
-      </Card>
+      <div>
+        <Card>
+          <CardHeader
+            action={editAction}
+            title={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
+            subheader={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
+            avatar={<Avatar style={{backgroundColor: color}}>{<NodeIcon/>}</Avatar>}
+          />
+          <CardContent>
+            {fields}
+          </CardContent>
+        </Card>
+        <Visualization data={visualizationData} />
+      </div>
     );
   }
 }
