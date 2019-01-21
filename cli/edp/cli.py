@@ -9,6 +9,7 @@ import datetime
 import json
 from girder_client import GirderClient
 from edp.composite import _ingest_runs, _ingest_samples
+import importlib
 
 class GC(GirderClient):
 
@@ -53,36 +54,25 @@ class GC(GirderClient):
 def cli():
     pass
 
-@cli.command('ingest', help='Ingest data')
-@click.option('-p', '--project', default=None, help='the project id', required=True)
-@click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
-@click.option('-d', '--dir', help='path to batch to ingest',
-              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
-@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
-                   '(e.g https://girder.example.com/api/v1)')
-@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
-              help='[default: GIRDER_API_KEY env. variable]', required=True)
-def _ingest(project, cycle, api_url, api_key, dir):
-    gc = GC(api_url=api_url, api_key=api_key)
+def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
 
-    # Try to get edp data folder
-    data_folder = gc.resourceLookup('/collection/edp/data')
-
-    # Create a private folder
-    if data_folder is None:
-
-        me = gc.get('/user/me')
-        private_folder = next(gc.listFolder(me['_id'], 'user', 'Private'))
-
-        data_folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
+    # Loady summary function
+    if summary_func is not None:
         try:
-            data_folder = next(data_folder)
-        except StopIteration:
-            data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
-                                          public=False)
+            module_name, func_name = summary_func.rsplit('.',1)
+            module = importlib.import_module(module_name)
+            summary_func = getattr(module, func_name)
+        except:
+            click.echo(click.style('Unable to load summary function: %s' % summary_func, fg='yellow'))
+            raise
 
-    dir  = os.path.abspath(dir)
     batch_name = os.path.basename(dir)
+
+    # See if we have a MatLab struct
+    struct_file = glob.glob('%s/*.mat' % dir)
+    if struct_file:
+        click.echo(click.style('Uploading MatLab struct file', fg='red'))
+        struct_file = gc.uploadFileToFolder(data_folder['_id'], struct_file[0])
 
     # Create the batch
     batch = {
@@ -91,11 +81,18 @@ def _ingest(project, cycle, api_url, api_key, dir):
         'motivation': '',
         'experimentalDesign': '',
         'experimentalNotes': '',
-        'dataNotes': ''
+        'dataNotes': '',
+        'public': public
     }
 
+    if struct_file:
+        batch['structFileId'] = struct_file['_id']
+
     batch = gc.post('edp/projects/%s/cycles/%s/batches' % (project, cycle), json=batch)
-    metafile_regex =  re.compile(r'^\d{4}-\d{2}-\d{2}_.*_CH(\d)+_Metadata.csv$')
+
+    click.echo(click.style('Batch created: %s' % batch['_id'], fg='red'))
+
+    metafile_regex =  re.compile(r'^(\d{4}-\d{2}-\d{2}_.*_CH(\d+))_Metadata.csv$')
     for meta_file in glob.glob('%s/*Metadata.csv' % dir):
         name = os.path.basename(meta_file)
         match = metafile_regex.match(name)
@@ -103,8 +100,9 @@ def _ingest(project, cycle, api_url, api_key, dir):
             click.echo(click.style('%s does not have expected filename format, skipping.' % meta_file, fg='yellow'))
             continue
 
-        channel = match.group(1)
-        data_file = meta_file.replace('_Metadata.csv', '.csv')
+        test_name = match.group(1)
+        channel = match.group(2)
+        data_file_path = meta_file.replace('_Metadata.csv', '.csv')
 
         with open(meta_file, 'r') as f:
             reader = csv.DictReader(f)
@@ -114,25 +112,79 @@ def _ingest(project, cycle, api_url, api_key, dir):
             cell_id = row['item_id']
             schedule_file = row['schedule_file_name']
 
-        click.echo('Uploading meta data file')
+        click.echo(click.style('Uploading meta data file', fg='blue'))
         meta_file = gc.uploadFileToFolder(data_folder['_id'], meta_file)
-        click.echo('Uploading data file')
-        data_file = gc.uploadFileToFolder(data_folder['_id'], data_file)
+        click.echo(click.style('Uploading data file', fg='blue'))
+        data_file = gc.uploadFileToFolder(data_folder['_id'], data_file_path)
+
+        if summary_func is not None:
+            print(data_file_path)
+            summary = summary_func(data_file_path)
 
         test = {
+            'name': test_name,
             'startDate': start_date,
             'cellId': cell_id,
             'batteryType': '',
             'channel': channel,
             'scheduleFile': schedule_file,
             'metaDataFileId': meta_file['_id'],
-            'dataFileId': data_file['_id']
+            'dataFileId': data_file['_id'],
+            'public': 'public',
+            'summary': summary
         }
 
         test = gc.post('edp/projects/%s/cycles/%s/batches/%s/tests' % (project, cycle, batch['_id']), json=test)
 
-        click.echo(click.style('Test created: %s' % test['_id'], fg='green'))
+        click.echo(click.style('Test created: %s' % test['_id'], fg='blue'))
 
+@cli.command('ingest', help='Ingest data')
+@click.option('-p', '--project', default=None, help='the project id', required=True)
+@click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
+@click.option('-d', '--dir', help='path to batch(es) to ingest',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
+                   '(e.g https://girder.example.com/api/v1)')
+@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
+              help='[default: GIRDER_API_KEY env. variable]', required=True)
+@click.option('-b', '--public', is_flag=True,
+              help='Marked the data as public')
+@click.option('-s', '--summary-func', default=None, help='Fully qualified name of function to summarize test data.')
+def _ingest(project, cycle, api_url, api_key, dir, public, summary_func):
+    gc = GC(api_url=api_url, api_key=api_key)
+
+    # Try to get edp data folder
+    data_folder = gc.resourceLookup('/collection/edp/data', test=True)
+
+    # Create a private folder
+    if data_folder is None:
+
+        me = gc.get('/user/me')
+        user_folder = 'Public' if public else 'Private'
+        try:
+            user_folder = next(gc.listFolder(me['_id'], 'user', user_folder))
+        except StopIteration:
+            raise Exception('Unable to find user folder: %s' % user_folder)
+
+        data_folder = gc.listFolder(user_folder['_id'], 'folder', name='edp')
+        try:
+            data_folder = next(data_folder)
+        except StopIteration:
+            data_folder = gc.createFolder(user_folder['_id'], 'edp', parentType='folder',
+                                          public=public)
+
+    dir  = os.path.abspath(dir)
+
+    # See if the input directory contains directories then assume each of them is
+    # a batch to ingest.
+    batch_dirs = os.listdir(dir)
+    if len(batch_dirs) > 0:
+        batch_dirs = [os.path.join(dir, b) for b in batch_dirs]
+    else:
+        batch_dirs = [dir]
+
+    for batch_dir in batch_dirs:
+        _ingest_batch(gc, data_folder, project, cycle, batch_dir, public, summary_func)
 
 @cli.command('ingest_composite', help='Ingest composite data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)

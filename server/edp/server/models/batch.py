@@ -71,6 +71,13 @@ class Batch(Base):
 
                 },
                 {
+                    'name': 'structFileId',
+                    'expose': True,
+                    'create': True,
+                    'mutable': True,
+                    'type': 'file'
+                },
+                {
                     'name': 'cycleId',
                     'create': True
                 }

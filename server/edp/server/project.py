@@ -92,7 +92,7 @@ class Project(Resource):
 
         return project
 
-    @access.user(scope=TokenScope.DATA_READ)
+    @access.public(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Find an project.')
         .param('owner', 'The owner to return projects for.', required=False)
@@ -102,7 +102,7 @@ class Project(Resource):
             owner=owner, offset=offset, limit=limit, sort=sort,
             user=self.getCurrentUser()))
 
-    @access.user(scope=TokenScope.DATA_READ)
+    @access.public(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Get an project.')
         .modelParam('projectId', 'The project id',
