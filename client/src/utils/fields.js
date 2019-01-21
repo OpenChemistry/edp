@@ -217,6 +217,18 @@ function createBatchFields(batch) {
       hidden: batch ? !batch.completed : true,
       error: ''
     },
+    'structFile' : {
+      label: 'Struct file',
+      type: 'file',
+      value: batch ? batch.structFile : '',
+      error: ''
+    },
+    'structFileId' : {
+      label: 'Struct file',
+      type: 'fileId',
+      value: batch ? batch.structFileId : null,
+      error: ''
+    },
     'public': {
       label: 'Public',
       type: 'checkbox',
