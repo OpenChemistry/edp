@@ -9,7 +9,6 @@ import datetime
 import json
 from girder_client import GirderClient
 from edp.composite import _ingest_runs, _ingest_samples
-from cli.edp.composite import _ingest_run_data
 import importlib
 
 class GC(GirderClient):
