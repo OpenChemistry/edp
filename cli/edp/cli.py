@@ -177,10 +177,8 @@ def _ingest(project, cycle, api_url, api_key, dir, public, summary_func):
 
     # See if the input directory contains directories then assume each of them is
     # a batch to ingest.
-    batch_dirs = os.listdir(dir)
-    if len(batch_dirs) > 0:
-        batch_dirs = [os.path.join(dir, b) for b in batch_dirs]
-    else:
+    batch_dirs = list(filter(os.path.isdir, [os.path.join(dir, d) for d in os.listdir(dir)]))
+    if len(batch_dirs) == 0:
         batch_dirs = [dir]
 
     for batch_dir in batch_dirs:
