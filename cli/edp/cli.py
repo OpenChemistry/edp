@@ -160,13 +160,17 @@ def _ingest(project, cycle, api_url, api_key, dir, public, summary_func):
     if data_folder is None:
 
         me = gc.get('/user/me')
-        private_folder = next(gc.listFolder(me['_id'], 'user', 'Public' if public else 'Private' ))
+        user_folder = 'Public' if public else 'Private'
+        try:
+            user_folder = next(gc.listFolder(me['_id'], 'user', user_folder))
+        except StopIteration:
+            raise Exception('Unable to find user folder: %s' % user_folder)
 
-        data_folder = gc.listFolder(private_folder['_id'], 'folder', name='edp')
+        data_folder = gc.listFolder(user_folder['_id'], 'folder', name='edp')
         try:
             data_folder = next(data_folder)
         except StopIteration:
-            data_folder = gc.createFolder(private_folder['_id'], 'edp', parentType='folder',
+            data_folder = gc.createFolder(user_folder['_id'], 'edp', parentType='folder',
                                           public=public)
 
     dir  = os.path.abspath(dir)
