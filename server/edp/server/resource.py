@@ -43,7 +43,7 @@ def _get_description(parent_models, model):
     model_id = '%sId' % name
     des.modelParam(model_id, 'The %s id' % name,
                 model=model, destName=name,
-                level=AccessType.WRITE, paramType='path')
+                level=AccessType.READ, paramType='path')
 
     return des
 
