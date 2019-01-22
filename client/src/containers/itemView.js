@@ -170,7 +170,8 @@ function mapStateToProps(state, ownProps) {
   }
 
   let children = [];
-  for (let childType of NODES[item.type].children) {
+  let childTypes = NODES[item.type] ? NODES[item.type].children : [];
+  for (let childType of childTypes) {
     let items = getChildren(state, item._id, childType);
     children.push(
       {
