@@ -67,7 +67,11 @@ function patchItem(item, type) {
   const NODES = getNodes();
   item.parentId = null;
   item.type = type;
-  if (!isNil(NODES[type].parentId) && has(item, NODES[type].parentId)) {
+  if (
+    !isNil(NODES[type]) &&
+    !isNil(NODES[type].parentId) &&
+    has(item, NODES[type].parentId)
+  ) {
     item.parentId = item[NODES[type].parentId];
   }
   return item;

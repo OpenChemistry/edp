@@ -23,9 +23,15 @@ import {
 const SOW8 = 'sow8';
 const SOW10 = 'sow10';
 
+let DEPLOYMENT = null;
+
+export function setDeployment(settings) {
+  DEPLOYMENT = settings['deployment'];
+}
+
 export function getNodes() {
   const defaultVal = sow8NODES;
-  switch (process.env.REACT_APP_NODES_HIERARCHY) {
+  switch (DEPLOYMENT) {
     case SOW8 : {
       return sow8NODES;
     } case SOW10 : {
@@ -113,7 +119,7 @@ export function parseUrlMatch(match) {
 
 function getNodeType(url, i) {
   const defaultVal = sow8getNodeType;
-  switch (process.env.REACT_APP_NODES_HIERARCHY) {
+  switch (DEPLOYMENT) {
     case SOW8 : {
       return sow8getNodeType(url, i);
     } case SOW10 : {
@@ -126,7 +132,7 @@ function getNodeType(url, i) {
 
 export function createFieldsFactory(nodeType) {
   const defaultVal = sow8createFieldsFactory;
-  switch (process.env.REACT_APP_NODES_HIERARCHY) {
+  switch (DEPLOYMENT) {
     case SOW8 : {
       return sow8createFieldsFactory(nodeType);
     } case SOW10 : {
