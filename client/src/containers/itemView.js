@@ -17,6 +17,7 @@ import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes'
 import { ROOT_NODE } from '../nodes/root';
 
 import { hasAdminAccess } from '../utils/permissions';
+import { getServerSettings } from '../redux/ducks/settings';
 
 class ItemViewContainer extends Component {
 
@@ -26,14 +27,19 @@ class ItemViewContainer extends Component {
 
   componentDidUpdate(prevProps) {
     const prevItem = prevProps.item;
-    const item = this.props.item;
-    if (prevItem._id !== item._id) {
+    const prevDeployment = prevProps.deployment;
+    const { item, deployment } = this.props;
+    if (prevItem._id !== item._id || prevDeployment !== deployment) {
       this.requestItems();
     }
   }
 
   requestItems() {
-    const { ancestors, item, children, dispatch } = this.props;
+    const { ancestors, item, children, dispatch, deployment } = this.props;
+
+    if (isNil(deployment)) {
+      return;
+    }
 
     if (item.type !== ROOT_NODE) {
       dispatch(fetchItem({ancestors, item}));
@@ -148,6 +154,7 @@ class ItemViewContainer extends Component {
 
 function mapStateToProps(state, ownProps) {
   let ancestors = parseUrlMatch(ownProps.match);
+  const { deployment } = getServerSettings(state);
   const NODES = getNodes();
   let item;
   if (ancestors.length === 0) {
@@ -163,7 +170,8 @@ function mapStateToProps(state, ownProps) {
   }
 
   let children = [];
-  for (let childType of NODES[item.type].children) {
+  let childTypes = NODES[item.type] ? NODES[item.type].children : [];
+  for (let childType of childTypes) {
     let items = getChildren(state, item._id, childType);
     children.push(
       {
@@ -176,6 +184,7 @@ function mapStateToProps(state, ownProps) {
   const me = auth.selectors.getMe(state);
 
   return {
+    deployment,
     ancestors,
     item,
     children,

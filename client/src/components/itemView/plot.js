@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { isNil } from 'lodash-es';
 
-import { Card, CardHeader } from '@material-ui/core';
+import { Card, Typography } from '@material-ui/core';
 
 import { Spectrum, } from 'composition-plot';
 import { ArrayDataProvider } from 'composition-plot/dist/data-provider/spectrum';
@@ -43,8 +43,8 @@ class PlotComponent extends Component {
   render() {
     const { title } = this.props;
     return (
-      <Card style={{marginTop: '2rem'}}>
-        <CardHeader title={title}></CardHeader>
+      <Card style={{marginTop: '2rem', paddingTop: '1rem'}}>
+        <Typography variant="title" align="center" gutterBottom>{title}</Typography>
         <div style={{width: '100%', height: '30rem', position: 'relative'}}>
           <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.spectraElement = ref;}}></svg>
         </div>
