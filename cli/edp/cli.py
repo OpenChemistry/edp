@@ -88,7 +88,14 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
     if struct_file:
         batch['structFileId'] = struct_file['_id']
 
-    batch = gc.post('edp/projects/%s/cycles/%s/batches' % (project, cycle), json=batch)
+    # Determine the batches url, depending on whether we have been given a cycle
+    batches_url = 'edp/projects/%s' % project
+    if cycle is not None:
+        batches_url = '%s/cycles/%s/batches' % (batches_url, cycle)
+    else:
+        batches_url = '%s/batches' % batches_url
+
+    batch = gc.post(batches_url, json=batch)
 
     click.echo(click.style('Batch created: %s' % batch['_id'], fg='red'))
 
@@ -134,13 +141,13 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
             'summary': summary
         }
 
-        test = gc.post('edp/projects/%s/cycles/%s/batches/%s/tests' % (project, cycle, batch['_id']), json=test)
+        test = gc.post('%s/%s/tests' % (batches_url, batch['_id']), json=test)
 
         click.echo(click.style('Test created: %s' % test['_id'], fg='blue'))
 
 @cli.command('ingest', help='Ingest data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)
-@click.option('-c', '--cycle', default=None, help='the cycle id', required=True)
+@click.option('-c', '--cycle', default=None, help='the cycle id')
 @click.option('-d', '--dir', help='path to batch(es) to ingest',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
