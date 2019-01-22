@@ -11,6 +11,13 @@ class Batch(Base):
 
     def __init__(self):
         from girder.plugins.edp.models.cycle import Cycle
+        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp import constants
+        from girder.models.setting import Setting
+
+        deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
+        parent_model = Project if deployment == constants.SOW10_DEPLOYMENT else Cycle
+
         super(Batch, self).__init__(
             name='edp.batches',
             props=(
@@ -82,7 +89,7 @@ class Batch(Base):
                     'create': True
                 }
             ),
-            parent_model=Cycle,
+            parent_model=parent_model,
             child_model=CycleTest,
             url='batches'
         )
