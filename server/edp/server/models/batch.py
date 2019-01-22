@@ -16,7 +16,11 @@ class Batch(Base):
         from girder.models.setting import Setting
 
         deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
-        parent_model = Project if deployment == constants.SOW10_DEPLOYMENT else Cycle
+        parent_id = 'cycleId'
+        parent_model  = Cycle
+        if deployment == constants.SOW10_DEPLOYMENT:
+            parent_id = 'projectId'
+            parent_model = Project
 
         super(Batch, self).__init__(
             name='edp.batches',
@@ -85,7 +89,7 @@ class Batch(Base):
                     'type': 'file'
                 },
                 {
-                    'name': 'cycleId',
+                    'name': parent_id,
                     'create': True
                 }
             ),
