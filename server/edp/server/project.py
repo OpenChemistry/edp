@@ -20,6 +20,8 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
 from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
 from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
 from .sample import Sample
+from . import configuration
+
 
 
 class Route(object):
