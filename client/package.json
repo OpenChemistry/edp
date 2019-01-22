@@ -33,8 +33,10 @@
   "scripts": {
     "start": "react-scripts start",
     "start.sow8": "REACT_APP_NODES_HIERARCHY=sow8 react-scripts start",
+    "start.sow10": "REACT_APP_NODES_HIERARCHY=sow10 react-scripts start",
     "build": "react-scripts build",
     "build.sow8": "REACT_APP_NODES_HIERARCHY=sow8 react-scripts build",
+    "build.sow10": "REACT_APP_NODES_HIERARCHY=sow10 react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "gh-pages": "PUBLIC_URL=/edp react-scripts build && gh-pages -d build"
