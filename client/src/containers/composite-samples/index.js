@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
 
-import { TIMESERIE_NODE, SAMPLE_NODE } from '../../utils/nodes';
+import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
 
 import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
 
-import { parseUrlMatch } from '../../utils/nodes';
+import { parseUrlMatch } from '../../nodes';
 import CompositeSamples from '../../components/composite-samples';
 import SamplesDetails from './details';
 

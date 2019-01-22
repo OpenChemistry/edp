@@ -11,8 +11,8 @@ import { getItem, fetchItem, createItem, updateItem } from '../redux/ducks/items
 import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
 
-import { createFieldsFactory } from '../utils/fields';
-import { NODES, ROOT_NODE, makeUrl, parseUrlMatch } from '../utils/nodes';
+import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
+import { ROOT_NODE } from '../nodes/root';
 
 class ItemEditContainer extends Component {
 
@@ -39,6 +39,7 @@ class ItemEditContainer extends Component {
 
   onSubmit = (values) => {
     const { ancestors, item, create, dispatch } = this.props;
+    const NODES = getNodes();
     const actionCreator = create ? createItem : updateItem;
     values.type = item.type;
     if (NODES[item.type].parentId) {
@@ -67,6 +68,7 @@ class ItemEditContainer extends Component {
   
   render() {
     const { item, create } = this.props;
+    const NODES = getNodes();
     
     if (!create && isNil(item.fields)) {
       return <NotFoundPage />;

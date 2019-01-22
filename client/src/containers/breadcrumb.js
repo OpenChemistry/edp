@@ -8,7 +8,7 @@ import { auth } from '@openchemistry/girder-redux';
 import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } from '../routes';
 
 import BreadCrumb from '../components/breadCrumb';
-import { parseUrl, makeUrl } from '../utils/nodes';
+import { parseUrl, makeUrl } from '../nodes';
 
 class BreadCrumbContainer extends Component {
 

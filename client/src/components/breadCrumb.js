@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import HomeIcon from '@material-ui/icons/Home';
-import { NODES } from '../utils/nodes';
+import { getNodes } from '../nodes';
 
 const linkStyle = {
   // textDecoration: 'underline',
@@ -20,6 +20,7 @@ const style = {
 class BreadCrumb extends Component {
   render() {
     const {ancestors, onSegmentClick} = this.props;
+    const NODES = getNodes();
 
     if (ancestors.length === 0) {
       return null;

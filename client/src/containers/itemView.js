@@ -13,8 +13,9 @@ import ItemView from '../components/itemView';
 import ItemList from '../components/itemList';
 import NotFoundPage from '../components/notFound.js';
 
-import { createFieldsFactory } from '../utils/fields';
-import { NODES, ROOT_NODE, makeUrl, parseUrlMatch } from '../utils/nodes';
+import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
+import { ROOT_NODE } from '../nodes/root';
+
 
 class ItemViewContainer extends Component {
 
@@ -57,6 +58,7 @@ class ItemViewContainer extends Component {
 
   onAddChild = (childType) => {
     const { ancestors, item, dispatch } = this.props;
+    const NODES = getNodes();
     const url = `${makeUrl(ancestors, item)}/${NODES[childType].url}/add`;
     dispatch(push(url));
   }
@@ -68,6 +70,7 @@ class ItemViewContainer extends Component {
   
   render() {
     const { ancestors, item, children, me, location } = this.props;
+    const NODES = getNodes();
     
     if (item.type !== ROOT_NODE && isNil(item.fields)) {
       return <NotFoundPage />;
@@ -144,6 +147,7 @@ class ItemViewContainer extends Component {
 
 function mapStateToProps(state, ownProps) {
   let ancestors = parseUrlMatch(ownProps.match);
+  const NODES = getNodes();
   let item;
   if (ancestors.length === 0) {
     item = {

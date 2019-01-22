@@ -1,4 +1,4 @@
-import { required } from './formValidation';
+import { required } from '../../utils/formValidation';
 
 import { has } from 'lodash-es';
 
@@ -10,10 +10,14 @@ import {
   TEST0_NODE,
   TEST1_NODE,
   COMPOSITION_NODE
-} from './nodes';
+} from './hierarchy';
 
 import {
-  GLOBAL_SEARCH, COMPOSITE_SEARCH
+  GLOBAL_SEARCH
+} from '../search';
+
+import {
+  COMPOSITE_SEARCH
 } from './search';
 
 export function createFieldsFactory(nodeType) {
