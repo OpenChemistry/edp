@@ -26,10 +26,12 @@ import {
   uploadFile
 } from '../sagas/files';
 
-import { NODES } from '../../utils/nodes';
+import { getNodes } from '../../nodes';
 
 // Upload item files
 function* uploadItemFiles(item) {
+  const NODES = getNodes();
+
   if (isNil(NODES[item.type].fileFields)) {
     return;
   }

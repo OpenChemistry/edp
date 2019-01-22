@@ -12,6 +12,8 @@ import store from './redux/store';
 
 import { auth } from '@openchemistry/girder-redux';
 
+import { fetchServerSettings } from './redux/ducks/settings';
+
 const cookies = new Cookies();
 const cookieToken = cookies.get('girderToken');
 // if there is no token the string "undefined" is returned ?!!
@@ -22,6 +24,9 @@ if (cookieToken !== 'undefined') {
 
 // Test if oauth is enabled on the backend
 store.dispatch(auth.actions.testOauthEnabled());
+
+// Get server side configuration, to build the node hierarchy
+store.dispatch(fetchServerSettings());
 
 ReactDOM.render(
   <Provider store={store}>

@@ -5,14 +5,18 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { isNil } from 'lodash-es';
 
+import { auth } from '@openchemistry/girder-redux';
+
 import { getItem, fetchItem, fetchItems, deleteItem, getChildren } from '../redux/ducks/items';
 
 import ItemView from '../components/itemView';
 import ItemList from '../components/itemList';
 import NotFoundPage from '../components/notFound.js';
 
-import { createFieldsFactory } from '../utils/fields';
-import { NODES, ROOT_NODE, makeUrl, parseUrlMatch } from '../utils/nodes';
+import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
+import { ROOT_NODE } from '../nodes/root';
+
+import { hasAdminAccess } from '../utils/permissions';
 
 class ItemViewContainer extends Component {
 
@@ -55,6 +59,7 @@ class ItemViewContainer extends Component {
 
   onAddChild = (childType) => {
     const { ancestors, item, dispatch } = this.props;
+    const NODES = getNodes();
     const url = `${makeUrl(ancestors, item)}/${NODES[childType].url}/add`;
     dispatch(push(url));
   }
@@ -65,15 +70,23 @@ class ItemViewContainer extends Component {
   }
   
   render() {
-    const { ancestors, item, children, location } = this.props;
+    const { ancestors, item, children, me, location } = this.props;
+    const NODES = getNodes();
     
     if (item.type !== ROOT_NODE && isNil(item.fields)) {
       return <NotFoundPage />;
     }
 
+    let canEdit = false;
+    if (!isNil(me)) {
+      if (item.type === ROOT_NODE || hasAdminAccess(me, item.fields)) {
+        canEdit = true;
+      }
+    }
+
     const viewComponent = NODES[item.type].viewComponent ? React.createElement(
       NODES[item.type].viewComponent,
-      {item, ancestors, location}
+      {item, ancestors, location, canEdit}
     ) :  null;
 
     const childrenLists = [];
@@ -88,7 +101,7 @@ class ItemViewContainer extends Component {
       childrenLists.push(
         <ItemList
           key={child.type}
-          showDelete
+          canEdit={canEdit}
           items={child.items}
           title={NODES[child.type].labelPlural}
           primaryField={NODES[child.type].primaryField}
@@ -111,6 +124,7 @@ class ItemViewContainer extends Component {
       <div>
         {!isNil(item.fields) &&
         <ItemView
+          canEdit={canEdit}
           item={item.fields}
           onEdit={this.onEditItem}
           fieldsCreator={createFieldsFactory(item.type)}
@@ -120,6 +134,7 @@ class ItemViewContainer extends Component {
           primarySuffix={NODES[item.type].primarySuffix}
           secondaryPrefix={NODES[item.type].secondaryPrefix}
           secondarySuffix={NODES[item.type].secondarySuffix}
+          visualizationField={NODES[item.type].visualizationField}
           color={NODES[item.type].color}
           icon={NODES[item.type].icon}
         />
@@ -133,6 +148,7 @@ class ItemViewContainer extends Component {
 
 function mapStateToProps(state, ownProps) {
   let ancestors = parseUrlMatch(ownProps.match);
+  const NODES = getNodes();
   let item;
   if (ancestors.length === 0) {
     item = {
@@ -157,10 +173,13 @@ function mapStateToProps(state, ownProps) {
     );
   }
 
+  const me = auth.selectors.getMe(state);
+
   return {
     ancestors,
     item,
-    children
+    children,
+    me
   };
 }
 

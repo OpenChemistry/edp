@@ -1,33 +1,15 @@
-import { required } from './formValidation';
-
-import { has } from 'lodash-es';
+import { required } from '../../utils/formValidation';
 
 import {
   PROJECT_NODE,
-  CYCLE_NODE,
-  POSTMORTEM_NODE,
   BATCH_NODE,
-  TEST0_NODE,
-  TEST1_NODE,
-  COMPOSITION_NODE
-} from './nodes';
-
-import {
-  GLOBAL_SEARCH, COMPOSITE_SEARCH
-} from './search';
+  TEST0_NODE
+} from './hierarchy';
 
 export function createFieldsFactory(nodeType) {
   switch (nodeType) {
     case PROJECT_NODE : {
       return createProjectFields;
-    }
-
-    case CYCLE_NODE : {
-      return createCycleFields;
-    }
-
-    case POSTMORTEM_NODE : {
-      return createPostmortemFields;
     }
 
     case BATCH_NODE : {
@@ -36,22 +18,6 @@ export function createFieldsFactory(nodeType) {
 
     case TEST0_NODE : {
       return createTest0Fields;
-    }
-
-    case TEST1_NODE : {
-      return createTest1Fields;
-    }
-
-    case GLOBAL_SEARCH : {
-      return createGlobalSearchFields;
-    }
-
-    case COMPOSITION_NODE : {
-      return createCompositeFields;
-    }
-
-    case COMPOSITE_SEARCH : {
-      return createCompositeSearchFields;
     }
 
     default : {
@@ -88,59 +54,12 @@ function createProjectFields(project) {
       type: 'textarea',
       value: project ? project.motivation : '',
       error: ''
+    },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
     }
-  }
-  return fields;
-}
-
-function createCycleFields(cycle) {
-  let fields = {
-    'startDate' : {
-      label: 'Start date',
-      type: 'date',
-      value: cycle ? cycle.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
-    },
-    'title' : {
-      label: 'Title',
-      type: 'text',
-      value: cycle ? cycle.title : 'Cell cycling',
-      error: '',
-      validate: [required]
-    },
-    'comments': {
-      label: 'Comments',
-      type: 'textarea',
-      value: cycle ? cycle.comments : '',
-      error: ''
-    },
-  }
-  return fields;
-}
-
-function createPostmortemFields(postmortem) {
-  let fields = {
-    'startDate' : {
-      label: 'Start date',
-      type: 'date',
-      value: postmortem ? postmortem.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
-    },
-    'title' : {
-      label: 'Title',
-      type: 'text',
-      value: postmortem ? postmortem.title : 'Post cycle dissection',
-      error: '',
-      validate: [required]
-    },
-    'comments': {
-      label: 'Comments',
-      type: 'textarea',
-      value: postmortem ? postmortem.comments : '',
-      error: ''
-    },
   }
   return fields;
 }
@@ -202,6 +121,23 @@ function createBatchFields(batch) {
       hidden: batch ? !batch.completed : true,
       error: ''
     },
+    'structFile' : {
+      label: 'Matlab Struct file',
+      type: 'file',
+      value: batch ? batch.structFile : '',
+      error: ''
+    },
+    'structFileId' : {
+      label: 'Matlab Struct file',
+      type: 'fileId',
+      value: batch ? batch.structFileId : null,
+      error: ''
+    },
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
+      error: ''
+    }
   }
   return fields;
 }
@@ -212,6 +148,13 @@ function createTest0Fields(test = undefined) {
       label: 'Start date',
       type: 'date',
       value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'name' : {
+      label: 'Name',
+      type: 'text',
+      value: test ? test.title : '',
       error: '',
       validate: [required]
     },
@@ -285,111 +228,10 @@ function createTest0Fields(test = undefined) {
       value: test ? test.dataFileId : null,
       error: ''
     },
-  }
-  return fields;
-}
-
-function createTest1Fields(test = undefined) {
-  let fields = {
-    'startDate' : {
-      label: 'Start date',
-      type: 'date',
-      value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
-    },
-    'cellId' : {
-      label: 'Cell ID',
-      type: 'text',
-      value: test ? test.cellId : '',
-      error: '',
-      validate: [required]
-    },
-    'imageFile' : {
-      label: 'Image file',
-      type: 'file',
-      value: test ? test.imageFile : '',
+    'public': {
+      label: 'Public',
+      type: 'checkbox',
       error: ''
-    },
-    'comments': {
-      label: 'Comments',
-      type: 'textarea',
-      value: test ? test.comments : '',
-      error: ''
-    },
-    'imageFileId' : {
-      label: 'Image file',
-      type: 'fileId',
-      value: test ? test.imageFileId : null,
-      thumbnail: test ? test.imageFileIdThumbnail : null,
-      error: ''
-    }
-  }
-  return fields;
-}
-
-function createGlobalSearchFields(filters) {
-  let fields = {
-    'title' : {
-      label: 'Title',
-      type: 'text',
-      value: has(filters, 'title') ? filters.title : '',
-      error: ''
-    },
-    'supplier' : {
-      label: 'Supplier',
-      type: 'text',
-      value: has(filters, 'supplier') ? filters.supplier : '',
-      error: ''
-    },
-    'cellId' : {
-      label: 'Cell ID',
-      type: 'text',
-      value: has(filters, 'cellId') ? filters.cellId : '',
-      error: ''
-    }
-  }
-  return fields;
-}
-
-function createCompositeSearchFields(filters) {
-  let fields = {
-    'elements' : {
-      label: 'Elements (comma separated)',
-      type: 'text',
-      value: has(filters, 'elements') ? filters.elements : '',
-      error: ''
-    },
-    'ph' : {
-      label: 'pH',
-      type: 'text',
-      value: has(filters, 'ph') ? filters.ph : '',
-      error: ''
-    },
-    'electrolyte' : {
-      label: 'Electrolyte',
-      type: 'text',
-      value: has(filters, 'electrolyte') ? filters.electrolyte : '',
-      error: ''
-    },
-    'plateId' : {
-      label: 'Plate ID',
-      type: 'text',
-      value: has(filters, 'plateId') ? filters.plateId : '',
-      error: ''
-    }
-  }
-  return fields;
-}
-
-function createCompositeFields(composite) {
-  let fields = {
-    'name': {
-      label: 'Name',
-      type: 'text',
-      value: has(composite, 'name') ? composite.name : '',
-      error: '',
-      validate: [required]
     }
   }
   return fields;

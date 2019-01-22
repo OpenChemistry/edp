@@ -20,6 +20,7 @@ class ItemList extends Component {
       items,
       title,
       onAdd,
+      canEdit,
       ingestComponent
     } = this.props;
 
@@ -31,12 +32,14 @@ class ItemList extends Component {
               <Typography variant='title'>
                 {title}
               </Typography>
+              { canEdit &&
               <ListItemSecondaryAction style={{display: 'flex'}}>
                 {ingestComponent}
                 <IconButton onClick={() => {onAdd()}}>
                   <AddIcon />
                 </IconButton>
               </ListItemSecondaryAction>
+              }
             </ListItem>
           </div>
           <Paper>
