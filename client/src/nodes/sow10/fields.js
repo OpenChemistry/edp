@@ -122,13 +122,13 @@ function createBatchFields(batch) {
       error: ''
     },
     'structFile' : {
-      label: 'Matlab Struct file',
+      label: 'MATLAB Struct file',
       type: 'file',
       value: batch ? batch.structFile : '',
       error: ''
     },
     'structFileId' : {
-      label: 'Matlab Struct file',
+      label: 'MATLAB Struct file',
       type: 'fileId',
       value: batch ? batch.structFileId : null,
       error: ''
