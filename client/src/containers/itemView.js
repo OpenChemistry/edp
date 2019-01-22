@@ -16,6 +16,7 @@ import NotFoundPage from '../components/notFound.js';
 import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
 import { ROOT_NODE } from '../nodes/root';
 
+import { hasAdminAccess } from '../utils/permissions';
 
 class ItemViewContainer extends Component {
 
@@ -78,7 +79,7 @@ class ItemViewContainer extends Component {
 
     let canEdit = false;
     if (!isNil(me)) {
-      if (item.type === ROOT_NODE || item.fields.owner === me['_id']) {
+      if (item.type === ROOT_NODE || hasAdminAccess(me, item.fields)) {
         canEdit = true;
       }
     }
