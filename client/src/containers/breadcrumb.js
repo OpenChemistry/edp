@@ -24,30 +24,7 @@ class BreadCrumbContainer extends Component {
     dispatch(push(url));
   }
 
-  onHomeClick = () => {
-    this.props.dispatch(push(ROOT_ROUTE));
-  }
-
-  onExperimentClick = () => {
-    const { experimentId } = this.props;
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}`));
-  }
-
-  onBatchClick = () => {
-    const { experimentId, batchId } = this.props;
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}`));
-  }
-
-  onTestClick = () => {
-    const { experimentId, batchId, testId } = this.props;
-    this.props.dispatch(push(`/${EXPERIMENT_VIEW_ROUTE}/${experimentId}/${BATCH_VIEW_ROUTE}/${batchId}/${TEST_VIEW_ROUTE}/${testId}`));
-  }
-
   render() {
-    if (!this.props.me) {
-      return null;
-    }
-
     return (
       <BreadCrumb
         {...this.props}
