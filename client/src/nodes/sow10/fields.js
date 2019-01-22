@@ -122,13 +122,13 @@ function createBatchFields(batch) {
       error: ''
     },
     'structFile' : {
-      label: 'Struct file',
+      label: 'Matlab Struct file',
       type: 'file',
       value: batch ? batch.structFile : '',
       error: ''
     },
     'structFileId' : {
-      label: 'Struct file',
+      label: 'Matlab Struct file',
       type: 'fileId',
       value: batch ? batch.structFileId : null,
       error: ''
@@ -148,6 +148,13 @@ function createTest0Fields(test = undefined) {
       label: 'Start date',
       type: 'date',
       value: test ? test.startDate : (new Date()).toISOString().slice(0,10),
+      error: '',
+      validate: [required]
+    },
+    'name' : {
+      label: 'Name',
+      type: 'text',
+      value: test ? test.title : '',
       error: '',
       validate: [required]
     },

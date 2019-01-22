@@ -57,9 +57,9 @@ export const NODES = {
     children: [],
     parentId: 'batchId',
     fileFields: ['dataFile', 'metaDataFile'],
-    primaryField: 'channel',
-    primaryPrefix: 'Channel',
-    secondaryField: 'startDate',
+    primaryField: 'name',
+    secondaryField: 'channel',
+    secondaryPrefix: 'Channel',
     color: lightBlue[500],
     icon: ChangeHistory,
     visualizationField: 'summary'
