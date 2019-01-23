@@ -40,6 +40,11 @@ export function createFile(parentId, parentType, name, size, mimeType) {
   .then(response => response.data );
 }
 
+export function getFile(id) {
+  return girderClient().get(`file/${id}`)
+  .then(response => response.data );
+}
+
 export function updateFile(id, name, mimeType) {
   return girderClient().put(`file/${id}`, {},  {
     params: {

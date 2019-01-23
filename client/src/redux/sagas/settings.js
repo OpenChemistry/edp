@@ -16,7 +16,7 @@ function* onFetchServerSettings(action) {
     setDeployment(settings);
     yield put(receiveServerSettings(settings));
   } catch (e) {
-    yield put(fetchServerSettings(e));
+    // yield put(fetchServerSettings(e));
   }
 }
 

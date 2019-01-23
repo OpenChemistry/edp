@@ -4,6 +4,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import { isNil } from 'lodash-es';
 
+import FileDownloadCOmponent from '../components/fields/file-download';
+
 export function renderDisplayFields(fields, exclude = null) {
   if (!exclude) {
     exclude = [];
@@ -80,29 +82,12 @@ export function renderDisplayFields(fields, exclude = null) {
               <Typography gutterBottom variant="subheading" color="textSecondary">
                 {label}
               </Typography>
-              <Typography  paragraph>
-                <a href={downloadUrl} download>Download</a>
+              <Typography paragraph>
+                <FileDownloadCOmponent fileId={value}/>
               </Typography>
             </div>
           );
         }
-        break;
-      }
-
-      case 'imageId': {
-        const downloadUrl = `/api/v1/file/${value}/download?contentDisposition=inline`;
-        displayFields.push(
-          <div key={key} hidden={hidden}>
-            <Typography gutterBottom variant="subheading" color="textSecondary">
-              {label}
-            </Typography>
-            <div style={{width: '100%', maxHeight: '20rem'}}>
-              <a href={downloadUrl}>
-                <img style={{width: '100%', maxHeight: '20rem', objectFit: 'contain'}} src={downloadUrl}/>
-              </a>
-            </div>
-          </div>
-        );
         break;
       }
 
