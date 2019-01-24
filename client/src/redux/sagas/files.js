@@ -14,7 +14,6 @@ function* onFetchFile(action) {
     const file = yield call(getFileRest, id);
     yield put(receiveFile(file));
   } catch (e) {
-    // yield put(fetchFile({error: e}));
   }
 }
 
