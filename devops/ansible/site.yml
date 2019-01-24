@@ -200,6 +200,7 @@
           "key": "oauth.providers_enabled",
           "value": ["google"]
         }
+      when: oauth_google_client_id is defined
 
     - name: Restart the server
       girder:
