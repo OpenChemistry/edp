@@ -28,4 +28,9 @@ class Header extends Component {
   }
 }
 
+Header.defaultProps = {
+  showMenu: false,
+  showLogin: false
+};
+
 export default Header;

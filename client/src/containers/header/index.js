@@ -10,9 +10,10 @@ import Header from '../../components/header/';
 import { auth } from '@openchemistry/girder-redux';
 import { getServerSettings } from '../../redux/ducks/settings';
 import { SOW10 } from '../../nodes';
+import { isNil } from 'lodash-es';
 
 class HeaderContainer extends Component {
-  
+
   onLogoClick = () => {
     this.props.dispatch(push(ROOT_ROUTE));
   }
@@ -35,14 +36,17 @@ class HeaderContainer extends Component {
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
   const { deployment } = getServerSettings(state);
-  const showMenu = deployment !== SOW10;
-  const showSearch = deployment !== SOW10;
 
-  return {
-    loggedIn,
-    showMenu,
-    showSearch
+  const props = {
+      loggedIn
+  };
+
+  if (!isNil(deployment)) {
+    props.showMenu = deployment !== SOW10;
+    props.showSearch = deployment !== SOW10;
   }
+
+  return props
 }
 
 export default connect(mapStateToProps)(HeaderContainer);
