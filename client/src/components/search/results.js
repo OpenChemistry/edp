@@ -9,13 +9,14 @@ import {
   Typography
 } from '@material-ui/core';
 
-import { NODES } from '../../utils/nodes';
+import { getNodes } from '../../nodes';
 import ItemListItem from '../itemList/item';
 
 class SearchResults extends Component {
 
   _buildTree(matches, rootId, indent=-1) {
     const {onOpen} = this.props;
+    const NODES = getNodes();
     const children = [];
     const isLeaf = matches[rootId]['children'] ? matches[rootId]['children'].length === 0 : true;
     for (let child of matches[rootId]['children']) {

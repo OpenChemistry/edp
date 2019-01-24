@@ -19,17 +19,20 @@ import {
 
 import {
   getRootFolder,
-} from '../ducks/files';
+} from '../ducks/uploads';
 
 import {
   fetchRootFolder,
   uploadFile
-} from '../sagas/files';
+} from '../sagas/uploads';
 
-import { NODES } from '../../utils/nodes';
+import { getNodes } from '../../nodes';
+import { fetchFile } from '../ducks/files';
 
 // Upload item files
 function* uploadItemFiles(item) {
+  const NODES = getNodes();
+
   if (isNil(NODES[item.type].fileFields)) {
     return;
   }
@@ -82,6 +85,16 @@ function* onFetchItem(action) {
   try {
     const { ancestors, item } = action.payload;
     const newItem = yield call(getItemRest, ancestors, item);
+    const NODES = getNodes();
+    let fileFields = [];
+    if (NODES[item.type] && NODES[item.type].fileFields) {
+      fileFields = NODES[item.type].fileFields;
+    }
+
+    for (let field of fileFields) {
+      yield put(fetchFile(newItem[`${field}Id`]));
+    }
+
     yield put({type: FETCH_ITEM_SUCCEEDED, payload: { item: newItem, itemType: item.type }});
   } catch (e) {
     yield put({type: FETCH_ITEM_FAILED, error: e});

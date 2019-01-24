@@ -11,6 +11,17 @@ class Batch(Base):
 
     def __init__(self):
         from girder.plugins.edp.models.cycle import Cycle
+        from girder.plugins.edp.models.project import Project
+        from girder.plugins.edp import constants
+        from girder.models.setting import Setting
+
+        deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
+        parent_id = 'cycleId'
+        parent_model  = Cycle
+        if deployment == constants.SOW10_DEPLOYMENT:
+            parent_id = 'projectId'
+            parent_model = Project
+
         super(Batch, self).__init__(
             name='edp.batches',
             props=(
@@ -71,11 +82,18 @@ class Batch(Base):
 
                 },
                 {
-                    'name': 'cycleId',
+                    'name': 'structFileId',
+                    'expose': True,
+                    'create': True,
+                    'mutable': True,
+                    'type': 'file'
+                },
+                {
+                    'name': parent_id,
                     'create': True
                 }
             ),
-            parent_model=Cycle,
+            parent_model=parent_model,
             child_model=CycleTest,
             url='batches'
         )

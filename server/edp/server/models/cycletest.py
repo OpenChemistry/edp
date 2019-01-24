@@ -25,6 +25,12 @@ class CycleTest(Base):
                     'create': True,
                 },
                 {
+                    'name': 'name',
+                    'expose': True,
+                    'create': True,
+                    'mutable': True
+                },
+                {
                     'name': 'startDate',
                     'expose': True,
                     'create': True,
@@ -99,6 +105,11 @@ class CycleTest(Base):
                     'create': True,
                     'mutable': True,
                     'type': 'file'
+                },
+                {
+                    'name': 'summary',
+                    'expose': True,
+                    'create': True,
                 }
             ),
             parent_model=Batch,

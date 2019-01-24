@@ -43,7 +43,7 @@ def _get_description(parent_models, model):
     model_id = '%sId' % name
     des.modelParam(model_id, 'The %s id' % name,
                 model=model, destName=name,
-                level=AccessType.WRITE, paramType='path')
+                level=AccessType.READ, paramType='path')
 
     return des
 
@@ -114,7 +114,7 @@ def create(model):
             for prop in model().create_props:
                 args[prop['name']] = props.get(prop['name'], prop.get('default'))
 
-            args['public'] = props.get('public', False)
+            args['public'] = bool(props.get('public', False))
             args['user'] = self.getCurrentUser()
             args[model().parent_key] = parents[-1]['_id']
 
@@ -130,7 +130,7 @@ def create(model):
 
             return instance
 
-        @access.user(scope=TokenScope.DATA_READ)
+        @access.public(scope=TokenScope.DATA_READ)
         @autoDescribeRoute(
             _find_description(parent_models, model)
         )
@@ -146,7 +146,7 @@ def create(model):
                 owner=kwargs.get('owner'), offset=kwargs.get('offset', 0), limit=kwargs.get('limit', 50), sort=kwargs.get('sort', False),
                 user=self.getCurrentUser(), fields=fields))
 
-        @access.user(scope=TokenScope.DATA_READ)
+        @access.public(scope=TokenScope.DATA_READ)
         @autoDescribeRoute(
             _get_description(parent_models, model)
         )

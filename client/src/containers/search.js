@@ -8,8 +8,8 @@ import { has, isEmpty } from 'lodash-es';
 
 import { getGlobalMatches, searchGlobal } from '../redux/ducks/search';
 
-import { GLOBAL_SEARCH } from '../utils/search';
-import { createFieldsFactory } from '../utils/fields';
+import { GLOBAL_SEARCH } from '../nodes/search';
+import { createFieldsFactory } from '../nodes';
 import SearchForm from '../components/search/form';
 import SearchResults from '../components/search/results';
 import { ROOT_ROUTE } from '../routes';

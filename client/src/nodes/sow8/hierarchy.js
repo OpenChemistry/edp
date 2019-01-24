@@ -1,4 +1,6 @@
-import { has, isNil } from 'lodash-es';
+import { has } from 'lodash-es';
+
+import { ROOT_NODE } from '../root';
 
 import {
   Autorenew,
@@ -19,9 +21,9 @@ import {
   cyan
 } from '@material-ui/core/colors';
 
-import IngestBatch from '../containers/ingest/batch';
-import IngestComposite from '../containers/ingest/composite';
-import CompositeSearch from '../containers/composite-search';
+import IngestBatch from '../../containers/ingest/batch';
+import IngestComposite from '../../containers/ingest/composite';
+import CompositeSearch from '../../containers/composite-search';
 
 export const PROJECT_NODE = 'PROJECT_NODE';
 export const CYCLE_NODE = 'CYCLE_NODE';
@@ -33,8 +35,6 @@ export const COMPOSITION_NODE = 'COMPOSITION_NODE';
 
 export const SAMPLE_NODE = 'SAMPLE_NODE';
 export const TIMESERIE_NODE = 'TIMESERIE_NODE';
-
-export const ROOT_NODE = 'ROOT_NODE';
 
 export const NODES = {
   [ROOT_NODE] : {
@@ -87,7 +87,8 @@ export const NODES = {
     primaryPrefix: 'Channel',
     secondaryField: 'startDate',
     color: lightBlue[500],
-    icon: ChangeHistory
+    icon: ChangeHistory,
+    visualizationField: 'summary'
   },
   [POSTMORTEM_NODE] : {
     label: 'Postmortem',
@@ -160,78 +161,4 @@ export function getNodeType(url, index) {
 
   console.warn('No matching node for this url');
   return null;
-}
-
-export function makeUrl(ancestors, item, prefix = '') {
-  let url = prefix;
-  for (let ancestor of ancestors) {
-    const { type, _id } = ancestor;
-    if (!isNil(_id)) {
-      url += `/${NODES[type].url}/${_id}`;
-    }
-  }
-  const { type, _id } = item;
-  if (type !== ROOT_NODE) {
-    url += `/${NODES[type].url}`;
-    if (!isNil(_id)) {
-      url += `/${_id}`;
-    }
-  }
-  return url;
-}
-
-export function parseUrl(url) {
-  let regexStr = `((\\w+)\\/(\\w+)?)(\\/(\\w+)\\/(\\w+)?)?(\\/(\\w+)\\/(\\w+)?)?(\\/(\\w+)\\/(\\w+)?)?(\\/(\\w+)\\/(\\w+)?)?`;
-  let regex = new RegExp(regexStr);
-  let mo = url.match(regex);
-
-  let ancestors = [];
-  if (mo) {
-    for (let i = 0; i < 4; ++i) {
-      const idGroup = (i + 1) * 3;
-      const urlGroup = idGroup - 1;
-      let _id = null;
-      let url = null;
-
-      if (!isNil(mo[urlGroup])) {
-        url = mo[urlGroup];
-      }
-
-      if (!isNil(mo[idGroup])) {
-        _id = mo[idGroup];
-      }
-
-      if (isNil(url) && isNil(_id)) {
-        break;
-      }
-
-      ancestors.push(
-        {
-          type: getNodeType(url, i),
-          _id,
-          url
-        }
-      )
-    }
-  }
-  return ancestors;
-}
-
-export function parseUrlMatch(match) {
-  const ancestors = [];
-  // Up to 5 depth
-  for (let i = 0; i < 5; ++i) {
-    let url = match.params[`url${i}`];
-    let _id = match.params[`id${i}`];
-
-    if (!isNil(url)) {
-      let type = getNodeType(url, i);
-      ancestors.push({
-        url,
-        _id,
-        type
-      })
-    }
-  }
-  return ancestors;
 }

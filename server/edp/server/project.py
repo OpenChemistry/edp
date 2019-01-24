@@ -5,6 +5,7 @@ from girder.api.describe import Description, autoDescribeRoute
 from girder.api.rest import Resource, RestException
 from girder.constants import AccessType, TokenScope
 from girder.models.file import File
+from girder.models.setting import Setting
 
 from . import resource
 from . import comp_search
@@ -21,7 +22,8 @@ from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
 from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
 from .sample import Sample
 from .timeseries import TimeSeries
-
+from . import configuration
+from . import constants
 
 class Route(object):
 
@@ -45,21 +47,25 @@ class Project(Resource):
 
     def __init__(self):
         super(Project, self).__init__()
+        deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
         project_route = self.add_route('projectId', self)
-        postmortem_route = project_route.add_child_route(PostmortemModel().url, 'postmortemId', resource.create(PostmortemModel)())
-        cycle_route = project_route.add_child_route(CycleModel().url, 'cycleId', resource.create(CycleModel)())
-        batch_route = cycle_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
-        batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
-        postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
+        if deployment == constants.SOW10_DEPLOYMENT:
+            batch_route = project_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
+            batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
+        else:
+            postmortem_route = project_route.add_child_route(PostmortemModel().url, 'postmortemId', resource.create(PostmortemModel)())
+            cycle_route = project_route.add_child_route(CycleModel().url, 'cycleId', resource.create(CycleModel)())
+            batch_route = cycle_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
+            batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
+            postmortem_route.add_child_route(PostmortemTestModel().url, 'postmortemtestId', resource.create(PostmortemTestModel)())
 
-        # Composite routes
-        composite_route = project_route.add_child_route(CompositeModel().url, 'compositeId', resource.create(CompositeModel)())
-        composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
-        platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
-        sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
-        sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
-        self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
-
+            # Composite routes
+            composite_route = project_route.add_child_route(CompositeModel().url, 'compositeId', resource.create(CompositeModel)())
+            composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
+            platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
+            sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
+            sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
+            self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
 
     def add_route(self, id_name, resource):
         self.route('POST', (), resource.create)
@@ -93,7 +99,7 @@ class Project(Resource):
 
         return project
 
-    @access.user(scope=TokenScope.DATA_READ)
+    @access.public(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Find an project.')
         .param('owner', 'The owner to return projects for.', required=False)
@@ -103,7 +109,7 @@ class Project(Resource):
             owner=owner, offset=offset, limit=limit, sort=sort,
             user=self.getCurrentUser()))
 
-    @access.user(scope=TokenScope.DATA_READ)
+    @access.public(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
         Description('Get an project.')
         .modelParam('projectId', 'The project id',
