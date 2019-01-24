@@ -154,7 +154,7 @@
           bucket: "{{ s3_bucket }}"
           service: ""
           region: "{{ s3_region }}"
-          prefix: "assetstore"
+          prefix: "{{ s3_prefix | default(assetstore)}}"
           inferCredentials: true
           current: true
         state: present
