@@ -9,6 +9,7 @@ import { ROOT_ROUTE, EXPERIMENT_VIEW_ROUTE, BATCH_VIEW_ROUTE, TEST_VIEW_ROUTE } 
 
 import BreadCrumb from '../components/breadCrumb';
 import { parseUrl, makeUrl } from '../nodes';
+import { getItem } from '../redux/ducks/items';
 
 class BreadCrumbContainer extends Component {
 
@@ -37,6 +38,12 @@ class BreadCrumbContainer extends Component {
 function mapStateToProps(state) {
   const me = auth.selectors.getMe(state);
   const ancestors = parseUrl(state.router.location.pathname);
+
+  // Display additional info in the breadcrumb for the last item in the hierarchy
+  if (ancestors.length > 0) {
+    const item = getItem(state, ancestors[ancestors.length - 1]._id);
+    ancestors[ancestors.length - 1].fields = item;
+  }
 
   return {
     me,
