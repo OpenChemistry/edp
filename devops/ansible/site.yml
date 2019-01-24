@@ -38,6 +38,24 @@
           description: "The EDP group"
         state: present
 
+    - name: Set registration policy
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "core.registration_policy",
+          "value": "{{ registration_policy }}"
+        }
+      when: registration_policy is defined
+
     - name: Create edp collection
       girder:
         host: "{{girder_host}}"
