@@ -82,6 +82,39 @@
           - edp
         state: present
 
+    - name: Restart the server
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        put:
+          path: "system/restart"
+
+    - name: Wait until server restarts
+      wait_for:
+        host="{{girder_host}}"
+        port="{{girder_port}}"
+        delay=5
+
+    - name: Configure EDP plugins
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.deployment",
+          "value": "{{ edp_deployment }}"
+        }
+
     - name: Enable OAuth plugin
       girder:
         host: "{{girder_host}}"
