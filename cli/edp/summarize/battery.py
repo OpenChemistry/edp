@@ -14,7 +14,7 @@ def summarize(filepath):
 
         for row in reader:
             cycle_index = int(float(row[cycle_index_column]))
-            max_discharge_capacity = cycle_discharge.get(cycle_index, sys.float_info.min)
+            max_discharge_capacity = cycle_discharge.get(cycle_index, -sys.float_info.max)
             discharge_capacity = float(row[discharge_capacity_column])
             if discharge_capacity > max_discharge_capacity:
                 cycle_discharge[cycle_index] = discharge_capacity
