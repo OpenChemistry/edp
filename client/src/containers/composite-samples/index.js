@@ -154,7 +154,8 @@ class CompositeSamplesContainer extends Component {
   }
 
   onSampleSelect = (sample) => {
-    this.fetchSampleTimeSeries(sample);
+    const { fitted } = this.props;
+    this.fetchSampleTimeSeries(sample, fitted);
     const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
     selectedSampleKeys.add(sample._id);
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
