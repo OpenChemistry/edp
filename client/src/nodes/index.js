@@ -20,8 +20,8 @@ import {
   createFieldsFactory as sow10createFieldsFactory
 } from './sow10/fields';
 
-const SOW8 = 'sow8';
-const SOW10 = 'sow10';
+export const SOW8 = 'sow8';
+export const SOW10 = 'sow10';
 
 let DEPLOYMENT = null;
 

@@ -8,6 +8,8 @@ import { ROOT_ROUTE } from '../../routes';
 import Header from '../../components/header/';
 
 import { auth } from '@openchemistry/girder-redux';
+import { getServerSettings } from '../../redux/ducks/settings';
+import { SOW10 } from '../../nodes';
 
 class HeaderContainer extends Component {
   
@@ -22,9 +24,9 @@ class HeaderContainer extends Component {
   render() {
     return (
       <Header
+        {...this.props}
         onLogoClick={this.onLogoClick}
         onSearchClick={this.onSearchClick}
-        loggedIn={this.props.loggedIn}
       />
     );
   }
@@ -32,8 +34,14 @@ class HeaderContainer extends Component {
 
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
+  const { deployment } = getServerSettings(state);
+  const showMenu = deployment !== SOW10;
+  const showSearch = deployment !== SOW10;
+
   return {
-    loggedIn
+    loggedIn,
+    showMenu,
+    showSearch
   }
 }
 
