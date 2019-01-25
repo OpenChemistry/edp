@@ -107,23 +107,17 @@ const URL_PARAMS = {
   },
   plots: {
     serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, 'raw')
+    deserialize: defaultWrapper(identity, 'raw'),
+    callback: function(currValue, nextValue) {
+      const { selectedSampleKeys } = this.props;
+      for (let _id of selectedSampleKeys.values()) {
+        this.fetchSampleTimeSeries({_id}, nextValue);
+      }
+    }
   }
 }
 
 class CompositeSamplesContainer extends Component {
-
-  constructor(props) {
-    super(props);
-    this.callbacks = {
-      plots: (currValue, nextValue) => {
-        const { selectedSampleKeys } = this.props;
-        for (let _id of selectedSampleKeys.values()) {
-          this.fetchSampleTimeSeries({_id}, nextValue);
-        }
-      }
-    }
-  }
 
   componentDidMount() {
     const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
@@ -198,8 +192,8 @@ class CompositeSamplesContainer extends Component {
 
     for (let key in updates) {
       if (key in URL_PARAMS) {
-        if (this.callbacks[key]) {
-          this.callbacks[key](props[key], updates[key]);
+        if (URL_PARAMS[key].callback) {
+          URL_PARAMS[key].callback.call(this, props[key], updates[key]);
         }
         props[key] = updates[key];
       }
