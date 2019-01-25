@@ -37,7 +37,7 @@ class SpectrumComponent extends Component {
       doUpdate = true;
     }
 
-    if (this.props.fitted !== prevProps.fitted) {
+    if (this.props.plots !== prevProps.plots) {
       doUpdate = true;
     }
 

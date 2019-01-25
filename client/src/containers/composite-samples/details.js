@@ -24,13 +24,27 @@ class SamplesDetailsContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  const { selectedSamples, fitted } = ownProps;
-  const timeseries = selectedSamples
-    .map(sample => ({sample, spectrum: getTimeSerie(state, sample._id, fitted)}))
+  const { selectedSamples, plots } = ownProps;
+  const getFitted = plots.includes('fitted');
+  const getRaw = plots.includes('raw');
+
+  let rawTimeseries = [];
+  let fittedTimeseries = [];
+
+  if (getRaw) {
+    rawTimeseries = selectedSamples
+    .map(sample => ({sample, spectrum: getTimeSerie(state, sample._id, false)}))
     .filter(timeserie => timeserie.spectrum);
+  }
+
+  if (getFitted) {
+    fittedTimeseries = selectedSamples
+    .map(sample => ({sample, spectrum: getTimeSerie(state, sample._id, true)}))
+    .filter(timeserie => timeserie.spectrum);
+  }
 
   return {
-    timeseries
+    timeseries: Array.concat(rawTimeseries, fittedTimeseries)
   };
 }
 
