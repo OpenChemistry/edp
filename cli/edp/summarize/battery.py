@@ -1,5 +1,6 @@
 import csv
 import sys
+import statistics as stats
 
 
 def summarize(filepath):
@@ -26,6 +27,11 @@ def summarize(filepath):
     if None in max_discharge_capacities:
         raise Exception('Missing max discharge capacity.')
 
+    # Now calculate the range min(max_discharge_capacities) -> mean + 2 sigma, this is done to
+    # remove discharge spikes.
+    mean = stats.mean(max_discharge_capacities)
+    stdev = stats.stdev(max_discharge_capacities, mean)
+    range = [min(max_discharge_capacities), mean + stdev*2]
     return {
         'Maximum Discharge Capacity Per Cycle': {
             'x': {
@@ -33,7 +39,8 @@ def summarize(filepath):
             },
             'y': {
                 'label': 'Maximum Discharge Capacity (Ah)',
-                'data': max_discharge_capacities
+                'data': max_discharge_capacities,
+                'range': range
             }
         }
     }
