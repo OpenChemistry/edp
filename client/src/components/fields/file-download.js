@@ -10,6 +10,8 @@ import Button from '@material-ui/core/Button';
 import filesize from 'filesize';
 import { getFileById } from '../../redux/ducks/files';
 import { CloudDownload } from '@material-ui/icons';
+import girderClient from '@openchemistry/girder-client';
+
 
 const style = (theme) => (
   {
@@ -32,10 +34,11 @@ const style = (theme) => (
 )
 
 class FileDownload extends Component {
-  
+
   render() {
     const { file, fileId } = this.props;
-    const downloadUrl = `/api/v1/file/${fileId}/download`;
+    const baseUrl = girderClient().getBaseURL();
+    const downloadUrl = `${baseUrl}/api/v1/file/${fileId}/download`;
     let name = null;
     let size = null;
     if (!isNil(file)) {
