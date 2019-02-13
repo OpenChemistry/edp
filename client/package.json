@@ -8,7 +8,7 @@
     "@material-ui/lab": "^1.0.0-alpha.6",
     "@openchemistry/girder-client": "^0.0.9",
     "@openchemistry/girder-redux": "^0.0.16",
-    "@openchemistry/girder-ui": "^0.0.17"
+    "@openchemistry/girder-ui": "^0.0.17",
     "composition-plot": "openchemistry/composition-plot",
     "connected-react-router": "^4.3.0",
     "core-js": "^2.5.7",
