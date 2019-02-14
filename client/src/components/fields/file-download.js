@@ -38,7 +38,7 @@ class FileDownload extends Component {
   render() {
     const { file, fileId } = this.props;
     const baseUrl = girderClient().getBaseURL();
-    const downloadUrl = `${baseUrl}/api/v1/file/${fileId}/download`;
+    const downloadUrl = `${baseUrl}/file/${fileId}/download`;
     let name = null;
     let size = null;
     if (!isNil(file)) {
