@@ -33,13 +33,15 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "patch-sw": "replace-in-file '\/.*blacklist.*\/g' '  blacklist: [\/^\\\/_\/,\/\\\/[^\\\/]+\\.[^\\\/]+$\/, \/^.*\\\/download$\/],' build\/service-worker.js  --isRegex",
+    "build": "react-scripts build && npm run patch-sw" ,
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "gh-pages": "PUBLIC_URL=/edp react-scripts build && gh-pages -d build"
   },
   "devDependencies": {
-    "gh-pages": "^1.2.0"
+    "gh-pages": "^1.2.0",
+    "replace-in-file": "^3.4.3"
   },
   "browserslist": [
     ">0.2%",
