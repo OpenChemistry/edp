@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { isNil } from 'lodash-es';
+import { isNil, has } from 'lodash-es';
 
 import { Card, Typography } from '@material-ui/core';
 
@@ -38,6 +38,13 @@ class PlotComponent extends Component {
     spectrum.setLabel('y', yLabel);
     this.spectraPlot.setSpectra([{spectrum, sample: null}]);
     this.spectraPlot.setAxes('x', 'y');
+
+    if(has(data.x, 'range')) {
+      this.spectraPlot.setXRange(data.x.range);
+    }
+    if(has(data.y, 'range')) {
+      this.spectraPlot.setYRange(data.y.range);
+    }
   }
 
   render() {
