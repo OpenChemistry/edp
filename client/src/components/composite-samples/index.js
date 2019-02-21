@@ -13,22 +13,14 @@ import {
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
-import { QuaternaryPlot, colors } from 'composition-plot';
+import { colors } from 'composition-plot';
 
-import { DataProvider } from 'composition-plot';
-
-import QuaternaryPlotComponent from './samples';
+import QuaternaryPlotComponent from './quaternary-plot';
 
 class PlotComponentContainer extends Component {
 
-  compositionElement;
-  quaternaryPlot;
-
   constructor(props) {
     super(props);
-    this.state = {
-      dataRange: [0, 1]
-    }
 
     this.colorMaps = {
       'Viridis': colors.viridis,
@@ -38,73 +30,21 @@ class PlotComponentContainer extends Component {
     }
   }
 
-  componentDidMount() {
-    const { onSampleDeselect, onSampleSelect } = this.props;
-    this.dp = new DataProvider([], 4);
-    this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
-    this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
-
-    const { samples } = this.props;
-    this.onNewSamples(samples);
-  }
-
-  componentDidUpdate() {
-    const { selectedSampleKeys } = this.props;
-    this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
-  }
-
-  onNewSamples(samples) {
-    const { activeMap, onParamChanged} = this.props;
-    let { scalarField, colorMapRange } = this.props;
-    this.dp.setData(samples);
-    // Force axes to span [0, 1] regardless of the samples
-    const axes = this.dp.getAxes();
-    for (let key of Object.keys(axes)) {
-      axes[key] = {...axes[key], range: [0, 1]};
-    }
-    this.dp.setAxes(axes);
-    scalarField = this.dp.getDefaultScalar(scalarField);
-    this.dp.setActiveScalar(scalarField);
-    const dataRange = this.dp.getScalarRange(scalarField);
-    colorMapRange = [
-      Math.min(Math.max(colorMapRange[0], dataRange[0]), dataRange[1] - 1e-6),
-      Math.max(Math.min(colorMapRange[1], dataRange[1]), dataRange[0] + 1e-6)
-    ];
-    const colorMap = this.colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
-    this.quaternaryPlot.dataUpdated();
-    this.setState({...this.state, dataRange});
-    onParamChanged({
-      scalarField,
-      colorMapRange
-    });
-  }
-
   onScalarChange(scalarField) {
-    const { activeMap, onParamChanged} = this.props;
-    let { colorMapRange } = this.props;
-    this.dp.setActiveScalar(scalarField);
-    const dataRange = this.dp.getScalarRange(scalarField);
-    colorMapRange = [...dataRange];
-    const colorMap = this.colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+    const { onParamChanged } = this.props;
     onParamChanged({
-      scalarField,
-      colorMapRange
+      scalarField
     });
-    this.setState({...this.state, dataRange});
   }
 
   onColorMapChange(activeMap) {
-    const { onParamChanged, colorMapRange } = this.props;
-    let colorMap = this.colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+    const { onParamChanged } = this.props;
     onParamChanged({activeMap});
   }
 
   onColorMapRangeChange(value, index) {
-    const { colorMapRange, activeMap, onParamChanged } = this.props;
-    const otherIndex = index === 0 ? 1 : 0;
+    const { colorMapRange, onParamChanged } = this.props;
+    const otherIndex = (index + 1) % 2;
     if (index === 0) {
       if (value >= colorMapRange[otherIndex]) {
         return;
@@ -117,7 +57,6 @@ class PlotComponentContainer extends Component {
     const range = [...colorMapRange];
     range[index] = value;
     onParamChanged({colorMapRange: range});
-    this.quaternaryPlot.setColorMap(this.colorMaps[activeMap], range);
   }
 
   render() {
@@ -129,12 +68,17 @@ class PlotComponentContainer extends Component {
       onClearSelection,
       selectedSamples,
       selectedSampleKeys,
+      detailsPanel,
+      mlModels,
       onSampleSelectById,
       onSampleDeselect,
-      onSampleSelect
+      onSampleSelect,
+      onParamChanged
     } = this.props;
-    const scalars = this.dp ? this.dp.getScalars() : [];
-    
+
+    const scalars = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalars() : [];
+    const dataRange = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalarRange(scalarField) : [0, 1];
+
     let scalarSelectOptions = [];
     for (let scalar of scalars) {
       scalarSelectOptions.push(<MenuItem key={scalar} value={scalar}>{scalar.replace('\\u002', '.')}</MenuItem>)
@@ -145,6 +89,11 @@ class PlotComponentContainer extends Component {
       colorMapSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
     }
 
+    let detailsPanelOptions = [];
+    for (let name of ['details'].concat(mlModels || [])) {
+      detailsPanelOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
+    }
+
     return (
       <div>
         <Table>
@@ -153,6 +102,7 @@ class PlotComponentContainer extends Component {
               <TableCell>Scalar field</TableCell>
               <TableCell>Color map</TableCell>
               <TableCell>Map range</TableCell>
+              <TableCell>Display</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -189,12 +139,12 @@ class PlotComponentContainer extends Component {
                   <div style={{flexGrow: 1, paddingRight: 16}}>
                     <Slider 
                       aria-labelledby="map-range-label"
-                      min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.001}
+                      min={dataRange[0]} max={dataRange[1]} step={0.001}
                       value={colorMapRange[0]}
                       onChange={(e, val) => {this.onColorMapRangeChange(val, 0)}}
                     />
                     <Slider
-                      min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.001}
+                      min={dataRange[0]} max={dataRange[1]} step={0.001}
                       value={colorMapRange[1]}
                       onChange={(e, val) => {this.onColorMapRangeChange(val, 1)}}
                     />
@@ -204,27 +154,34 @@ class PlotComponentContainer extends Component {
                   </div>
                 </div>
               </TableCell>
+              <TableCell>
+                <FormControl fullWidth>
+                  <Select
+                    value={detailsPanel || "details"}
+                    onChange={(e) => {onParamChanged('detailsPanel', e.target.value)}}
+                    inputProps={{name: 'detailsPanel', id: 'details-panel'}}
+                  >
+                    {detailsPanelOptions}
+                  </Select>
+                </FormControl>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
 
-        <div style={{width: '100%', height: '22.5rem', position: 'relative', overflowX: 'scroll', overflowY: 'hidden'}}>
-          <div style={{width: '70rem', height: '100%'}}>
-            <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
-          </div>
-        </div>
-
         <QuaternaryPlotComponent
+          ref={(ref) => {this.quaternaryPlot = ref;}}
           samples={samples}
           scalarField={scalarField}
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           selectedSampleKeys={selectedSampleKeys}
-          onParamChanged={() => {}}
+          onParamChanged={onParamChanged}
           onSampleSelect={onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
 
+        {detailsPanel === 'details' &&
         <Table>
           <TableHead>
             <TableRow>
@@ -257,6 +214,7 @@ class PlotComponentContainer extends Component {
             </TableRow>
           </TableBody>
         </Table>
+        }
 
       </div>
     );

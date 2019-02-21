@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
@@ -11,7 +11,10 @@ import { parseUrlMatch } from '../../nodes';
 import CompositeSamples from '../../components/composite-samples';
 import SamplesDetails from './details';
 
+import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
+
 import NotFoundPage from '../../components/notFound.js';
+import details from './details';
 
 const identity = val => val;
 
@@ -114,10 +117,43 @@ const URL_PARAMS = {
         this.fetchSampleTimeSeries({_id}, nextValue);
       }
     }
+  },
+  detailsPanel: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'details'),
+    callback: function(currValue, nextValue) {
+      const { mlModels } = this.state;
+
+      // If we already fetched the requested ML Model, do nothing
+      if (mlModels[nextValue] !== null) {
+        return;
+      }
+
+      this.fetchMachineLearningModel(nextValue);
+    }
   }
 }
 
 class CompositeSamplesContainer extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      mlModels: {
+        'Model 1': null,
+        'Model 2': null,
+        'Model 3': null,
+        'Model 5': null
+      },
+      mlModelsCompare: {
+        'Model 1': null,
+        'Model 2': null,
+        'Model 3': null,
+        'Model 5': null
+      }
+    }
+  }
 
   componentDidMount() {
     const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
@@ -173,6 +209,51 @@ class CompositeSamplesContainer extends Component {
     if (fetchFitted) {
       dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: true}));
     }
+  }
+
+  fetchMachineLearningModel = (modelName) => {
+    console.log("FETCH ML ", modelName);
+    const {samples} = this.props;
+
+    let modelSamples = [];
+    let modelCompareSamples = [];
+
+    for (let i in samples) {
+      let sample = samples[i];
+      let modelSample = {...sample};
+      modelSample.scalars = Object.entries(sample.scalars)
+        .map((val) => {
+          let [key, value] = val;
+          return [key, value + -5 + Math.random() * 10];
+        })
+        .reduce((accumulator, curr) => {
+          return {...accumulator, [curr[0]]: curr[1]};
+        }, {});
+      modelSamples.push(modelSample);
+    }
+
+    for (let i in samples) {
+      let sample = samples[i];
+      let modelCompareSample = {...sample};
+      modelCompareSample.scalars = Object.entries(sample.scalars)
+        .map((val) => {
+          let [key, value] = val;
+          return [key, modelSamples[i].scalars[key] - value];
+        })
+        .reduce((accumulator, curr) => {
+          return {...accumulator, [curr[0]]: curr[1]};
+        }, {});
+      modelCompareSamples.push(modelCompareSample);
+    }
+
+    this.setState({
+      mlModels: {
+        ...this.state.mlModels, [modelName]: modelSamples
+      },
+      mlModelsCompare: {
+        ...this.state.mlModelsCompare, [modelName]: modelCompareSamples
+      }
+    });
   }
 
   onParamChanged = (...args) => {
@@ -232,13 +313,17 @@ class CompositeSamplesContainer extends Component {
       reduceFnH,
       separateSlopeH,
       selectionH,
-      plots
+      plots,
+      selectionPanel,
+      detailsPanel
     } = this.props;
 
     if (samples.length === 0) {
       // return <NotFoundPage />;
       return null;
     }
+
+    console.log("STATEEEEEEEE" ,this.state);
 
     return (
       <div>
@@ -249,12 +334,17 @@ class CompositeSamplesContainer extends Component {
           colorMapRange={colorMapRange}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
+          selectionPanel={selectionPanel}
+          detailsPanel={detailsPanel}
+          mlModels={Object.keys(this.state.mlModels)}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
           onSampleSelectById={this.onSampleSelectById}
           onClearSelection={this.onClearSelection}
           onParamChanged={this.onParamChanged}
         />
+
+        {detailsPanel === 'details' &&
         <SamplesDetails
           display={display}
           selectedSamples={selectedSamples}
@@ -269,6 +359,37 @@ class CompositeSamplesContainer extends Component {
           selectionH={selectionH}
           plots={plots}
         />
+        }
+
+        {detailsPanel !== 'details' &&
+        <Fragment>
+          {this.state.mlModels[detailsPanel] &&
+          <QuaternaryPlotComponent
+            samples={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel] : []}
+            scalarField={scalarField}
+            activeMap={activeMap}
+            colorMapRange={colorMapRange}
+            selectedSampleKeys={new Set()}
+            onParamChanged={() => {}}
+            onSampleSelect={() => {}}
+            onSampleDeselect={() => {}}
+          />
+          }
+
+          {this.state.mlModelsCompare[detailsPanel] &&
+          <QuaternaryPlotComponent
+            samples={this.state.mlModelsCompare[detailsPanel] ? this.state.mlModelsCompare[detailsPanel] : []}
+            scalarField={scalarField}
+            activeMap={activeMap}
+            colorMapRange={[-10, 10]}
+            selectedSampleKeys={new Set()}
+            onParamChanged={() => {}}
+            onSampleSelect={() => {}}
+            onSampleDeselect={() => {}}
+          />
+          }
+        </Fragment>
+        }
       </div>
     );
   }

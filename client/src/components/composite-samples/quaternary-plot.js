@@ -31,8 +31,13 @@ class QuaternaryPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedSampleKeys, scalarField, activeMap, colorMapRange  } = this.props;
+    const { samples, selectedSampleKeys, scalarField, activeMap, colorMapRange  } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
+
+    if (samples !== prevProps.samples) {
+      this.dp.setData(samples);
+      this.quaternaryPlot.dataUpdated();
+    }
 
     if (scalarField !== prevProps.scalarField) {
       this.onScalarChange(scalarField);
