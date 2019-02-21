@@ -17,6 +17,8 @@ import { QuaternaryPlot, colors } from 'composition-plot';
 
 import { DataProvider } from 'composition-plot';
 
+import QuaternaryPlotComponent from './samples';
+
 class PlotComponentContainer extends Component {
 
   compositionElement;
@@ -119,7 +121,18 @@ class PlotComponentContainer extends Component {
   }
 
   render() {
-    const { scalarField, activeMap, colorMapRange, onClearSelection, selectedSamples, onSampleSelectById } = this.props;
+    const {
+      samples,
+      scalarField,
+      activeMap,
+      colorMapRange,
+      onClearSelection,
+      selectedSamples,
+      selectedSampleKeys,
+      onSampleSelectById,
+      onSampleDeselect,
+      onSampleSelect
+    } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
     
     let scalarSelectOptions = [];
@@ -200,6 +213,17 @@ class PlotComponentContainer extends Component {
             <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
           </div>
         </div>
+
+        <QuaternaryPlotComponent
+          samples={samples}
+          scalarField={scalarField}
+          activeMap={activeMap}
+          colorMapRange={colorMapRange}
+          selectedSampleKeys={selectedSampleKeys}
+          onParamChanged={() => {}}
+          onSampleSelect={onSampleSelect}
+          onSampleDeselect={onSampleDeselect}
+        />
 
         <Table>
           <TableHead>
