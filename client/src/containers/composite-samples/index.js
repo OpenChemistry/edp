@@ -3,6 +3,8 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
 
+import { produce } from 'immer';
+
 import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
 
 import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
@@ -14,7 +16,7 @@ import SamplesDetails from './details';
 import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
 
 import NotFoundPage from '../../components/notFound.js';
-import details from './details';
+import { redWhiteBlue } from 'composition-plot/dist/utils/colors';
 
 const identity = val => val;
 
@@ -122,14 +124,38 @@ const URL_PARAMS = {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'details'),
     callback: function(currValue, nextValue) {
-      const { mlModels } = this.state;
-
-      // If we already fetched the requested ML Model, do nothing
-      if (mlModels[nextValue] !== null) {
+      if (nextValue === 'details') {
         return;
       }
 
-      this.fetchMachineLearningModel(nextValue);
+      const { mlModels } = this.state;
+
+      const model = mlModels[nextValue];
+      const mlModelIteration = model.nIterations;
+
+      // If we already fetched the requested ML Model, do nothing
+      if (this.state.mlModels[nextValue].samples[mlModelIteration]) {
+        return;
+      }
+
+      this.fetchMachineLearningModel(nextValue, mlModelIteration);
+
+      setTimeout(() => {this.onParamChanged('mlModelIteration', mlModelIteration);}, 100);
+    }
+  },
+  mlModelIteration: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 0),
+    callback: function(currValue, nextValue) {
+      const mlModel = this.props.detailsPanel;
+      if (mlModel === 'details') {
+        return;
+      }
+
+      if (this.state.mlModels[mlModel].samples[nextValue]) {
+        return;
+      }
+      this.fetchMachineLearningModel(mlModel, nextValue);
     }
   }
 }
@@ -141,16 +167,26 @@ class CompositeSamplesContainer extends Component {
 
     this.state = {
       mlModels: {
-        'Model 1': null,
-        'Model 2': null,
-        'Model 3': null,
-        'Model 5': null
-      },
-      mlModelsCompare: {
-        'Model 1': null,
-        'Model 2': null,
-        'Model 3': null,
-        'Model 5': null
+        'Model 1': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {}
+        },
+        'Model 2': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {}
+        },
+        'Model 3': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {}
+        },
+        'Model 4': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {}
+        },
       }
     }
   }
@@ -211,9 +247,11 @@ class CompositeSamplesContainer extends Component {
     }
   }
 
-  fetchMachineLearningModel = (modelName) => {
-    console.log("FETCH ML ", modelName);
+  fetchMachineLearningModel = (modelName, modelIteration) => {
     const {samples} = this.props;
+
+    const model = this.state.mlModels[modelName];
+    const delta = 40 * (1 - (modelIteration / model.nIterations)) + Math.random();
 
     let modelSamples = [];
     let modelCompareSamples = [];
@@ -224,7 +262,7 @@ class CompositeSamplesContainer extends Component {
       modelSample.scalars = Object.entries(sample.scalars)
         .map((val) => {
           let [key, value] = val;
-          return [key, value + -5 + Math.random() * 10];
+          return [key, value - delta / 2 + Math.random() * delta];
         })
         .reduce((accumulator, curr) => {
           return {...accumulator, [curr[0]]: curr[1]};
@@ -246,13 +284,11 @@ class CompositeSamplesContainer extends Component {
       modelCompareSamples.push(modelCompareSample);
     }
 
-    this.setState({
-      mlModels: {
-        ...this.state.mlModels, [modelName]: modelSamples
-      },
-      mlModelsCompare: {
-        ...this.state.mlModelsCompare, [modelName]: modelCompareSamples
-      }
+    this.setState((state) => {
+      return produce(state, (draft) => {
+        draft.mlModels[modelName].samples[modelIteration] = modelSamples;
+        draft.mlModels[modelName].samplesCompare[modelIteration] = modelCompareSamples;
+      });
     });
   }
 
@@ -315,15 +351,14 @@ class CompositeSamplesContainer extends Component {
       selectionH,
       plots,
       selectionPanel,
-      detailsPanel
+      detailsPanel,
+      mlModelIteration
     } = this.props;
 
     if (samples.length === 0) {
       // return <NotFoundPage />;
       return null;
     }
-
-    console.log("STATEEEEEEEE" ,this.state);
 
     return (
       <div>
@@ -337,6 +372,8 @@ class CompositeSamplesContainer extends Component {
           selectionPanel={selectionPanel}
           detailsPanel={detailsPanel}
           mlModels={Object.keys(this.state.mlModels)}
+          mlModelIteration={mlModelIteration}
+          nMlModelIteration={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel].nIterations : 1}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
           onSampleSelectById={this.onSampleSelectById}
@@ -363,9 +400,9 @@ class CompositeSamplesContainer extends Component {
 
         {detailsPanel !== 'details' &&
         <Fragment>
-          {this.state.mlModels[detailsPanel] &&
+          {this.state.mlModels[detailsPanel].samples[mlModelIteration] &&
           <QuaternaryPlotComponent
-            samples={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel] : []}
+            samples={this.state.mlModels[detailsPanel].samples[mlModelIteration]}
             scalarField={scalarField}
             activeMap={activeMap}
             colorMapRange={colorMapRange}
@@ -376,12 +413,12 @@ class CompositeSamplesContainer extends Component {
           />
           }
 
-          {this.state.mlModelsCompare[detailsPanel] &&
+          {this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration] &&
           <QuaternaryPlotComponent
-            samples={this.state.mlModelsCompare[detailsPanel] ? this.state.mlModelsCompare[detailsPanel] : []}
+            samples={this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration]}
             scalarField={scalarField}
-            activeMap={activeMap}
-            colorMapRange={[-10, 10]}
+            activeMap={redWhiteBlue}
+            colorMapRange={[-20, 20]}
             selectedSampleKeys={new Set()}
             onParamChanged={() => {}}
             onSampleSelect={() => {}}

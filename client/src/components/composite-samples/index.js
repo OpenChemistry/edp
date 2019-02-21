@@ -73,7 +73,9 @@ class PlotComponentContainer extends Component {
       onSampleSelectById,
       onSampleDeselect,
       onSampleSelect,
-      onParamChanged
+      onParamChanged,
+      mlModelIteration,
+      nMlModelIteration
     } = this.props;
 
     const scalars = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalars() : [];
@@ -210,6 +212,35 @@ class PlotComponentContainer extends Component {
                   }}
                 ></TextField>
                 {/* <Button>Add</Button> */}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        }
+
+        {detailsPanel !== 'details' &&
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Model iteration</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>
+                <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+                  <div style={{flexGrow: 1, paddingRight: 16}}>
+                    <Slider
+                      aria-labelledby="map-range-label"
+                      min={0} max={nMlModelIteration} step={1}
+                      value={mlModelIteration}
+                      onChange={(e, val) => { onParamChanged('mlModelIteration', val); }}
+                    />
+                  </div>
+                  <div>
+                    {mlModelIteration}
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           </TableBody>
