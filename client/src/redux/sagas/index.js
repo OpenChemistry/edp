@@ -24,6 +24,14 @@ import {
   fetchTimeserieSaga
 } from './composites';
 
+import {
+  fetchServerSettingsSaga
+} from './settings';
+
+import {
+  fetchFileSaga
+} from './files';
+
 export default function* root() {
   yield fork(createItemSaga);
   yield fork(fetchItemSaga);
@@ -38,6 +46,10 @@ export default function* root() {
 
   yield fork(fetchSamplesSaga);
   yield fork(fetchTimeserieSaga);
+
+  yield fork(fetchServerSettingsSaga);
+
+  yield fork(fetchFileSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

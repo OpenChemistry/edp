@@ -2,7 +2,7 @@ import { createAction, handleActions } from 'redux-actions';
 
 import { has, isNil } from 'lodash-es';
 
-import { NODES } from '../../utils/nodes';
+import { getNodes } from '../../nodes';
 // Selectors
 
 export const getItems = (state, type) => {
@@ -64,9 +64,14 @@ export const fetchItems = createAction(FETCH_ITEMS_REQUESTED);
 // Reducer
 
 function patchItem(item, type) {
+  const NODES = getNodes();
   item.parentId = null;
   item.type = type;
-  if (!isNil(NODES[type].parentId) && has(item, NODES[type].parentId)) {
+  if (
+    !isNil(NODES[type]) &&
+    !isNil(NODES[type].parentId) &&
+    has(item, NODES[type].parentId)
+  ) {
     item.parentId = item[NODES[type].parentId];
   }
   return item;

@@ -1,4 +1,4 @@
-import { girderClient } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 
 export function lookupResource(path) {
     return girderClient().get(`resource/lookup`, {

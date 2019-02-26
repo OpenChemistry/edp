@@ -3,7 +3,7 @@ import { createAction, handleActions } from 'redux-actions';
 import { has, isNil } from 'lodash-es';
 import produce from 'immer';
 
-import { NODES, parseUrl } from '../../utils/nodes';
+import { getNodes, parseUrl } from '../../nodes';
 
 export const getGlobalMatches = (state) => state.search.global;
 export const getCompositeMatches = (state) => {
@@ -38,6 +38,7 @@ export const searchComposite = createAction(COMPOSITE_SEARCH_REQUESTED);
 
 function patchItem(item) {
   const {path} = item;
+  const NODES = getNodes();
   const ancestors = parseUrl(path);
   const item_ = ancestors.pop();
   const {type} = item_;

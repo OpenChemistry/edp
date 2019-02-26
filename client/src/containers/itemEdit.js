@@ -11,8 +11,10 @@ import { getItem, fetchItem, createItem, updateItem } from '../redux/ducks/items
 import ItemEdit from '../components/itemEdit';
 import NotFoundPage from '../components/notFound.js';
 
-import { createFieldsFactory } from '../utils/fields';
-import { NODES, ROOT_NODE, makeUrl, parseUrlMatch } from '../utils/nodes';
+import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
+import { ROOT_NODE } from '../nodes/root';
+
+import { getServerSettings } from '../redux/ducks/settings';
 
 class ItemEditContainer extends Component {
 
@@ -22,15 +24,21 @@ class ItemEditContainer extends Component {
 
   componentDidUpdate(prevProps) {
     const prevItem = prevProps.item;
-    const item = this.props.item;
-    if (prevItem._id !== item._id) {
+    const prevDeployment = prevProps.deployment;
+    const { item, deployment } = this.props;
+    if (prevItem._id !== item._id || prevDeployment !== deployment) {
       this.requestItems();
     }
   }
 
   requestItems() {
-    const { ancestors, item, create, dispatch } = this.props;
+    const { ancestors, item, create, deployment, dispatch } = this.props;
     if (!create) {
+
+      if (isNil(deployment)) {
+        return;
+      }
+
       if (item.type !== ROOT_NODE) {
         dispatch(fetchItem({ancestors, item}));
       }
@@ -39,6 +47,7 @@ class ItemEditContainer extends Component {
 
   onSubmit = (values) => {
     const { ancestors, item, create, dispatch } = this.props;
+    const NODES = getNodes();
     const actionCreator = create ? createItem : updateItem;
     values.type = item.type;
     if (NODES[item.type].parentId) {
@@ -67,6 +76,7 @@ class ItemEditContainer extends Component {
   
   render() {
     const { item, create } = this.props;
+    const NODES = getNodes();
     
     if (!create && isNil(item.fields)) {
       return <NotFoundPage />;
@@ -86,6 +96,7 @@ class ItemEditContainer extends Component {
 function mapStateToProps(state, ownProps) {
   const create = ownProps.match.params.action === 'add';
   let ancestors = parseUrlMatch(ownProps.match);
+  const { deployment } = getServerSettings(state);
 
   let item;
   if (ancestors.length === 0) {
@@ -104,6 +115,7 @@ function mapStateToProps(state, ownProps) {
     create,
     ancestors,
     item,
+    deployment,
     initialValues: item.fields,
     currentValues: getFormValues('itemEdit')(state)
   };

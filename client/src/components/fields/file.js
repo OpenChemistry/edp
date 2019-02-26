@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import { getUploadByFile } from '../../redux/ducks/files';
+import { getUploadByFile } from '../../redux/ducks/uploads';
 import filesize from 'filesize';
 import uuid4 from 'uuid/v4';
 

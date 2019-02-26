@@ -9,7 +9,7 @@ import { auth as authUI} from '@openchemistry/girder-ui';
 
 class Header extends Component {
   render() {
-    const { loggedIn, onLogoClick, onSearchClick } = this.props;
+    const { loggedIn, showMenu, showSearch, onLogoClick, onSearchClick } = this.props;
     return (
       <AppBar color="default" position="static">
         <Toolbar>
@@ -20,12 +20,17 @@ class Header extends Component {
           </Button>
           <div style={{flex: 1}}>
           </div>
-          { loggedIn ? <IconButton onClick={onSearchClick}><Search/></IconButton> : null}
-          { loggedIn ? <authUI.UserMenu/> : <authUI.LoginButton />}
+          { showSearch && loggedIn  ? <IconButton onClick={onSearchClick}><Search/></IconButton> : null}
+          { showMenu ? (loggedIn ? <authUI.UserMenu/> : <authUI.LoginButton/>) : null }
         </Toolbar>
       </AppBar>
     );
   }
 }
+
+Header.defaultProps = {
+  showMenu: false,
+  showLogin: false
+};
 
 export default Header;

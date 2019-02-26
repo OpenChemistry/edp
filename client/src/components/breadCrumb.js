@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import HomeIcon from '@material-ui/icons/Home';
-import { NODES } from '../utils/nodes';
+import { getNodes } from '../nodes';
 
 const linkStyle = {
   // textDecoration: 'underline',
@@ -20,6 +20,7 @@ const style = {
 class BreadCrumb extends Component {
   render() {
     const {ancestors, onSegmentClick} = this.props;
+    const NODES = getNodes();
 
     if (ancestors.length === 0) {
       return null;
@@ -38,11 +39,21 @@ class BreadCrumb extends Component {
 
     for (let i = 0; i < ancestors.length; ++i) {
       let ancestor = ancestors[i];
+      let label = "";
+      if (NODES[ancestor.type]) {
+        label = NODES[ancestor.type].label;
+        if (ancestor.fields) {
+          label += ' - ';
+          label += NODES[ancestor.type].primaryPrefix ? `${NODES[ancestor.type].primaryPrefix} ` : '';
+          label += ancestor.fields[NODES[ancestor.type].primaryField]
+          label += NODES[ancestor.type].primaryPrefix ? ` ${NODES[ancestor.type].primarySuffix}` : '';
+        }
+      }
       segments.push(
         <div key={i}>
           &nbsp;&nbsp;/&nbsp;&nbsp;
           <span  style={linkStyle} onClick={() => {onSegmentClick(i)}}>
-            {NODES[ancestor.type].label} {ancestor._id.slice(-maxLen)}
+            {label}
           </span>
         </div>
       );

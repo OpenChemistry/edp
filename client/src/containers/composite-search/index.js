@@ -5,9 +5,8 @@ import { push } from 'connected-react-router';
 import { debounce } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
-import { createFieldsFactory } from '../../utils/fields';
-import { makeUrl } from '../../utils/nodes';
-import { COMPOSITE_SEARCH } from '../../utils/search';
+import { createFieldsFactory, makeUrl } from '../../nodes';
+import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
 import SearchResults from '../../components/composite-search/results';
 import SearchPending from '../../components/search/pending';

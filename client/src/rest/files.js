@@ -1,4 +1,4 @@
-import { girderClient } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 
 // Folder
 export function getFolder(parentId, parentType, name) {
@@ -37,6 +37,11 @@ export function createFile(parentId, parentType, name, size, mimeType) {
       mimeType,
     }
   })
+  .then(response => response.data );
+}
+
+export function getFile(id) {
+  return girderClient().get(`file/${id}`)
   .then(response => response.data );
 }
 

@@ -1,6 +1,6 @@
-import { girderClient } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 
-import { makeUrl } from '../utils/nodes';
+import { makeUrl } from '../nodes';
 
 const prefix = 'edp';
 
