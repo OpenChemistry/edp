@@ -1,4 +1,5 @@
 from .base import Base
+from bson.objectid import ObjectId
 
 
 class TimeSeries(Base):
@@ -18,6 +19,14 @@ class TimeSeries(Base):
                     'expose': True,
                     'create': True,
                     'mutable': False
+                },
+                {
+                    'name': 'runId',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False,
+                    'ensure_index': True,
+                    'type': ObjectId
                 }
             ),
             parent_model=Sample,

@@ -11,17 +11,6 @@ class Sample(Base):
             name='edp.samples',
             props=(
                 {
-                    'name': 'runId',
-                    'expose': True,
-                    'create': True,
-                    'mutable': False,
-                    'ensure_index': True,
-                    'query': {
-                        'selector': '$eq'
-                     },
-                    'type': ObjectId
-                },
-                {
                     'name': 'sampleNum',
                     'expose': True,
                     'create': True,

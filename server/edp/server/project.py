@@ -21,9 +21,9 @@ from girder.plugins.edp.models.sample import Sample as SampleModel
 from girder.plugins.edp.models.timeseries import TimeSeries as TimeSeriesModel
 from girder.plugins.edp.models.platemap import PlateMap as PlateMapModel
 from .sample import Sample
+from .timeseries import TimeSeries
 from . import configuration
 from . import constants
-
 
 
 class Route(object):
@@ -50,6 +50,7 @@ class Project(Resource):
         super(Project, self).__init__()
         deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
         project_route = self.add_route('projectId', self)
+
         if deployment == constants.SOW10_DEPLOYMENT:
             batch_route = project_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
             batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
@@ -65,7 +66,8 @@ class Project(Resource):
             composite_route.add_child_route(RunModel().url, 'runId', resource.create(RunModel)())
             platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
             sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
-            sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', resource.create(TimeSeriesModel)())
+            sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
+
             self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
 
     def add_route(self, id_name, resource):

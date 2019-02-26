@@ -1,4 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
+import { merge } from "lodash"
 
 const initialState = {
   samples: [],
@@ -48,7 +49,10 @@ const reducer = handleActions({
     if (timeseries.length === 0) {
       return state;
     }
-    const timeserie = timeseries[0];
+
+    // For now merge into a single object
+    const timeserie = merge({}, ...timeseries);
+
     return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: timeserie.data}};
   },
 }, initialState);
