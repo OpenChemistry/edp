@@ -40,7 +40,9 @@ setup(
     install_requires=[
         'girder_client',
         'click',
-        'pyparsing==2.2.0'
+        'pyparsing==2.2.0',
+        'boto3',
+        'bson'
     ],
     entry_points= {
         'console_scripts': [

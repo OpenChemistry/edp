@@ -10,6 +10,7 @@ import json
 from girder_client import GirderClient
 from edp.composite import _ingest_runs, _ingest_samples
 import importlib
+from edp.deploy import deploy
 
 class GC(GirderClient):
 
@@ -222,4 +223,11 @@ def _ingest_composite(project, dir, channel_map, api_url, api_key):
 
     _ingest_samples(gc, project, composite, dir, experiments, channel_map)
 
-
+@cli.command('deploy_static', help='Extract data from Girder and deploy static files to S3')
+@click.option('-b', '--bucket', default=None, help='the S3 bucket to deploy to', required=True)
+@click.option('-p', '--prefix', default='', help='the bucket prefix')
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1',
+              help='RESTful API URL for the instance we extracting from '
+                   '(e.g https://girder.example.com/api/v1)')
+def _deploy_static(bucket, prefix, api_url):
+    deploy(api_url, 'edp/projects', ('batches', 'tests'), bucket, prefix)
