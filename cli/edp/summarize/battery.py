@@ -33,12 +33,12 @@ def summarize(filepath):
     stdev = stats.stdev(max_discharge_capacities, mean)
     range = [min(max_discharge_capacities), mean + stdev*2]
     return {
-        'Maximum Discharge Capacity Per Cycle': {
+        'Discharge capacity vs cycle number': {
             'x': {
-                'label': 'Cycle Index'
+                'label': 'Cycle number'
             },
             'y': {
-                'label': 'Maximum Discharge Capacity (Ah)',
+                'label': 'Discharge capacity (Ah)',
                 'data': max_discharge_capacities,
                 'range': range
             }
