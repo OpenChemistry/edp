@@ -42,7 +42,8 @@ setup(
         'click',
         'pyparsing==2.2.0',
         'boto3',
-        'bson'
+        'bson',
+        'pytz'
     ],
     entry_points= {
         'console_scripts': [
