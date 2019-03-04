@@ -40,7 +40,7 @@ class BreadCrumb extends Component {
     for (let i = 0; i < ancestors.length; ++i) {
       let ancestor = ancestors[i];
       let label = "";
-      if (NODES[ancestor.type]) {
+      if (ancestor.type && NODES[ancestor.type]) {
         label = NODES[ancestor.type].label;
         if (ancestor.fields) {
           label += ' - ';
