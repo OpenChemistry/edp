@@ -75,7 +75,9 @@ class PlotComponentContainer extends Component {
       onSampleSelect,
       onParamChanged,
       mlModelIteration,
-      nMlModelIteration
+      nMlModelIteration,
+      mlModelMetric,
+      mlModelMetrics
     } = this.props;
 
     const scalars = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalars() : [];
@@ -94,6 +96,11 @@ class PlotComponentContainer extends Component {
     let detailsPanelOptions = [];
     for (let name of ['details'].concat(mlModels || [])) {
       detailsPanelOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
+    }
+
+    let metricOptions = [];
+    for (let name of mlModelMetrics || []) {
+      metricOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
     }
 
     return (
@@ -222,11 +229,23 @@ class PlotComponentContainer extends Component {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Model iteration</TableCell>
+              <TableCell>Difference metric</TableCell>
+              <TableCell>
+              Model iteration
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
+              <TableCell>
+                <Select
+                  value={mlModelMetric}
+                  onChange={(e) => {onParamChanged('mlModelMetric', e.target.value)}}
+                  inputProps={{name: 'mlModelMetric', id: 'model-metrics'}}
+                >
+                  {metricOptions}
+                </Select>
+              </TableCell>
               <TableCell>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
