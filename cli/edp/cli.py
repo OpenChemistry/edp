@@ -11,6 +11,7 @@ from girder_client import GirderClient
 from edp.composite import _ingest_runs, _ingest_samples, _ingest_run_data
 import importlib
 from edp.deploy import deploy
+import pytz
 
 class GC(GirderClient):
 
@@ -55,7 +56,9 @@ class GC(GirderClient):
 def cli():
     pass
 
-def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
+def _ingest_batch(gc, data_folder, project, cycle, dir, public,
+                  summary_func, timezone):
+    timezone = pytz.timezone(timezone)
 
     # Loady summary function
     if summary_func is not None:
@@ -116,7 +119,8 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
             reader = csv.DictReader(f)
             row = next(reader)
             start_date = row['first_start_datetime']
-            start_date = datetime.datetime.fromtimestamp(int(start_date)).strftime('%Y-%m-%d')
+            start_date = datetime.datetime.fromtimestamp(
+                int(start_date), tz=timezone).strftime('%Y-%m-%d')
             cell_id = row['item_id']
             schedule_file = row['schedule_file_name']
 
@@ -158,7 +162,8 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public, summary_func):
 @click.option('-b', '--public', is_flag=True,
               help='Marked the data as public')
 @click.option('-s', '--summary-func', default=None, help='Fully qualified name of function to summarize test data.')
-def _ingest(project, cycle, api_url, api_key, dir, public, summary_func):
+@click.option('-z', '--timezone', default='UTC', help='The timezone (pyz format) for any timestamp conversion.')
+def _ingest(project, cycle, api_url, api_key, dir, public, summary_func, timezone):
     gc = GC(api_url=api_url, api_key=api_key)
 
     # Try to get edp data folder
@@ -190,7 +195,7 @@ def _ingest(project, cycle, api_url, api_key, dir, public, summary_func):
         batch_dirs = [dir]
 
     for batch_dir in batch_dirs:
-        _ingest_batch(gc, data_folder, project, cycle, batch_dir, public, summary_func)
+        _ingest_batch(gc, data_folder, project, cycle, batch_dir, public, summary_func, timezone)
 
 @cli.command('ingest_composite', help='Ingest composite data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)
