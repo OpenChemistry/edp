@@ -6,7 +6,9 @@ from . import constants
 from girder.utility import setting_utilities
 
 @setting_utilities.validator({
-    constants.CONFIGURATION_DEPLOYMENT
+    constants.CONFIGURATION_DEPLOYMENT,
+    constants.CONFIGURATION_LICENSE,
+    constants.CONFIGURATION_PRIVACY
 })
 def validateSettings(event):
     pass

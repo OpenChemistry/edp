@@ -17,5 +17,8 @@ class Configuration(Resource):
     )
     def get(self):
         return {
-            'deployment': Setting().get(constants.CONFIGURATION_DEPLOYMENT)
+            'deployment': Setting().get(constants.CONFIGURATION_DEPLOYMENT),
+            'license': Setting().get(constants.CONFIGURATION_LICENSE),
+            'privacy': Setting().get(constants.CONFIGURATION_PRIVACY),
+
         }
