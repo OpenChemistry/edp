@@ -44,7 +44,7 @@ function mapStateToProps(state, ownProps) {
   }
 
   return {
-    timeseries: Array.concat(rawTimeseries, fittedTimeseries)
+    timeseries: rawTimeseries.concat(fittedTimeseries)
   };
 }
 
