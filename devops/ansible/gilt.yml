@@ -1,0 +1,5 @@
+- git: git@github.com:cryos/oc-deployments.git
+  version: master
+  files:
+    - src: edp/devops/ansible/host_vars/
+      dst: host_vars/
