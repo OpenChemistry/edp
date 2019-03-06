@@ -1,5 +1,5 @@
 - name: Setting up Girder
-  hosts: localhost
+  hosts: all
   vars:
     required_ansible_version: 2.1.0
   tasks:
