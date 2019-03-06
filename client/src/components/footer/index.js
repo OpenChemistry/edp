@@ -22,11 +22,11 @@ export default (props) => {
       <Typography variant='caption'>
         {license &&
         <span>
-          All data is released under this <a href={license} target='_blank'>license</a>
+          All data is released under <a href={license.url} target='_blank'>{license.label}</a>
         </span>
         }
         {privacy &&
-        <a style={style.privacy} href={privacy} target='_blank'>Privacy Policy</a>
+        <a style={style.privacy} href={privacy.url} target='_blank'>{privacy.label}</a>
         }
       </Typography>
     </div>
