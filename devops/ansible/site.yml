@@ -132,6 +132,15 @@
           "key": "edp.configuration.deployment",
           "value": "{{ edp_deployment }}"
         }
+        - {
+          "key": "edp.configuration.license",
+          "value": "{{ edp_license | to_json }}"
+        }
+        - {
+          "key": "edp.configuration.privacy",
+          "value": "{{ edp_privacy | to_json }}"
+        }
+      tags: configure
 
     - name: Enable OAuth plugin
       girder:

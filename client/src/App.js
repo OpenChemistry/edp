@@ -5,6 +5,7 @@ import './App.css';
 import { Switch, Route } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router'
 
+import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { history } from './redux/store';
@@ -21,18 +22,42 @@ import ItemEdit from './containers/itemEdit';
 import SearchContainer from './containers/search';
 import CompositeSamplesView from './containers/composite-samples';
 
+import Footer from './containers/footer';
+
+const appStyles = theme => ({
+  root: {
+    width: '100%',
+    minHeight: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  content: {
+    flexGrow:1,
+    position: 'relative',
+    width: '100%',
+    maxWidth: '70rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    marginTop: '0.5rem'
+  },
+  footer: {
+
+  }
+});
+
 class App extends Component {
   render() {
     let development = false;
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       development = true;
     }
+    const {classes} = this.props;
     return (
-      <div className="App">
+      <div className={classes.root}>
         <CssBaseline />
         <Header />
         <ConnectedRouter history={history}>
-          <div className="content">
+          <div className={classes.content}>
             <BreadCrumb/>
             <Switch>
               <PrivateRoute path={'/:url0/:action(add)'} exact component={ItemEdit} />
@@ -58,6 +83,9 @@ class App extends Component {
             </Switch>
           </div>
         </ConnectedRouter>
+        <div className={classes.footer}>
+          <Footer />
+        </div>
         <authUI.LoginOptions girder={development}/>
         <authUI.GirderLogin/>
         <authUI.OauthRedirect/>
@@ -66,4 +94,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withStyles(appStyles)(App);
