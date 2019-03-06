@@ -9,3 +9,5 @@
 .project
 .pydevproject
 .pytest_cache/
+devops/ansible/host_vars/
+gilt.yml
