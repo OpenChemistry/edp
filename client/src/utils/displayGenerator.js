@@ -47,14 +47,17 @@ export function renderDisplayFields(fields, exclude = null) {
       case 'date':
       case 'textarea':
       case 'text': {
+        const paragraphs = value.split('\n').map((p) => (
+          <Typography  paragraph>
+            {p}
+          </Typography>
+        ));
         displayFields.push(
           <div key={key} hidden={hidden}>
             <Typography gutterBottom variant="subheading" color="textSecondary">
               {label}
             </Typography>
-            <Typography  paragraph>
-              {value}
-            </Typography>
+              {paragraphs}
           </div>
         );
         break;

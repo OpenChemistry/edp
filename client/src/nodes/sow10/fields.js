@@ -32,8 +32,7 @@ function createProjectFields(project) {
       label: 'Start date',
       type: 'date',
       value: project ? project.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
+      error: ''
     },
     'title' : {
       label: 'Title',
@@ -44,7 +43,7 @@ function createProjectFields(project) {
     },
     'objective' : {
       label: 'Objective',
-      type: 'text',
+      type: 'textarea',
       value: project ? project.objective : '',
       error: '',
       validate: [required]
@@ -70,8 +69,7 @@ function createBatchFields(batch) {
       label: 'Start date',
       type: 'date',
       value: batch ? batch.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
+      error: ''
     },
     'title' : {
       label: 'Title',
@@ -162,8 +160,7 @@ function createTest0Fields(test = undefined) {
       label: 'Battery type',
       type: 'text',
       value: test ? test.batteryType : '',
-      error: '',
-      validate: [required]
+      error: ''
     },
     'cellId' : {
       label: 'Cell ID',
