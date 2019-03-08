@@ -57,9 +57,7 @@ export function renderDisplayFields(fields, exclude = null) {
             <Typography gutterBottom variant="subheading" color="textSecondary">
               {label}
             </Typography>
-            <Typography  paragraph>
               {paragraphs}
-            </Typography>
           </div>
         );
         break;
