@@ -190,27 +190,20 @@ function createTest0Fields(test = undefined) {
     },
     'scheduleFile' : {
       label: 'Schedule file',
-      type: 'text',
+      type: 'file',
       value: test ? test.scheduleFile : '',
-      error: '',
-      validate: [required]
+      error: ''
+    },
+    'scheduleFileId' : {
+      label: 'Schedule file',
+      type: 'fileId',
+      value: test ? test.scheduleFileId : null,
+      error: ''
     },
     'metaDataFile' : {
       label: 'Metadata file',
       type: 'file',
       value: test ? test.metaDataFile : '',
-      error: ''
-    },
-    'dataFile' : {
-      label: 'Data file',
-      type: 'file',
-      value: test ? test.dataFile : '',
-      error: ''
-    },
-    'comments': {
-      label: 'Comments',
-      type: 'textarea',
-      value: test ? test.comments : '',
       error: ''
     },
     'metaDataFileId' : {
@@ -219,10 +212,22 @@ function createTest0Fields(test = undefined) {
       value: test ? test.metaDataFileId : null,
       error: ''
     },
+    'dataFile' : {
+      label: 'Data file',
+      type: 'file',
+      value: test ? test.dataFile : '',
+      error: ''
+    },
     'dataFileId' : {
       label: 'Data file',
       type: 'fileId',
       value: test ? test.dataFileId : null,
+      error: ''
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: test ? test.comments : '',
       error: ''
     },
     'public': {
