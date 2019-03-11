@@ -130,7 +130,6 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
         data_file = gc.uploadFileToFolder(data_folder['_id'], data_file_path)
 
         if summary_func is not None:
-            print(data_file_path)
             summary = summary_func(data_file_path)
 
         test = {
