@@ -56,7 +56,7 @@ export const NODES = {
     url: 'tests',
     children: [],
     parentId: 'batchId',
-    fileFields: ['dataFile', 'metaDataFile'],
+    fileFields: ['scheduleFile', 'dataFile', 'metaDataFile'],
     primaryField: 'name',
     secondaryField: 'channel',
     secondaryPrefix: 'Channel',

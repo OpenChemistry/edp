@@ -82,10 +82,11 @@ class CycleTest(Base):
                     'mutable': True
                 },
                 {
-                    'name': 'scheduleFile',
+                    'name': 'scheduleFileId',
                     'expose': True,
                     'create': True,
-                    'mutable': True
+                    'mutable': True,
+                    'type': 'file'
                 },
                 {
                     'name': 'public',
