@@ -22,6 +22,8 @@ import ItemEdit from './containers/itemEdit';
 import SearchContainer from './containers/search';
 import CompositeSamplesView from './containers/composite-samples';
 
+import MultidimensionContainer from './containers/multidimension';
+
 import Footer from './containers/footer';
 
 const appStyles = theme => ({
@@ -78,6 +80,8 @@ class App extends Component {
               <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
 
               <Route path={'/search'} exact component={SearchContainer} />
+
+              <Route path={'/multidimension'} exact component={MultidimensionContainer} />
 
               <Route path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
