@@ -1,6 +1,7 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
+import ReactMarkdown from 'react-markdown'
 
 import { isNil } from 'lodash-es';
 
@@ -47,17 +48,16 @@ export function renderDisplayFields(fields, exclude = null) {
       case 'date':
       case 'textarea':
       case 'text': {
-        const paragraphs = value.split('\n').map((p) => (
-          <Typography  paragraph>
-            {p}
-          </Typography>
-        ));
         displayFields.push(
           <div key={key} hidden={hidden}>
             <Typography gutterBottom variant="subheading" color="textSecondary">
               {label}
             </Typography>
-              {paragraphs}
+            <Typography component='div'>
+              <ReactMarkdown >
+                {value}
+              </ReactMarkdown>
+            </Typography>
           </div>
         );
         break;
