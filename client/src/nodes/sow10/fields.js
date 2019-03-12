@@ -102,8 +102,7 @@ function createBatchFields(batch) {
       label: 'Data notes',
       type: 'textarea',
       value: batch ? batch.dataNotes : '',
-      error: '',
-      validate: [required]
+      error: ''
     },
     'completed': {
       label: 'Completed',
