@@ -238,3 +238,134 @@
         password: "{{ edpadmin_password }}"
         put:
           path: "system/restart"
+
+    - name: Wait until server restarts
+      wait_for:
+        host="{{girder_host}}"
+        port="{{girder_port}}"
+        delay=5
+
+    - name: Create images folder
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        folder:
+          parentType: "collection"
+          parentId: "{{edp_collection['gc_return']['_id'] }}"
+          name: "images"
+          description: "EDP images folder"
+          public: yes
+          access:
+            groups:
+              - name: edp
+                type: admin
+        state: present
+      register: images_folder
+      when: favicon_path is defined or logo_path is defined
+
+    - name: Create favicon item
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        item:
+          name: "{{ favicon_path | basename }}"
+          folderId: "{{ images_folder['gc_return']['_id'] }}"
+        state: present
+      register: favicon_item
+      when: favicon_path is defined
+
+    - name: Upload favicon
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        files:
+          itemId: "{{ favicon_item['gc_return']['_id'] }}"
+          sources:
+            - "{{ playbook_dir }}/{{ favicon_path }}"
+        state: present
+      when: favicon_path is defined
+
+    - name: Lookup favicon file
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        get:
+          path: "item/{{ favicon_item['gc_return']['_id'] }}/files"
+
+      register: favicon_file
+      when: favicon_item is defined
+
+    - name: Create logo item
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        item:
+          name: "{{ logo_path | basename }}"
+          folderId: "{{ images_folder['gc_return']['_id'] }}"
+        state: present
+      register: logo_item
+      when: logo_path is defined
+
+    - name: Upload logo
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        files:
+          itemId: "{{ logo_item['gc_return']['_id'] }}"
+          sources:
+            - "{{ playbook_dir }}/{{ logo_path }}"
+        state: present
+      when: logo_path is defined
+
+    - name: Lookup logo file
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        get:
+          path: "item/{{ logo_item['gc_return']['_id'] }}/files"
+
+      register: logo_file
+      when: logo_item is defined
+
+    - name: Set logo and favicon file IDs
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.favicon.file.id",
+          "value": "{{ favicon_file['gc_return'][0]['_id'] }}"
+        }
+        - {
+          "key": "edp.configuration.logo.file.id",
+          "value": "{{ logo_file['gc_return'][0]['_id'] }}"
+        }
+      when: logo_file is defined and favicon_file is defined

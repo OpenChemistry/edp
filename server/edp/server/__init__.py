@@ -8,7 +8,9 @@ from girder.utility import setting_utilities
 @setting_utilities.validator({
     constants.CONFIGURATION_DEPLOYMENT,
     constants.CONFIGURATION_LICENSE,
-    constants.CONFIGURATION_PRIVACY
+    constants.CONFIGURATION_PRIVACY,
+    constants.CONFIGURATION_FAVICON_ID,
+    constants.CONFIGURATION_LOGO_ID
 })
 def validateSettings(event):
     pass

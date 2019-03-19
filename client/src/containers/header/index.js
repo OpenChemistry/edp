@@ -8,9 +8,11 @@ import { ROOT_ROUTE } from '../../routes';
 import Header from '../../components/header/';
 
 import { auth } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 import { getServerSettings } from '../../redux/ducks/settings';
 import { SOW10 } from '../../nodes';
-import { isNil } from 'lodash-es';
+import { isNil, isEmpty } from 'lodash-es';
+import logo from '../../assets/logo.svg';
 
 class HeaderContainer extends Component {
 
@@ -35,7 +37,8 @@ class HeaderContainer extends Component {
 
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
-  const { deployment } = getServerSettings(state);
+  const settings = getServerSettings(state);
+  const { deployment, logoId } = settings;
 
   const props = {
       loggedIn
@@ -45,6 +48,15 @@ function mapStateToProps(state) {
     props.showMenu = deployment !== SOW10;
     props.showSearch = deployment !== SOW10;
   }
+
+  if (!isNil(logoId)) {
+    const baseUrl = girderClient().getBaseURL();
+    props.logo = `${baseUrl}/file/${logoId}/download`
+  }
+  else if (!isEmpty(settings)) {
+    props.logo = logo;
+  }
+
 
   return props
 }
