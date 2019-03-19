@@ -23,6 +23,7 @@ import SearchContainer from './containers/search';
 import CompositeSamplesView from './containers/composite-samples';
 
 import Footer from './containers/footer';
+import Head from './containers/head';
 
 const appStyles = theme => ({
   root: {
@@ -54,6 +55,7 @@ class App extends Component {
     const {classes} = this.props;
     return (
       <div className={classes.root}>
+        <Head />
         <CssBaseline />
         <Header />
         <ConnectedRouter history={history}>

@@ -3,13 +3,11 @@ import React, { Component } from 'react';
 import { AppBar, Toolbar, Button, IconButton } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 
-import logo from '../../assets/logo.svg';
-
 import { auth as authUI} from '@openchemistry/girder-ui';
 
 class Header extends Component {
   render() {
-    const { loggedIn, showMenu, showSearch, onLogoClick, onSearchClick } = this.props;
+    const { loggedIn, showMenu, showSearch, onLogoClick, onSearchClick, logo } = this.props;
     return (
       <AppBar color="default" position="static">
         <Toolbar>
