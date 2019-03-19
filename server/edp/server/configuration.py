@@ -16,9 +16,16 @@ class Configuration(Resource):
         Description('Get the site configuration.')
     )
     def get(self):
-        return {
+        config = {
             'deployment': Setting().get(constants.CONFIGURATION_DEPLOYMENT),
             'license': Setting().get(constants.CONFIGURATION_LICENSE),
             'privacy': Setting().get(constants.CONFIGURATION_PRIVACY),
-
         }
+
+        if Setting().get(constants.CONFIGURATION_LOGO_ID) is not None:
+            config['logoId'] = Setting().get(constants.CONFIGURATION_LOGO_ID)
+
+        if Setting().get(constants.CONFIGURATION_FAVICON_ID) is not None:
+            config['faviconId'] = Setting().get(constants.CONFIGURATION_FAVICON_ID)
+
+        return config
