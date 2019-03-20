@@ -19,7 +19,8 @@ def extract_url(api_url, s3_bucket, s3_bucket_prefix, path):
 
     # Now extract any files we need to upload
     doc = r.json()
-    extract_files(api_url, s3_bucket, s3_bucket_prefix, doc)
+    if isinstance(doc, dict):
+        extract_files(api_url, s3_bucket, s3_bucket_prefix, doc)
 
 def upload_file(api_url, s3_bucket, s3_bucket_prefix, file_id):
     file_url = '%s/file/%s' % (api_url, file_id)
