@@ -280,6 +280,12 @@
       register: favicon_item
       when: favicon_path is defined
 
+    - name: Copy over favicon
+      copy:
+        src: "{{ playbook_dir }}/{{ favicon_path }}"
+        dest: "/tmp/{{ favicon_path | basename }}"
+      when: favicon_path is defined
+
     - name: Upload favicon
       girder:
         host: "{{girder_host}}"
@@ -290,7 +296,7 @@
         files:
           itemId: "{{ favicon_item['gc_return']['_id'] }}"
           sources:
-            - "{{ playbook_dir }}/{{ favicon_path }}"
+            - "/tmp/{{ favicon_path | basename }}"
         state: present
       when: favicon_path is defined
 
@@ -321,6 +327,12 @@
       register: logo_item
       when: logo_path is defined
 
+    - name: Copy over logo
+      copy:
+        src: "{{ playbook_dir }}/{{ logo_path }}"
+        dest: "/tmp/{{ logo_path | basename }}"
+      when: logo_path is defined
+
     - name: Upload logo
       girder:
         host: "{{girder_host}}"
@@ -331,7 +343,7 @@
         files:
           itemId: "{{ logo_item['gc_return']['_id'] }}"
           sources:
-            - "{{ playbook_dir }}/{{ logo_path }}"
+            - "/tmp/{{ logo_path | basename }}"
         state: present
       when: logo_path is defined
 

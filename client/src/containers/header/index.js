@@ -38,7 +38,7 @@ class HeaderContainer extends Component {
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
   const settings = getServerSettings(state);
-  const { deployment, logoId } = settings;
+  const { deployment, logoFileId } = settings;
 
   const props = {
       loggedIn
@@ -49,9 +49,9 @@ function mapStateToProps(state) {
     props.showSearch = deployment !== SOW10;
   }
 
-  if (!isNil(logoId)) {
+  if (!isNil(logoFileId)) {
     const baseUrl = girderClient().getBaseURL();
-    props.logo = `${baseUrl}/file/${logoId}/download`
+    props.logo = `${baseUrl}/file/${logoFileId}/download`
   }
   else if (!isEmpty(settings)) {
     props.logo = logo;

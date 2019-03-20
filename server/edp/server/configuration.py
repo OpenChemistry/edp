@@ -23,9 +23,9 @@ class Configuration(Resource):
         }
 
         if Setting().get(constants.CONFIGURATION_LOGO_ID) is not None:
-            config['logoId'] = Setting().get(constants.CONFIGURATION_LOGO_ID)
+            config['logoFileId'] = Setting().get(constants.CONFIGURATION_LOGO_ID)
 
         if Setting().get(constants.CONFIGURATION_FAVICON_ID) is not None:
-            config['faviconId'] = Setting().get(constants.CONFIGURATION_FAVICON_ID)
+            config['faviconFileId'] = Setting().get(constants.CONFIGURATION_FAVICON_ID)
 
         return config
