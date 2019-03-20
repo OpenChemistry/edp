@@ -20,14 +20,13 @@ class Head extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  console.log(state)
   const settings = getServerSettings(state);
-  const { faviconId } = settings;
+  const { faviconFileId } = settings;
 
   let faviconUrl = null;
-  if (!isNil(faviconId)) {
+  if (!isNil(faviconFileId)) {
     const baseUrl = girderClient().getBaseURL();
-    faviconUrl = `${baseUrl}/file/${faviconId}/download`;
+    faviconUrl = `${baseUrl}/file/${faviconFileId}/download`;
   }
   else if (!isEmpty(settings)) {
     faviconUrl = `${window.PUBLIC_URL}/favicon.png`
