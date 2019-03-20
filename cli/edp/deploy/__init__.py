@@ -17,6 +17,10 @@ def extract_url(api_url, s3_bucket, s3_bucket_prefix, path):
     click.echo(click.style('Uploading to S3: %s' % s3_path, fg='yellow'))
     s3_bucket.put_object(Key=s3_path, Body=r.content, ContentType='application/json')
 
+    # Now extract any files we need to upload
+    doc = r.json()
+    extract_files(api_url, s3_bucket, s3_bucket_prefix, doc)
+
 def upload_file(api_url, s3_bucket, s3_bucket_prefix, file_id):
     file_url = '%s/file/%s' % (api_url, file_id)
     file_download_url = '%s/download' % file_url
