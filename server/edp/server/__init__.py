@@ -10,7 +10,9 @@ from girder.utility import setting_utilities
     constants.CONFIGURATION_LICENSE,
     constants.CONFIGURATION_PRIVACY,
     constants.CONFIGURATION_FAVICON_ID,
-    constants.CONFIGURATION_LOGO_ID
+    constants.CONFIGURATION_HEADER_LOGO_ID,
+    constants.CONFIGURATION_FOOTER_LOGO_ID,
+    constants.CONFIGURATION_FOOTER_LOGO_URL
 })
 def validateSettings(event):
     pass

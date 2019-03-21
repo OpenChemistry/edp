@@ -313,7 +313,7 @@
       register: favicon_file
       when: favicon_item is defined
 
-    - name: Create logo item
+    - name: Create header logo item
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -321,19 +321,19 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         item:
-          name: "{{ logo_path | basename }}"
+          name: "{{ header_logo_path | basename }}"
           folderId: "{{ images_folder['gc_return']['_id'] }}"
         state: present
-      register: logo_item
-      when: logo_path is defined
+      register: header_logo_item
+      when: header_logo_path is defined
 
-    - name: Copy over logo
+    - name: Copy over header logo
       copy:
-        src: "{{ playbook_dir }}/{{ logo_path }}"
-        dest: "/tmp/{{ logo_path | basename }}"
-      when: logo_path is defined
+        src: "{{ playbook_dir }}/{{ header_logo_path }}"
+        dest: "/tmp/{{ header_logo_path | basename }}"
+      when: header_logo_path is defined
 
-    - name: Upload logo
+    - name: Upload header logo
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -341,13 +341,13 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         files:
-          itemId: "{{ logo_item['gc_return']['_id'] }}"
+          itemId: "{{ header_logo_item['gc_return']['_id'] }}"
           sources:
-            - "/tmp/{{ logo_path | basename }}"
+            - "/tmp/{{ header_logo_path | basename }}"
         state: present
-      when: logo_path is defined
+      when: header_logo_path is defined
 
-    - name: Lookup logo file
+    - name: Lookup header_logo file
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -355,12 +355,12 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         get:
-          path: "item/{{ logo_item['gc_return']['_id'] }}/files"
+          path: "item/{{ header_logo_item['gc_return']['_id'] }}/files"
 
-      register: logo_file
-      when: logo_item is defined
+      register: header_logo_file
+      when: header_logo_item is defined
 
-    - name: Set logo and favicon file IDs
+    - name: Set header logo and favicon file IDs
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -377,7 +377,103 @@
           "value": "{{ favicon_file['gc_return'][0]['_id'] }}"
         }
         - {
-          "key": "edp.configuration.logo.file.id",
-          "value": "{{ logo_file['gc_return'][0]['_id'] }}"
+          "key": "edp.configuration.header.logo.file.id",
+          "value": "{{ header_logo_file['gc_return'][0]['_id'] }}"
         }
-      when: logo_file is defined and favicon_file is defined
+      when: header_logo_file is defined and favicon_file is defined
+
+    - name: Create footer logo item
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        item:
+          name: "{{ footer_logo_path | basename }}"
+          folderId: "{{ images_folder['gc_return']['_id'] }}"
+        state: present
+      register: footer_logo_item
+      when: footer_logo_path is defined
+
+    - name: Copy over footer logo
+      copy:
+        src: "{{ playbook_dir }}/{{ footer_logo_path }}"
+        dest: "/tmp/{{ footer_logo_path | basename }}"
+      when: footer_logo_path is defined
+
+    - name: Upload footer logo
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        files:
+          itemId: "{{ footer_logo_item['gc_return']['_id'] }}"
+          sources:
+            - "/tmp/{{ footer_logo_path | basename }}"
+        state: present
+      when: footer_logo_path is defined
+
+    - name: Lookup footer logo file
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        get:
+          path: "item/{{ footer_logo_item['gc_return']['_id'] }}/files"
+
+      register: footer_logo_file
+      when: footer_logo_item is defined
+
+    - name: Set footer logo ID
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.footer.logo.file.id",
+          "value": "{{ footer_logo_file['gc_return'][0]['_id'] }}"
+        }
+      when: footer_logo_file is defined
+
+    - name: Set MIME type to image/svg+xml
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        put:
+          path: "file/{{ footer_logo_file['gc_return'][0]['_id'] }}"
+          parameters:
+            mimeType: "image/svg+xml"
+      when: (footer_logo_path | basename | splitext)[1] == '.svg'
+
+    - name: Set footer logo URL
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.footer.logo.url",
+          "value": "{{ footer_logo_url }}"
+        }
+      when: footer_logo_url is defined

@@ -3,32 +3,53 @@ import React from 'react';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 
-import { Typography } from '@material-ui/core';
+import { Typography, withStyles } from '@material-ui/core';
 
-const style = {
+const style = theme => ({
   root: {
+    display: 'flex',
+    alignItems: 'flex-end',
     textAlign: 'center',
-    padding: '1rem'
+    padding: 2 * theme.spacing.unit
+  },
+  license: {
+
+  },
+  logo: {
+    flexGrow: 1
+  },
+  logoImg: {
+    height: 8 * theme.spacing.unit
   },
   privacy: {
-    marginLeft: '1rem'
   }
-}
+});
 
-export default (props) => {
-  const {privacy, license} = props;
+const Footer = (props) => {
+  const {privacy, license, footerLogoImageUrl, footerLogoUrl, classes} = props;
   return (
-    <div style={style.root}>
-      <Typography variant='caption'>
+    <div className={classes.root}>
+      <div className={classes.license}>
         {license &&
-        <span>
-          All data is released under <a href={license.url} target='_blank'>{license.label}</a>
-        </span>
+        <Typography variant='caption'>
+            All data is released under <a href={license.url} target='_blank'>{license.label}</a>
+        </Typography>
         }
+      </div>
+      <div className={classes.logo}>
+        {footerLogoUrl &&
+         <a href={footerLogoUrl} target="_blank"><img className={classes.logoImg} src={footerLogoImageUrl}/></a>
+        }
+      </div>
+      <div className={classes.privacy}>
         {privacy &&
-        <a style={style.privacy} href={privacy.url} target='_blank'>{privacy.label}</a>
+          <Typography variant='caption'>
+            <a style={style.privacy} href={privacy.url} target='_blank'>{privacy.label}</a>
+          </Typography>
         }
-      </Typography>
+      </div>
     </div>
   );
 }
+
+export default withStyles(style)(Footer)
