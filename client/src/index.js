@@ -14,9 +14,16 @@ import { auth } from '@openchemistry/girder-redux';
 import girderClient from '@openchemistry/girder-client';
 
 import { fetchServerSettings } from './redux/ducks/settings';
+import { history } from './redux/store';
 
 const cookies = new Cookies();
 const cookieToken = cookies.get('girderToken');
+
+let path = window.location.hash.slice(1);
+if (path) {
+  window.location.hash = '';
+  history.replace(`/${path}`);
+}
 
 // Set the prefix for API calls if we have one
 girderClient().setPrefix(window.PUBLIC_URL);
