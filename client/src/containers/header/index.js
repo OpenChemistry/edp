@@ -38,15 +38,15 @@ class HeaderContainer extends Component {
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
   const settings = getServerSettings(state);
-  const { deployment, headerLogoFileId } = settings;
+  const { deployment, headerLogoFileId, showMenu, showSearch } = settings;
 
   const props = {
       loggedIn
   };
 
-  if (!isNil(deployment)) {
-    props.showMenu = deployment !== SOW10;
-    props.showSearch = deployment !== SOW10;
+  if (!isNil(settings)) {
+    props.showMenu = showMenu;
+    props.showSearch = showSearch;
   }
 
   if (!isNil(headerLogoFileId)) {
@@ -59,6 +59,11 @@ function mapStateToProps(state) {
 
 
   return props
+}
+
+HeaderContainer.defaultProps = {
+  showMenu: false,
+  showSearch: false
 }
 
 export default connect(mapStateToProps)(HeaderContainer);
