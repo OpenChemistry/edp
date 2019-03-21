@@ -99,6 +99,7 @@ class MultidimensionComponent extends Component {
     const colorMap = this.colorMaps[activeMap];
     this.multidimensionalPlot.activeScalarsUpdated();
     this.multidimensionalPlot.setColorMap(colorMap, colorMapRange);
+    this.multidimensionalPlot.dataUpdated();
     onParamChanged({
       scalarField,
       colorMapRange

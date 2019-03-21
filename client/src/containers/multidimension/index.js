@@ -5,8 +5,6 @@ import { NearestCompositionToPositionProvider } from 'composition-plot';
 
 import MultidimensionComponent from '../../components/multidimension';
 
-import compositionToPositionData from '../../assets/8dcomp2xyz.json';
-
 const identity = val => val;
 
 const arraySerialize = val => JSON.stringify(val);
@@ -59,19 +57,22 @@ class MultidimensionContainer extends Component {
   }
 
   componentDidMount() {
-    this.updateCompositionToPosition();
+    fetch('8dcomp2xyz.json')
+    .then(res => res.json())
+    .then(data => {this.updateCompositionToPosition(data);})
+    .catch(e=> console.log('ERRRR', e));
   }
 
-  updateCompositionToPosition() {
+  updateCompositionToPosition(data) {
     let samples = [];
 
-    if (compositionToPositionData) {
+    if (Array.isArray(data)) {
       const chunk = 8 + 3;
-      const nSamples = compositionToPositionData.length / chunk;
+      const nSamples = data.length / chunk;
       const every = 1;
       for (let _i = 0; _i < nSamples / every; ++_i) {
         let i = _i * every;
-        let composition = compositionToPositionData.slice(i * chunk, i * chunk + 8);
+        let composition = data.slice(i * chunk, i * chunk + 8);
         samples.push({
           composition: {
             A: composition[0] * 0.01,
@@ -95,7 +96,7 @@ class MultidimensionContainer extends Component {
           }
         });
       }
-      this.compositionToPosition.setData(8, 10, compositionToPositionData, false);
+      this.compositionToPosition.setData(8, 10, data, false);
     }
 
     this.setState(state => {
