@@ -11,3 +11,4 @@ CONFIGURATION_SHOW_MENU = 'edp.configuration.show.menu'
 
 SOW8_DEPLOYMENT = 'sow8'
 SOW10_DEPLOYMENT = 'sow10'
+SOW11_DEPLOYMENT = 'sow11'
