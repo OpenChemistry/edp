@@ -182,7 +182,9 @@
           service: ""
           region: "{{ s3_region }}"
           prefix: "{{ s3_prefix | default(assetstore)}}"
-          inferCredentials: true
+          inferCredentials: "{{ s3_infer_credentials | default(true)}}"
+          accessKeyId: "{{ s3_access_key_id | default(omit)}}"
+          secret: "{{ s3_secret | default(omit)}}"
           current: true
         state: present
       when: s3_bucket is defined
