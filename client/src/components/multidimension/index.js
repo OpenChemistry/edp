@@ -255,7 +255,7 @@ class MultidimensionComponent extends Component {
         </Table>
 
         <div
-          style={{width: '100%', height: '40rem'}}
+          style={{width: '100%', height: '40rem', position: 'relative', overflow: 'hidden'}}
           ref={(ref) => {this.plotElement = ref;}}
         >
         </div>
