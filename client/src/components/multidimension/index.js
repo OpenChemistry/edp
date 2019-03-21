@@ -57,7 +57,7 @@ class MultidimensionComponent extends Component {
   onNewSamples(samples) {
     samples = samples || [];
     const { activeMap, onParamChanged} = this.props;
-    let { scalarField, colorMapRange } = this.props;
+    let { scalarField, colorMapRange, filterRange } = this.props;
     this.dp.setData(samples);
     scalarField = this.dp.getDefaultScalar(scalarField);
     this.dp.setActiveScalar(scalarField);
@@ -66,14 +66,28 @@ class MultidimensionComponent extends Component {
       Math.min(Math.max(colorMapRange[0], dataRange[0]), dataRange[1] - 1e-6),
       Math.max(Math.min(colorMapRange[1], dataRange[1]), dataRange[0] + 1e-6)
     ];
+    filterRange = [
+      Math.min(Math.max(filterRange[0], dataRange[0]), dataRange[1]),
+      Math.max(Math.min(filterRange[1], dataRange[1]), dataRange[0])
+    ];
     const colorMap = this.colorMaps[activeMap];
     this.multidimensionalPlot.setColorMap(colorMap, colorMapRange);
+    this.onNewFilter(filterRange)
     this.multidimensionalPlot.dataUpdated();
     this.setState({...this.state, dataRange});
     onParamChanged({
       scalarField,
       colorMapRange
     });
+  }
+
+  onNewFilter(range) {
+    let filter = function(sample) {
+      const val = DataProvider.getSampleScalar(sample, this.getActiveScalar());
+      return range[0] <= val && val <= range[1];
+    };
+    filter = filter.bind(this.dp);
+    this.dp.setFilter(filter);
   }
 
   onScalarChange(scalarField) {
@@ -117,8 +131,29 @@ class MultidimensionComponent extends Component {
     this.multidimensionalPlot.setColorMap(this.colorMaps[activeMap], range);
   }
 
+  onFilterRangeChange(value, index) {
+    const { filterRange, onParamChanged } = this.props;
+    const otherIndex = index === 0 ? 1 : 0;
+    if (index === 0) {
+      if (value > filterRange[otherIndex]) {
+        return;
+      }
+    } else {
+      if (value < filterRange[otherIndex]) {
+        return;
+      }
+    }
+    const range = [...filterRange];
+    range[index] = value;
+
+    this.onNewFilter(range);
+    this.multidimensionalPlot.dataUpdated();
+
+    onParamChanged({filterRange: range});
+  }
+
   render() {
-    const { scalarField, activeMap, colorMapRange } = this.props;
+    const { scalarField, activeMap, colorMapRange, filterRange } = this.props;
     const scalars = this.dp ? this.dp.getScalars() : [];
 
     let scalarSelectOptions = [];
@@ -139,6 +174,7 @@ class MultidimensionComponent extends Component {
               <TableCell>Scalar field</TableCell>
               <TableCell>Color map</TableCell>
               <TableCell>Map range</TableCell>
+              <TableCell>Filter range</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -187,6 +223,29 @@ class MultidimensionComponent extends Component {
                   </div>
                   <div>
                     {colorMapRange[1].toFixed(3)}
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+                  <div>
+                    {filterRange[0].toFixed(3)}
+                  </div>
+                  <div style={{flexGrow: 1, paddingRight: 16}}>
+                    <Slider
+                      aria-labelledby="map-range-label"
+                      min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.1}
+                      value={filterRange[0]}
+                      onChange={(e, val) => {this.onFilterRangeChange(val, 0)}}
+                    />
+                    <Slider
+                      min={this.state.dataRange[0]} max={this.state.dataRange[1]} step={0.1}
+                      value={filterRange[1]}
+                      onChange={(e, val) => {this.onFilterRangeChange(val, 1)}}
+                    />
+                  </div>
+                  <div>
+                    {filterRange[1].toFixed(3)}
                   </div>
                 </div>
               </TableCell>

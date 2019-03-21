@@ -38,6 +38,10 @@ const URL_PARAMS = {
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
+  },
+  filterRange: {
+    serialize: defaultWrapper(arraySerialize, null),
+    deserialize: defaultWrapper(arrayDeserialize, [0, 1])
   }
 }
 
@@ -147,7 +151,8 @@ class MultidimensionContainer extends Component {
     const {
       activeMap,
       scalarField,
-      colorMapRange
+      colorMapRange,
+      filterRange
     } = this.props;
 
     return (
@@ -155,6 +160,7 @@ class MultidimensionContainer extends Component {
         activeMap={activeMap}
         scalarField={scalarField}
         colorMapRange={colorMapRange}
+        filterRange={filterRange}
         samples={samples}
         compositionToPosition={this.compositionToPosition}
         onParamChanged={this.onParamChanged}
