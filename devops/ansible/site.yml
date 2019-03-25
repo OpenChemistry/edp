@@ -313,7 +313,7 @@
       register: favicon_file
       when: favicon_item is defined
 
-    - name: Create header logo item
+    - name: Create left header logo item
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -321,19 +321,19 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         item:
-          name: "{{ header_logo_path | basename }}"
+          name: "{{ header_left_logo_path | basename }}"
           folderId: "{{ images_folder['gc_return']['_id'] }}"
         state: present
-      register: header_logo_item
-      when: header_logo_path is defined
+      register: header_left_logo_item
+      when: header_left_logo_path is defined
 
-    - name: Copy over header logo
+    - name: Copy over left header logo
       copy:
-        src: "{{ playbook_dir }}/{{ header_logo_path }}"
-        dest: "/tmp/{{ header_logo_path | basename }}"
-      when: header_logo_path is defined
+        src: "{{ playbook_dir }}/{{ header_left_logo_path }}"
+        dest: "/tmp/{{ header_left_logo_path | basename }}"
+      when: header_left_logo_path is defined
 
-    - name: Upload header logo
+    - name: Upload left header logo
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -341,13 +341,13 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         files:
-          itemId: "{{ header_logo_item['gc_return']['_id'] }}"
+          itemId: "{{ header_left_logo_item['gc_return']['_id'] }}"
           sources:
-            - "/tmp/{{ header_logo_path | basename }}"
+            - "/tmp/{{ header_left_logo_path | basename }}"
         state: present
-      when: header_logo_path is defined
+      when: header_left_logo_path is defined
 
-    - name: Lookup header_logo file
+    - name: Lookup header_left_logo file
       girder:
         host: "{{girder_host}}"
         port: "{{girder_port}}"
@@ -355,10 +355,10 @@
         username: "edpadmin"
         password: "{{ edpadmin_password }}"
         get:
-          path: "item/{{ header_logo_item['gc_return']['_id'] }}/files"
+          path: "item/{{ header_left_logo_item['gc_return']['_id'] }}/files"
 
-      register: header_logo_file
-      when: header_logo_item is defined
+      register: header_left_logo_file
+      when: header_left_logo_item is defined
 
     - name: Set header logo and favicon file IDs
       girder:
@@ -377,10 +377,106 @@
           "value": "{{ favicon_file['gc_return'][0]['_id'] }}"
         }
         - {
-          "key": "edp.configuration.header.logo.file.id",
-          "value": "{{ header_logo_file['gc_return'][0]['_id'] }}"
+          "key": "edp.configuration.header.left.logo.file.id",
+          "value": "{{ header_left_logo_file['gc_return'][0]['_id'] }}"
         }
-      when: header_logo_file is defined and favicon_file is defined
+      when: header_left_logo_file is defined and favicon_file is defined
+
+    - name: Create right header logo item
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        item:
+          name: "{{ header_right_logo_path | basename }}"
+          folderId: "{{ images_folder['gc_return']['_id'] }}"
+        state: present
+      register: header_right_logo_item
+      when: header_right_logo_path is defined
+
+    - name: Copy over right header logo
+      copy:
+        src: "{{ playbook_dir }}/{{ header_right_logo_path }}"
+        dest: "/tmp/{{ header_right_logo_path | basename }}"
+      when: header_right_logo_path is defined
+
+    - name: Upload right header logo
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        files:
+          itemId: "{{ header_right_logo_item['gc_return']['_id'] }}"
+          sources:
+            - "/tmp/{{ header_right_logo_path | basename }}"
+        state: present
+      when: header_right_logo_path is defined
+
+    - name: Lookup right header logo file
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        get:
+          path: "item/{{ header_right_logo_item['gc_return']['_id'] }}/files"
+
+      register: header_right_logo_file
+      when: header_right_logo_item is defined
+
+    - name: Set right header logo ID
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.header.right.logo.file.id",
+          "value": "{{ header_right_logo_file['gc_return'][0]['_id'] }}"
+        }
+      when: header_right_logo_file is defined
+
+    - name: Set MIME type to image/svg+xml
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        put:
+          path: "file/{{ header_right_logo_file['gc_return'][0]['_id'] }}"
+          parameters:
+            mimeType: "image/svg+xml"
+      when: (header_right_logo_path | basename | splitext)[1] == '.svg'
+
+    - name: Set right header logo URL
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.header.right.logo.url",
+          "value": "{{ header_right_logo_url }}"
+        }
+      when: header_right_logo_url is defined
 
     - name: Create footer logo item
       girder:
