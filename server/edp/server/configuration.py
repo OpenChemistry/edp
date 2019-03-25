@@ -22,8 +22,14 @@ class Configuration(Resource):
             'privacy': Setting().get(constants.CONFIGURATION_PRIVACY),
         }
 
-        if Setting().get(constants.CONFIGURATION_HEADER_LOGO_ID) is not None:
-            config['headerLogoFileId'] = Setting().get(constants.CONFIGURATION_HEADER_LOGO_ID)
+        if Setting().get(constants.CONFIGURATION_HEADER_LEFT_LOGO_ID) is not None:
+            config['headerLeftLogoFileId'] = Setting().get(constants.CONFIGURATION_HEADER_LEFT_LOGO_ID)
+
+        if Setting().get(constants.CONFIGURATION_HEADER_RIGHT_LOGO_ID) is not None:
+                    config['headerRightLogoFileId'] = Setting().get(constants.CONFIGURATION_HEADER_RIGHT_LOGO_ID)
+
+        if Setting().get(constants.CONFIGURATION_HEADER_RIGHT_LOGO_URL) is not None:
+                            config['headerRightLogoUrl'] = Setting().get(constants.CONFIGURATION_HEADER_RIGHT_LOGO_URL)
 
         if Setting().get(constants.CONFIGURATION_FAVICON_ID) is not None:
             config['faviconFileId'] = Setting().get(constants.CONFIGURATION_FAVICON_ID)
