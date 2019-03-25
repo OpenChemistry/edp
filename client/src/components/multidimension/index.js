@@ -92,17 +92,19 @@ class MultidimensionComponent extends Component {
 
   onScalarChange(scalarField) {
     const { activeMap, onParamChanged} = this.props;
-    let { colorMapRange } = this.props;
     this.dp.setActiveScalar(scalarField);
     const dataRange = this.dp.getScalarRange(scalarField);
-    colorMapRange = [...dataRange];
+    let colorMapRange = [...dataRange];
+    let filterRange = [...dataRange];
     const colorMap = this.colorMaps[activeMap];
     this.multidimensionalPlot.activeScalarsUpdated();
     this.multidimensionalPlot.setColorMap(colorMap, colorMapRange);
+    this.onNewFilter(filterRange);
     this.multidimensionalPlot.dataUpdated();
     onParamChanged({
       scalarField,
-      colorMapRange
+      colorMapRange,
+      filterRange
     });
     this.setState({...this.state, dataRange});
   }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
+import { isNil } from 'lodash-es';
 import { NearestCompositionToPositionProvider } from 'composition-plot';
 
 import MultidimensionComponent from '../../components/multidimension';
@@ -50,9 +51,9 @@ class MultidimensionContainer extends Component {
 
   constructor(props) {
     super(props);
-    this.compositionToPosition = new NearestCompositionToPositionProvider();
     this.state = {
-      samples: []
+      samples: [],
+      compositionToPosition: null
     }
   }
 
@@ -61,48 +62,70 @@ class MultidimensionContainer extends Component {
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
     .catch(e=> console.log('ERRRR', e));
+
+    fetch('8d_samples.json')
+    .then(res => res.json())
+    .then(samples => {
+      this.setState(state => {
+        state.samples = samples;
+        return state;
+      });
+    })
+    .catch(e=> console.log('ERRRR', e));
   }
 
   updateCompositionToPosition(data) {
-    let samples = [];
+    let compositionToPosition = null;
 
     if (Array.isArray(data)) {
-      const chunk = 8 + 3;
-      const nSamples = data.length / chunk;
-      const every = 1;
-      for (let _i = 0; _i < nSamples / every; ++_i) {
-        let i = _i * every;
-        let composition = data.slice(i * chunk, i * chunk + 8);
-        samples.push({
-          composition: {
-            A: composition[0] * 0.01,
-            B: composition[1] * 0.01,
-            C: composition[2] * 0.01,
-            D: composition[3] * 0.01,
-            E: composition[4] * 0.01,
-            F: composition[5] * 0.01,
-            G: composition[6] * 0.01,
-            H: composition[7] * 0.01
-          },
-          scalars: {
-            A: composition[0] * 0.01,
-            B: composition[1] * 0.01,
-            C: composition[2] * 0.01,
-            D: composition[3] * 0.01,
-            E: composition[4] * 0.01,
-            F: composition[5] * 0.01,
-            G: composition[6] * 0.01,
-            H: composition[7] * 0.01
-          }
-        });
-      }
-      this.compositionToPosition.setData(8, 10, data, false);
+      compositionToPosition = new NearestCompositionToPositionProvider();
+      compositionToPosition.setData(8, 10, data, false);
+      // this.fetchFakeSamples(data);
+    }
+
+    this.setState(state => {
+      state.compositionToPosition = compositionToPosition;
+      return state;
+    });
+  }
+
+  fetchFakeSamples(data) {
+    let samples = [];
+    const chunk = 8 + 3;
+    const nSamples = data.length / chunk;
+    const every = 1;
+    for (let _i = 0; _i < nSamples / every; ++_i) {
+      let i = _i * every;
+      let composition = data.slice(i * chunk, i * chunk + 8);
+      samples.push({
+        composition: {
+          A: composition[0] * 0.01,
+          B: composition[1] * 0.01,
+          C: composition[2] * 0.01,
+          D: composition[3] * 0.01,
+          E: composition[4] * 0.01,
+          F: composition[5] * 0.01,
+          G: composition[6] * 0.01,
+          H: composition[7] * 0.01
+        },
+        scalars: {
+          A: composition[0] * 0.01,
+          B: composition[1] * 0.01,
+          C: composition[2] * 0.01,
+          D: composition[3] * 0.01,
+          E: composition[4] * 0.01,
+          F: composition[5] * 0.01,
+          G: composition[6] * 0.01,
+          H: composition[7] * 0.01
+        }
+      });
     }
 
     this.setState(state => {
       state.samples = samples;
       return state;
     });
+
   }
 
   onParamChanged = (...args) => {
@@ -143,9 +166,9 @@ class MultidimensionContainer extends Component {
   }
 
   render() {
-    const { samples } = this.state;
+    const { samples, compositionToPosition } = this.state;
 
-    if (samples.length == 0) {
+    if (samples.length == 0 || isNil(compositionToPosition)) {
       return null;
     }
 
@@ -163,7 +186,7 @@ class MultidimensionContainer extends Component {
         colorMapRange={colorMapRange}
         filterRange={filterRange}
         samples={samples}
-        compositionToPosition={this.compositionToPosition}
+        compositionToPosition={compositionToPosition}
         onParamChanged={this.onParamChanged}
       />
     );
