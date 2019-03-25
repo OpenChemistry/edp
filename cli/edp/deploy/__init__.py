@@ -25,7 +25,7 @@ def extract_url(api_url, s3_bucket, s3_bucket_prefix, path):
 def upload_file(api_url, s3_bucket, s3_bucket_prefix, file_id):
     file_url = '%s/file/%s' % (api_url, file_id)
     file_download_url = '%s/download' % file_url
-    click.echo(click.style('Downloading: %s' % file_url, fg='green'))
+    click.echo(click.style('Downloading: %s' % file_download_url, fg='green'))
     r = requests.get(file_download_url, allow_redirects=False)
 
     s3_file_download_url_key = '%s/file/%s/download' % (s3_bucket_prefix, file_id)

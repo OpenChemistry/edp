@@ -14,7 +14,9 @@ from girder.utility import setting_utilities
     constants.CONFIGURATION_HEADER_RIGHT_LOGO_ID,
     constants.CONFIGURATION_HEADER_RIGHT_LOGO_URL,
     constants.CONFIGURATION_FOOTER_LOGO_ID,
-    constants.CONFIGURATION_FOOTER_LOGO_URL
+    constants.CONFIGURATION_FOOTER_LOGO_URL,
+    constants.CONFIGURATION_SHOW_SEARCH,
+    constants.CONFIGURATION_SHOW_MENU
 })
 def validateSettings(event):
     pass

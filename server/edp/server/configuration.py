@@ -20,6 +20,8 @@ class Configuration(Resource):
             'deployment': Setting().get(constants.CONFIGURATION_DEPLOYMENT),
             'license': Setting().get(constants.CONFIGURATION_LICENSE),
             'privacy': Setting().get(constants.CONFIGURATION_PRIVACY),
+            'showMenu': Setting().get(constants.CONFIGURATION_SHOW_MENU, True),
+            'showSearch': Setting().get(constants.CONFIGURATION_SHOW_SEARCH, True)
         }
 
         if Setting().get(constants.CONFIGURATION_HEADER_LEFT_LOGO_ID) is not None:

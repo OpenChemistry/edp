@@ -7,7 +7,10 @@ CONFIGURATION_HEADER_RIGHT_LOGO_ID = 'edp.configuration.header.right.logo.file.i
 CONFIGURATION_HEADER_RIGHT_LOGO_URL = 'edp.configuration.header.right.logo.url'
 CONFIGURATION_FOOTER_LOGO_ID = 'edp.configuration.footer.logo.file.id'
 CONFIGURATION_FOOTER_LOGO_URL = 'edp.configuration.footer.logo.url'
+CONFIGURATION_SHOW_SEARCH = 'edp.configuration.show.search'
+CONFIGURATION_SHOW_MENU = 'edp.configuration.show.menu'
 
 
 SOW8_DEPLOYMENT = 'sow8'
 SOW10_DEPLOYMENT = 'sow10'
+SOW11_DEPLOYMENT = 'sow11'

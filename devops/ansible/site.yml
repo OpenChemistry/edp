@@ -66,7 +66,7 @@
         collection:
           name: "edp"
           description: "EDP collection"
-          public: no
+          public: "{{ public_data | default(no) }}"
         state: present
       register: edp_collection
 
@@ -82,7 +82,7 @@
           parentId: "{{edp_collection['gc_return']['_id'] }}"
           name: "data"
           description: "EDP data folder"
-          public: no
+          public: "{{ public_data | default(no) }}"
           access:
             groups:
               - name: edp
@@ -182,7 +182,9 @@
           service: ""
           region: "{{ s3_region }}"
           prefix: "{{ s3_prefix | default(assetstore)}}"
-          inferCredentials: true
+          inferCredentials: "{{ s3_infer_credentials | default(true)}}"
+          accessKeyId: "{{ s3_access_key_id | default(omit)}}"
+          secret: "{{ s3_secret | default(omit)}}"
           current: true
         state: present
       when: s3_bucket is defined
@@ -573,3 +575,39 @@
           "value": "{{ footer_logo_url }}"
         }
       when: footer_logo_url is defined
+
+    - name: Set show menu prop
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.show.menu",
+          "value": "{{ show_menu }}"
+        }
+      when: show_menu is defined
+
+    - name: Set show search prop
+      girder:
+        host: "{{girder_host}}"
+        port: "{{girder_port}}"
+        scheme: "{{girder_scheme}}"
+        username: "edpadmin"
+        password: "{{ edpadmin_password }}"
+        setting:
+          key: "{{item.key}}"
+          value: "{{item.value}}"
+        state: present
+      with_items:
+        - {
+          "key": "edp.configuration.show.search",
+          "value": "{{ show_search }}"
+        }
+      when: show_search is defined
