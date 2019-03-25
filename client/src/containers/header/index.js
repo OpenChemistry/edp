@@ -38,10 +38,12 @@ class HeaderContainer extends Component {
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
   const settings = getServerSettings(state);
-  const { deployment, headerLogoFileId, showMenu, showSearch } = settings;
+  const { deployment, showMenu, showSearch, headerLeftLogoFileId,
+          headerRightLogoFileId, headerRightLogoUrl } = settings;
 
   const props = {
-      loggedIn
+      loggedIn,
+      headerRightLogoUrl
   };
 
   if (!isNil(settings)) {
@@ -49,14 +51,18 @@ function mapStateToProps(state) {
     props.showSearch = showSearch;
   }
 
-  if (!isNil(headerLogoFileId)) {
+  if (!isNil(headerLeftLogoFileId)) {
     const baseUrl = girderClient().getBaseURL();
-    props.logo = `${baseUrl}/file/${headerLogoFileId}/download`
+    props.leftLogo = `${baseUrl}/file/${headerLeftLogoFileId}/download`
   }
   else if (!isEmpty(settings)) {
-    props.logo = logo;
+    props.leftLogo = logo;
   }
 
+  if (!isNil(headerRightLogoFileId)) {
+    const baseUrl = girderClient().getBaseURL();
+    props.rightLogo = `${baseUrl}/file/${headerRightLogoFileId}/download`
+  }
 
   return props
 }
