@@ -24,6 +24,53 @@ scalars_to_extract = [
     't(s)'
 ]
 
+def _compute_run_parameters(parameters, techniques):
+    vref_regex = re.compile(r'(.*)_vref')
+
+    for technique in techniques:
+        # compute is_dark
+        tech_params = parameters[technique]
+
+        tech_params['is_dark'] = 'toggle_dark_time_init' not in tech_params or \
+            tech_params['toggle_dark_time_init'] > 100.0
+
+        reference_vrhe = parameters['reference_vrhe']
+        # compute *_vrhe values
+        new_params = {}
+        for key, value in tech_params.items():
+            match = vref_regex.match(key)
+            if match:
+                prefix = match.group(1)
+                new_params['%s_vrhe' % prefix] = value - reference_vrhe
+
+        tech_params.update(new_params)
+        # Finally calculate min_potential_vref and min_potential_vref for all
+        # CV* techniques
+        if technique.startswith('CV'):
+            potentials = []
+            for k in ['init_potential_vrhe', 'first_potential_vrhe',
+                      'second_potential_vrhe',  'final_potential_vrhe']:
+
+                value = tech_params.get(k)
+                if value is not None:
+                    potentials.append(value)
+
+            tech_params['min_potential_vref'] = min(potentials)
+            tech_params['max_potential_vref'] = max(potentials)
+
+    return parameters
+
+def _coerce_values_to_float(d):
+    converted = {}
+
+    for key, value in d.items():
+        try:
+            converted[key] = float(value)
+        except (TypeError, ValueError):
+            converted[key] = value
+
+    return converted
+
 def _ingest_runs(gc, project, composite, dir):
     # Find the exp file
     exp_paths = glob.glob('%s/**/*.exp' % dir, recursive=True)
@@ -37,30 +84,47 @@ def _ingest_runs(gc, project, composite, dir):
             exp = parse_exp(f.read())
         name = exp['name']
         for run in exp['runs']:
+            # See if this is a eche run, skip over everthing else
+            if run['parameters']['experiment_type'] != 'eche':
+                continue
+
+            # Extract out the techniques this run used
             rcp_file = run['rcp_file']
-
-            runs = experiments.setdefault(name, [])
-
             [run_file] = glob.glob('%s/**/%s' % (dir, rcp_file), recursive=True)
-            click.echo('Ingesting run: %s' % run_file)
-
-            with open(run_file) as f:
-                run = parse_ana_rcp(f.read())
-
             technique_files = {}
+            techniques = []
             for key, value in run.items():
                 if key.startswith('files_technique__'):
                     match = technque_file_regex.match(key)
                     technique = match.group(1)
-
+                    techniques.append(technique)
                     run_dir = os.path.dirname(run_file)
                     technique_files[technique] = [os.path.join(run_dir, f) for f in value['pstat_files'].keys()]
 
+            parameters = _coerce_values_to_float(run['parameters'])
+            # Now extract the parameters for these techniques
+            for technique in techniques:
+                tech_param_key = 'echem_params__%s' % technique
+                if tech_param_key in parameters:
+                    parameters[technique] = _coerce_values_to_float(parameters[tech_param_key])
+
+            # Now remove any used technique parameters
+            parameters = {k: v for k, v in parameters.items() if not k.startswith('echem_params__')}
+
+            _compute_run_parameters(parameters, techniques)
+
+            runs = experiments.setdefault(name, [])
+
+            click.echo('Ingesting run: %s' % run_file)
+
             run = {
                 'runId': rcp_file,
-                'solutionPh': float(run['solution_ph']),
-                'plateId': run['plate_id'],
-                'electrolyte': run['electrolyte']
+                'name': run['name'],
+                #'runPath': run['run_path'],
+                'solutionPh': parameters['solution_ph'],
+                'plateId': parameters['plate_id'],
+                'electrolyte': parameters['electrolyte'],
+                'parameters': parameters
             }
 
             run = gc.post('edp/projects/%s/composites/%s/runs' % (project, composite), json=run)
