@@ -133,8 +133,7 @@ def _ingest_runs(gc, project, composite, dir):
 
     return experiments
 
-def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
-                    elements, platemap, technique, samples):
+def _ingest_loading(gc, project, composite, dir, loading_file, platemaps, technique, samples):
     comp_regex = re.compile('([a-zA-Z]+)\.PM.AtFrac')
     sample_regex = re.compile('.*ana__.*_(.*)_rawlen.txt')
 
@@ -149,20 +148,30 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
     for key, value in loading.items():
         match = comp_regex.match(key)
         if match:
-            element = match.group(1).lower()
-            if element in elements:
-                compositions[element] = value
+            compositions[key] = {
+                'element': match.group(1).lower(),
+                'values': value
+            }
 
     for i, (plate_id, sample_number) in enumerate(zip(plate_ids, sample_numbers)):
-        click.echo('Ingesting sample %s on plate %s' % (sample_number, int(plate_id)))
+        plate_id = int(plate_id)
+        platemap = platemaps.setdefault(plate_id, {
+            'plateId': plate_id,
+            'elements': set()
+        })
+        click.echo('Ingesting sample %s on plate %s' % (sample_number, plate_id))
         if sample_number not in samples.setdefault(plate_id, {}):
-            sample_meta = {}
+            sample_meta = samples.setdefault(plate_id, {}).setdefault(sample_number, {})
             sample_meta['sampleNum'] = sample_number
 
             comp = {}
             sample_meta['composition'] = comp
-            for e in compositions.keys():
-                comp[e] = compositions[e][i]
+            for key, value in compositions.items():
+                comp_value = value['values'][i]
+                if comp_value > 0:
+                    element = value['element']
+                    comp[element] = comp_value
+                    platemap['elements'].add(element)
 
             if round(sum(comp.values())) != 1:
                 raise click.ClickException('Composite values don\'t add up to 1, for sample: %s' % sample_number)
@@ -254,29 +263,40 @@ def _ingest_samples(gc, project, composite, dir, experiments, channel_to_element
     ana_files = glob.glob('%s/**/*.ana' % dir, recursive=True)
 
     samples = {}
+    platemaps = {}
+
     for ana_file in ana_files:
+        ana_dir = os.path.dirname(ana_file)
         with open(ana_file) as f:
             ana = parse_ana_rcp(f.read())
 
+        loading_files_to_process = []
+        fom_files_to_process = []
         for key, value in ana.items():
             if key.startswith('ana__'):
                 [file_path] = value['files_multi_run']['fom_files'].keys()
-                plate_ids = value['plate_ids']
                 technique = value.get('technique')
-                if 'platemap_comp4plot_keylist' not in value['parameters']:
-                    continue
 
-                keylist = value['parameters']['platemap_comp4plot_keylist']
+                if file_path.endswith('Loading.csv'):
+                    # We need to workout what run this is associated with
+                    # we do this by following the select_ana until we find one
+                    # that has a analysis_general_type of 'standard'. Then we
+                    # use the files_run__XXX, to identify the run an it up.
 
-                elements = [channel_to_element[x] for x in keylist]
+                    loading_files_to_process.append((file_path, technique))
+                else:
+                    [file_path] = glob.glob('%s/**/%s' % (ana_dir, file_path), recursive=True)
+                    fom_files_to_process.append(file_path)
 
-                platemap = {
-                    'plateId': plate_ids,
-                    'elements': elements
-                }
-                _ingest_loading(gc, project, composite, os.path.dirname(ana_file),
-                                key, file_path, elements, platemap, technique, samples)
-                # Now create the plate map
-                platemap = gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
+
+        # Now ingest the loading files
+        for (file_path, technique) in loading_files_to_process:
+            _ingest_loading(gc, project, composite, ana_dir,
+                            file_path, platemaps, technique, samples)
+
+
+    for platemap in platemaps.values():
+        platemap['elements'] = list(platemap['elements'])
+        gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
 
     return samples
