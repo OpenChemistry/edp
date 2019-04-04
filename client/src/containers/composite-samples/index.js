@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
 import { replace } from 'connected-react-router';
+
+import { produce } from 'immer';
 
 import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
 
@@ -11,7 +13,12 @@ import { parseUrlMatch } from '../../nodes';
 import CompositeSamples from '../../components/composite-samples';
 import SamplesDetails from './details';
 
+import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
+
 import NotFoundPage from '../../components/notFound.js';
+import { redWhiteBlue } from 'composition-plot/dist/utils/colors';
+import { isNil } from 'lodash-es';
+import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
 
 const identity = val => val;
 
@@ -114,10 +121,85 @@ const URL_PARAMS = {
         this.fetchSampleTimeSeries({_id}, nextValue);
       }
     }
+  },
+  detailsPanel: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'details'),
+    callback: function(currValue, nextValue) {
+      if (nextValue === 'details') {
+        return;
+      }
+
+      const { mlModels } = this.state;
+
+      const model = mlModels[nextValue];
+      const mlModelIteration = model.nIterations - 1;
+
+      // If we already fetched the requested ML Model, do nothing
+      if (this.state.mlModels[nextValue].samples[mlModelIteration]) {
+        return;
+      }
+
+      this.fetchMachineLearningModel(nextValue);
+
+      setTimeout(() => {this.onParamChanged('mlModelIteration', mlModelIteration);}, 100);
+    }
+  },
+  mlModelIteration: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 0),
+    callback: function(currValue, nextValue) {
+      const mlModel = this.props.detailsPanel;
+      if (mlModel === 'details') {
+        return;
+      }
+
+      if (this.state.mlModels[mlModel].samples[nextValue]) {
+        return;
+      }
+      // this.fetchMachineLearningModel(mlModel, nextValue);
+    }
+  },
+  mlModelMetric: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'MAE')
   }
 }
 
 class CompositeSamplesContainer extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      mlModels: {
+        'Model 1': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {},
+          metrics: {}
+        },
+        'Model 2': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {},
+          metrics: {}
+        },
+        'Model 3': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {},
+          metrics: {}
+        },
+        'Model 4': {
+          nIterations: 50,
+          samples: {},
+          samplesCompare: {},
+          metrics: {}
+        },
+      }
+    }
+  }
 
   componentDidMount() {
     const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
@@ -173,6 +255,91 @@ class CompositeSamplesContainer extends Component {
     if (fetchFitted) {
       dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: true}));
     }
+  }
+
+  fetchMachineLearningModel = (modelName) => {
+    const {samples} = this.props;
+
+    const model = this.state.mlModels[modelName];
+
+    for (let modelIteration = 0; modelIteration < model.nIterations; ++modelIteration) {
+      const delta = 40 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / model.nIterations));
+
+      let modelSamples = [];
+      let modelCompareSamples = [];
+
+      for (let i in samples) {
+        let sample = samples[i];
+        let modelSample = {...sample};
+        modelSample.scalars = Object.entries(sample.scalars)
+          .map((val) => {
+            let [key, value] = val;
+            return [key, value - delta / 2 + Math.random() * delta];
+          })
+          .reduce((accumulator, curr) => {
+            return {...accumulator, [curr[0]]: curr[1]};
+          }, {});
+        modelSamples.push(modelSample);
+      }
+
+      for (let i in samples) {
+        let sample = samples[i];
+        let modelCompareSample = {...sample};
+        modelCompareSample.scalars = Object.entries(sample.scalars)
+          .map((val) => {
+            let [key, value] = val;
+            return [key, modelSamples[i].scalars[key] - value];
+          })
+          .reduce((accumulator, curr) => {
+            return {...accumulator, [curr[0]]: curr[1]};
+          }, {});
+        modelCompareSamples.push(modelCompareSample);
+      }
+
+      const metrics = this.calculateMetrics(samples, modelSamples);
+
+      this.setState((state) => {
+        return produce(state, (draft) => {
+          draft.mlModels[modelName].samples[modelIteration] = modelSamples;
+          draft.mlModels[modelName].samplesCompare[modelIteration] = modelCompareSamples;
+          draft.mlModels[modelName].metrics[modelIteration] = metrics;
+        });
+      });
+
+    }
+  }
+
+  calculateMetrics = (samples, modelSamples) => {
+    const metrics = {
+      'MAE': {},
+      'RMSE': {}
+    };
+
+    const n = samples.length;
+
+    for (let i in samples) {
+      let sample = samples[i];
+      let modelSample = modelSamples[i];
+      for (let scalar in sample.scalars) {
+        if (isNil(metrics['MAE'][scalar])) {
+          metrics['MAE'][scalar] = 0;
+          metrics['RMSE'][scalar] = 0;
+        }
+        const diff = sample.scalars[scalar] - modelSample.scalars[scalar];
+        metrics['MAE'][scalar] += Math.abs(diff);
+        metrics['RMSE'][scalar] += diff * diff;
+      }
+    }
+
+    for (let scalar in metrics['MAE']) {
+      metrics['MAE'][scalar] /= n;
+    }
+
+    for (let scalar in metrics['RMSE']) {
+      metrics['RMSE'][scalar] = Math.sqrt(metrics['RMSE'][scalar] / n);
+    }
+
+    return metrics;
   }
 
   onParamChanged = (...args) => {
@@ -232,7 +399,11 @@ class CompositeSamplesContainer extends Component {
       reduceFnH,
       separateSlopeH,
       selectionH,
-      plots
+      plots,
+      selectionPanel,
+      detailsPanel,
+      mlModelIteration,
+      mlModelMetric
     } = this.props;
 
     if (samples.length === 0) {
@@ -249,12 +420,21 @@ class CompositeSamplesContainer extends Component {
           colorMapRange={colorMapRange}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
+          selectionPanel={selectionPanel}
+          detailsPanel={detailsPanel}
+          mlModels={Object.keys(this.state.mlModels)}
+          mlModelIteration={mlModelIteration}
+          nMlModelIteration={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel].nIterations -1 : 1}
+          mlModelMetric={mlModelMetric}
+          mlModelMetrics={this.state.mlModels[detailsPanel] && this.state.mlModels[detailsPanel].metrics[mlModelIteration] ? Object.keys(this.state.mlModels[detailsPanel].metrics[mlModelIteration]) : []}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
           onSampleSelectById={this.onSampleSelectById}
           onClearSelection={this.onClearSelection}
           onParamChanged={this.onParamChanged}
         />
+
+        {detailsPanel === 'details' &&
         <SamplesDetails
           display={display}
           selectedSamples={selectedSamples}
@@ -269,6 +449,46 @@ class CompositeSamplesContainer extends Component {
           selectionH={selectionH}
           plots={plots}
         />
+        }
+
+        {detailsPanel !== 'details' &&
+        <Fragment>
+          {this.state.mlModels[detailsPanel].metrics &&
+          <ModelMetricsComponent
+            metrics={this.state.mlModels[detailsPanel].metrics}
+            mlModelMetric={mlModelMetric}
+            scalarField={scalarField}
+            nIterations={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel].nIterations : 1}
+            onParamChanged={this.onParamChanged}
+          />
+          }
+          {this.state.mlModels[detailsPanel].samples[mlModelIteration] &&
+          <QuaternaryPlotComponent
+            samples={this.state.mlModels[detailsPanel].samples[mlModelIteration]}
+            scalarField={scalarField}
+            activeMap={activeMap}
+            colorMapRange={colorMapRange}
+            selectedSampleKeys={new Set()}
+            onParamChanged={() => {}}
+            onSampleSelect={() => {}}
+            onSampleDeselect={() => {}}
+          />
+          }
+
+          {this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration] &&
+          <QuaternaryPlotComponent
+            samples={this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration]}
+            scalarField={scalarField}
+            activeMap={redWhiteBlue}
+            colorMapRange={[-20, 20]}
+            selectedSampleKeys={new Set()}
+            onParamChanged={() => {}}
+            onSampleSelect={() => {}}
+            onSampleDeselect={() => {}}
+          />
+          }
+        </Fragment>
+        }
       </div>
     );
   }
