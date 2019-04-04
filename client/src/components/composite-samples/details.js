@@ -19,7 +19,7 @@ class SamplesDetails extends Component {
       </Select>
     );
 
-    const  detailSelector = (
+    const  _detailSelector = (
       <Select value={plots} onChange={(e) => { onParamChanged('plots', e.target.value)}}>
         <MenuItem value={'fitted'}>Fitted Data</MenuItem>
         <MenuItem value={'raw'}>Raw Data</MenuItem>
@@ -30,10 +30,10 @@ class SamplesDetails extends Component {
     return (
       <div>
         {display === 'spectrum' &&
-          <SpectrumComponent {...this.props} visSelector={visSelector} detailSelector={detailSelector} />
+          <SpectrumComponent {...this.props} visSelector={visSelector} detailSelector={null} />
         }
         {display === 'heatmap' &&
-          <HeatMapComponent {...this.props} visSelector={visSelector} detailSelector={detailSelector} />
+          <HeatMapComponent {...this.props} visSelector={visSelector} detailSelector={null} />
         }
       </div>
     );
