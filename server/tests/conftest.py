@@ -113,7 +113,6 @@ def create_cycletest_request():
         'batteryType': 'NiCd',
         'channel': '2',
         'comments': 'comments',
-        'scheduleFile': 'schedule0123.zip',
         'public': True
     }
 

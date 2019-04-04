@@ -83,16 +83,21 @@ class Project(Resource):
         .jsonParam('project', 'The project', required=True, paramType='body')
     )
     def create(self, project):
-        self.requireParams(['startDate', 'title', 'objective'], project)
+        require = ['title', 'objective']
 
+        if Setting().get(constants.CONFIGURATION_DEPLOYMENT != constants.SOW11_DEPLOYMENT):
+            require.append('startDate')
+
+        self.requireParams(require, project)
         start_date = project.get('startDate')
         title = project.get('title')
         objective = project.get('objective')
         motivation = project.get('motivation', None)
         public = project.get('public', False)
+        data_file_id = project.get('dataFileId')
 
         project = ProjectModel().create(start_date, title,
-            objective, motivation, self.getCurrentUser(), public)
+            objective, motivation, self.getCurrentUser(), data_file_id, public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/projects/%s' % project['_id']

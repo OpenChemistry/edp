@@ -1,6 +1,3 @@
-import numpy as np
-from scipy.interpolate import UnivariateSpline as Spline
-
 def make_models(data, ks, smooth):
     model = {}
     for key in data.keys():
@@ -34,6 +31,9 @@ def make_models(data, ks, smooth):
     return model
 
 def smooth_spline(data, key, k, smooth):
+    import numpy as np
+    from scipy.interpolate import UnivariateSpline as Spline
+
     span = max(data[key]) - min(data[key])
     y = np.array(data[key])
     x = np.linspace(0, 1, num=len(y), endpoint=False)

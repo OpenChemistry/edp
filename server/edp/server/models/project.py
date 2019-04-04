@@ -35,7 +35,8 @@ class Project(AccessControlledModel):
 
         return project
 
-    def create(self, start_date, title, objective, motivation, user, public=False):
+    def create(self, start_date, title, objective, motivation, user,
+               data_file_id=None, public=False):
 
         project = {
             'startDate': start_date,
@@ -44,6 +45,9 @@ class Project(AccessControlledModel):
             'motivation': motivation,
             'owner': user['_id']
         }
+
+        if data_file_id is not None:
+            project['dataFileId'] = data_file_id
 
         self.setPublic(project, public=public)
         self.setUserAccess(project, user=user, level=AccessType.ADMIN)
