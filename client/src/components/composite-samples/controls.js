@@ -13,22 +13,7 @@ import {
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
-import { colors } from 'composition-plot';
-
-import QuaternaryPlotComponent from './quaternary-plot';
-
-class PlotComponentContainer extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.colorMaps = {
-      'Viridis': colors.viridis,
-      'Plasma': colors.plasma,
-      'Red White Blue': colors.redWhiteBlue,
-      'Green Blue': [[0, 1, 0], [0, 0, 1]],
-    }
-  }
+class CompositeControlComponent extends Component {
 
   onScalarChange(scalarField) {
     const { onParamChanged } = this.props;
@@ -61,18 +46,19 @@ class PlotComponentContainer extends Component {
 
   render() {
     const {
+      children,
       samples,
       scalarField,
+      scalarFields,
+      dataRange,
       activeMap,
+      colorMaps,
       colorMapRange,
       onClearSelection,
       selectedSamples,
-      selectedSampleKeys,
       detailsPanel,
       mlModels,
       onSampleSelectById,
-      onSampleDeselect,
-      onSampleSelect,
       onParamChanged,
       mlModelIteration,
       nMlModelIteration,
@@ -80,16 +66,13 @@ class PlotComponentContainer extends Component {
       mlModelMetrics
     } = this.props;
 
-    const scalars = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalars() : [];
-    const dataRange = this.quaternaryPlot ? this.quaternaryPlot.dp.getScalarRange(scalarField) : [0, 1];
-
     let scalarSelectOptions = [];
-    for (let scalar of scalars) {
+    for (let scalar of scalarFields) {
       scalarSelectOptions.push(<MenuItem key={scalar} value={scalar}>{scalar.replace('\\u002', '.')}</MenuItem>)
     }
 
     let colorMapSelectOptions = [];
-    for (let name in this.colorMaps) {
+    for (let name in colorMaps) {
       colorMapSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
     }
 
@@ -178,17 +161,7 @@ class PlotComponentContainer extends Component {
           </TableBody>
         </Table>
 
-        <QuaternaryPlotComponent
-          ref={(ref) => {this.quaternaryPlot = ref;}}
-          samples={samples}
-          scalarField={scalarField}
-          activeMap={activeMap}
-          colorMapRange={colorMapRange}
-          selectedSampleKeys={selectedSampleKeys}
-          onParamChanged={onParamChanged}
-          onSampleSelect={onSampleSelect}
-          onSampleDeselect={onSampleDeselect}
-        />
+        {children}
 
         {detailsPanel === 'details' &&
         <Table>
@@ -271,4 +244,4 @@ class PlotComponentContainer extends Component {
   }
 }
 
-export default PlotComponentContainer;
+export default CompositeControlComponent;

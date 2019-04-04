@@ -10,15 +10,18 @@ import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
 import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
 
 import { parseUrlMatch } from '../../nodes';
-import CompositeSamples from '../../components/composite-samples';
 import SamplesDetails from './details';
 
 import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
 
 import NotFoundPage from '../../components/notFound.js';
+import { colors } from 'composition-plot';
 import { redWhiteBlue } from 'composition-plot/dist/utils/colors';
+import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
 import { isNil } from 'lodash-es';
 import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
+import CompositeControlComponent from '../../components/composite-samples/controls';
+import MultidimensionPlotComponent from '../../components/composite-samples/multidimension-plot';
 
 const identity = val => val;
 
@@ -77,6 +80,10 @@ const URL_PARAMS = {
     deserialize: defaultWrapper(identity, 'Viridis')
   },
   colorMapRange: {
+    serialize: defaultWrapper(arraySerialize, null),
+    deserialize: defaultWrapper(arrayDeserialize, [0, 1])
+  },
+  filterRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
   },
@@ -172,6 +179,8 @@ class CompositeSamplesContainer extends Component {
     super(props);
 
     this.state = {
+      quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
+      octCompositionToPosition: null,
       mlModels: {
         'Model 1': {
           nIterations: 50,
@@ -197,7 +206,16 @@ class CompositeSamplesContainer extends Component {
           samplesCompare: {},
           metrics: {}
         },
-      }
+      },
+      scalarFields: [],
+      dataRange: [0, 1]
+    }
+
+    this.colorMaps = {
+      'Viridis': colors.viridis,
+      'Plasma': colors.plasma,
+      'Red White Blue': colors.redWhiteBlue,
+      'Green Blue': [[0, 1, 0], [0, 0, 1]],
     }
   }
 
@@ -207,6 +225,25 @@ class CompositeSamplesContainer extends Component {
     for (let _id of selectedSampleKeys.values()) {
       this.fetchSampleTimeSeries({_id}, plots);
     }
+
+    fetch('/8dcomp2xyz.json')
+    .then(res => res.json())
+    .then(data => {this.updateCompositionToPosition(data);})
+    .catch(e=> console.log('ERRRR', e));
+  }
+
+  updateCompositionToPosition(data) {
+    let compositionToPosition = null;
+
+    if (Array.isArray(data)) {
+      compositionToPosition = new NearestCompositionToPositionProvider();
+      compositionToPosition.setData(8, 10, data, false);
+    }
+
+    this.setState(state => {
+      state.octCompositionToPosition = compositionToPosition;
+      return state;
+    });
   }
 
   onSampleSelectById = (id) => {
@@ -342,6 +379,26 @@ class CompositeSamplesContainer extends Component {
     return metrics;
   }
 
+  onStateParamChanged = (...args) => {
+    let updates;
+    if (args.length === 1) {
+      updates = args[0];
+    } else if (args.length === 2) {
+      updates = {[args[0]]: args[1]};
+    } else {
+      return;
+    }
+
+    this.setState(state => {
+      for (let key in updates) {
+        if (key in state) {
+          state[key] = updates[key];
+        }
+      }
+      return state;
+    });  
+  }
+
   onParamChanged = (...args) => {
     // Either pass one single object with the key/value pairs to update
     // or pass two arguments, (key first, value second)
@@ -391,6 +448,7 @@ class CompositeSamplesContainer extends Component {
       scalarField,
       activeMap,
       colorMapRange,
+      filterRange,
       xAxisS,
       yAxisS,
       yOffsetS,
@@ -406,6 +464,14 @@ class CompositeSamplesContainer extends Component {
       mlModelMetric
     } = this.props;
 
+    const {
+      quatCompositionToPosition,
+      octCompositionToPosition,
+      mlModels,
+      scalarFields,
+      dataRange
+    } = this.state;
+
     if (samples.length === 0) {
       // return <NotFoundPage />;
       return null;
@@ -413,26 +479,67 @@ class CompositeSamplesContainer extends Component {
 
     return (
       <div>
-        <CompositeSamples
-          samples={samples}
+        <CompositeControlComponent
           scalarField={scalarField}
+          scalarFields={scalarFields}
+          dataRange={dataRange}
           activeMap={activeMap}
+          colorMaps={this.colorMaps}
           colorMapRange={colorMapRange}
+          filterRange={filterRange}
           selectedSamples={selectedSamples}
           selectedSampleKeys={selectedSampleKeys}
           selectionPanel={selectionPanel}
           detailsPanel={detailsPanel}
-          mlModels={Object.keys(this.state.mlModels)}
+          mlModels={Object.keys(mlModels)}
           mlModelIteration={mlModelIteration}
-          nMlModelIteration={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel].nIterations -1 : 1}
+          nMlModelIteration={mlModels[detailsPanel] ? mlModels[detailsPanel].nIterations -1 : 1}
           mlModelMetric={mlModelMetric}
-          mlModelMetrics={this.state.mlModels[detailsPanel] && this.state.mlModels[detailsPanel].metrics[mlModelIteration] ? Object.keys(this.state.mlModels[detailsPanel].metrics[mlModelIteration]) : []}
+          mlModelMetrics={mlModels[detailsPanel] && mlModels[detailsPanel].metrics[mlModelIteration] ? Object.keys(mlModels[detailsPanel].metrics[mlModelIteration]) : []}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
           onSampleSelectById={this.onSampleSelectById}
           onClearSelection={this.onClearSelection}
           onParamChanged={this.onParamChanged}
-        />
+        >
+          <QuaternaryPlotComponent
+            ref={(ref) => {this.quaternaryPlot = ref;}}
+            samples={samples}
+            scalarField={scalarField}
+            colorMaps={this.colorMaps}
+            activeMap={activeMap}
+            colorMapRange={colorMapRange}
+            selectedSampleKeys={selectedSampleKeys}
+            onParamChanged={this.onParamChanged}
+            onStateParamChanged={this.onStateParamChanged}
+            onSampleSelect={this.onSampleSelect}
+            onSampleDeselect={this.onSampleDeselect}
+          />
+
+          {octCompositionToPosition &&
+          <MultidimensionPlotComponent
+            samples={samples}
+            compositionToPosition={octCompositionToPosition}
+            scalarField={scalarField}
+            colorMaps={this.colorMaps}
+            activeMap={activeMap}
+            colorMapRange={colorMapRange}
+            filterRange={filterRange}
+            onParamChanged={this.onParamChanged}
+          />
+          }
+
+          <MultidimensionPlotComponent
+            samples={samples}
+            compositionToPosition={quatCompositionToPosition}
+            scalarField={scalarField}
+            colorMaps={this.colorMaps}
+            activeMap={activeMap}
+            colorMapRange={colorMapRange}
+            filterRange={filterRange}
+            onParamChanged={this.onParamChanged}
+          />
+        </CompositeControlComponent>
 
         {detailsPanel === 'details' &&
         <SamplesDetails
@@ -453,18 +560,18 @@ class CompositeSamplesContainer extends Component {
 
         {detailsPanel !== 'details' &&
         <Fragment>
-          {this.state.mlModels[detailsPanel].metrics &&
+          {mlModels[detailsPanel].metrics &&
           <ModelMetricsComponent
-            metrics={this.state.mlModels[detailsPanel].metrics}
+            metrics={mlModels[detailsPanel].metrics}
             mlModelMetric={mlModelMetric}
             scalarField={scalarField}
-            nIterations={this.state.mlModels[detailsPanel] ? this.state.mlModels[detailsPanel].nIterations : 1}
+            nIterations={mlModels[detailsPanel] ? mlModels[detailsPanel].nIterations : 1}
             onParamChanged={this.onParamChanged}
           />
           }
-          {this.state.mlModels[detailsPanel].samples[mlModelIteration] &&
+          {mlModels[detailsPanel].samples[mlModelIteration] &&
           <QuaternaryPlotComponent
-            samples={this.state.mlModels[detailsPanel].samples[mlModelIteration]}
+            samples={mlModels[detailsPanel].samples[mlModelIteration]}
             scalarField={scalarField}
             activeMap={activeMap}
             colorMapRange={colorMapRange}
@@ -475,9 +582,9 @@ class CompositeSamplesContainer extends Component {
           />
           }
 
-          {this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration] &&
+          {mlModels[detailsPanel].samplesCompare[mlModelIteration] &&
           <QuaternaryPlotComponent
-            samples={this.state.mlModels[detailsPanel].samplesCompare[mlModelIteration]}
+            samples={mlModels[detailsPanel].samplesCompare[mlModelIteration]}
             scalarField={scalarField}
             activeMap={redWhiteBlue}
             colorMapRange={[-20, 20]}
