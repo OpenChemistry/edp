@@ -25,7 +25,6 @@ from .timeseries import TimeSeries
 from . import configuration
 from . import constants
 
-
 class Route(object):
 
     def __init__(self, resource, route):
@@ -50,7 +49,6 @@ class Project(Resource):
         super(Project, self).__init__()
         deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
         project_route = self.add_route('projectId', self)
-
         if deployment == constants.SOW10_DEPLOYMENT:
             batch_route = project_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
             batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
@@ -67,7 +65,6 @@ class Project(Resource):
             platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
             sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
             sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
-
             self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
 
     def add_route(self, id_name, resource):

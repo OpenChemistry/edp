@@ -1,9 +1,11 @@
 import { createAction, handleActions } from 'redux-actions';
 import { merge } from "lodash"
+import { ArrayDataProvider, SplineDataProvider } from 'composition-plot/dist/data-provider/spectrum';
 
 const initialState = {
   samples: [],
-  timeseries: {}
+  timeseries: {},
+  fittedTimeseries: {}
 }
 
 // Selectors
@@ -11,7 +13,13 @@ export const getSamples = (state, platemapId, runId) => {
   return state.composites.samples.filter(val => val.platemapId === platemapId);
 }
 
-export const getTimeSerie = (state, sampleId) => state.composites.timeseries[sampleId];
+export const getTimeSerie = (state, sampleId, fitted) => {
+  if (fitted) {
+    return state.composites.fittedTimeseries[sampleId];
+  } else {
+    return state.composites.timeseries[sampleId];
+  }
+}
 
 // Actions
 
@@ -36,6 +44,22 @@ function patchSample(sample, platemapId, runId) {
   return sample;
 }
 
+function toArrayProvider(timeserie) {
+  const provider = new ArrayDataProvider();
+  for (let key in timeserie.data) {
+    provider.setArray(key, timeserie.data[key]);
+  }
+  return provider;
+}
+
+function toSplineProvider(timeserie) {
+  const provider = new SplineDataProvider();
+  for (let key in timeserie.data) {
+    provider.setArray(key, timeserie.data[key]);
+  }
+  return provider;
+}
+
 const reducer = handleActions({
   [FETCH_SAMPLES_REQUESTED]: (state, action) => {
     return {...state, samples: initialState.samples};
@@ -45,7 +69,7 @@ const reducer = handleActions({
     return {...state, samples: samples.map(sample => patchSample(sample, platemapId, runId))};
   },
   [FETCH_TIMESERIE_SUCCEEDED]: (state, action) => {
-    const timeseries = action.payload;
+    const { timeseries, fitted } = action.payload;
     if (timeseries.length === 0) {
       return state;
     }
@@ -53,7 +77,11 @@ const reducer = handleActions({
     // For now merge into a single object
     const timeserie = merge({}, ...timeseries);
 
-    return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: timeserie.data}};
+    if ( fitted ) {
+      return {...state, fittedTimeseries: {...state.fittedTimeseries, [timeserie.sampleId]: toSplineProvider(timeserie)}};
+    } else {
+      return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: toArrayProvider(timeserie)}};
+    }
   },
 }, initialState);
 

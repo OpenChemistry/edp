@@ -104,16 +104,26 @@ const URL_PARAMS = {
   selectionH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '')
+  },
+  plots: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, 'raw'),
+    callback: function(currValue, nextValue) {
+      const { selectedSampleKeys } = this.props;
+      for (let _id of selectedSampleKeys.values()) {
+        this.fetchSampleTimeSeries({_id}, nextValue);
+      }
+    }
   }
 }
 
 class CompositeSamplesContainer extends Component {
 
   componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys } = this.props;
+    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
     for (let _id of selectedSampleKeys.values()) {
-      this.fetchSampleTimeSeries({_id});
+      this.fetchSampleTimeSeries({_id}, plots);
     }
   }
 
@@ -138,7 +148,8 @@ class CompositeSamplesContainer extends Component {
   }
 
   onSampleSelect = (sample) => {
-    this.fetchSampleTimeSeries(sample);
+    const { plots } = this.props;
+    this.fetchSampleTimeSeries(sample, plots);
     const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
     selectedSampleKeys.add(sample._id);
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
@@ -150,11 +161,18 @@ class CompositeSamplesContainer extends Component {
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
   }
 
-  fetchSampleTimeSeries = (sample) => {
+  fetchSampleTimeSeries = (sample, plots) => {
     const { ancestors, item, dispatch, runId } = this.props;
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
-    dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId}));
+    const fetchRaw = plots.includes('raw');
+    const fetchFitted = plots.includes('fitted');
+    if (fetchRaw) {
+      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: false}));
+    }
+    if (fetchFitted) {
+      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: true}));
+    }
   }
 
   onParamChanged = (...args) => {
@@ -174,6 +192,9 @@ class CompositeSamplesContainer extends Component {
 
     for (let key in updates) {
       if (key in URL_PARAMS) {
+        if (URL_PARAMS[key].callback) {
+          URL_PARAMS[key].callback.call(this, props[key], updates[key]);
+        }
         props[key] = updates[key];
       }
     }
@@ -210,7 +231,8 @@ class CompositeSamplesContainer extends Component {
       zAxisH,
       reduceFnH,
       separateSlopeH,
-      selectionH
+      selectionH,
+      plots
     } = this.props;
 
     if (samples.length === 0) {
@@ -245,6 +267,7 @@ class CompositeSamplesContainer extends Component {
           reduceFnH={reduceFnH}
           separateSlopeH={separateSlopeH}
           selectionH={selectionH}
+          plots={plots}
         />
       </div>
     );

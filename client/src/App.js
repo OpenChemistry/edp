@@ -10,6 +10,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { history } from './redux/store';
 import PrivateRoute from './containers/privateRoute';
+import PublicRoute from './containers/publicRoute';
 
 import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
@@ -64,24 +65,24 @@ class App extends Component {
             <Switch>
               <PrivateRoute path={'/:url0/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
-              <Route path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
 
-              <Route path={'/search'} exact component={SearchContainer} />
+              <PublicRoute path={'/search'} exact component={SearchContainer} />
 
-              <Route path={ROOT_ROUTE} exact component={ItemView} />
+              <PublicRoute path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
           </div>
         </ConnectedRouter>
