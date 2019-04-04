@@ -33,7 +33,17 @@ class HeatMapComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    let doUpdate = false;
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
+      doUpdate = true;
+    }
+
+    if (this.props.plots !== prevProps.plots) {
+      doUpdate = true;
+    }
+
+    if (doUpdate) {
       this.onNewData();
     }
   }
@@ -43,12 +53,12 @@ class HeatMapComponent extends Component {
     // this.spectraPlot.setSpectra(timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
-      const sampleFields = Object.keys(spectrum);
+      const sampleFields = spectrum.getKeys();
       let { yAxisH, zAxisH } = this.props;
-      if (!(yAxisH in spectrum)) {
+      if (!(spectrum.hasKey(yAxisH))) {
         yAxisH = sampleFields[0];
       }
-      if (!(zAxisH in spectrum)) {
+      if (!(spectrum.hasKey(zAxisH))) {
         zAxisH = sampleFields[1];
       }
       // spectrum[xField] = [0, 0.2, 0.4, 0.6, 0.8, 1, 0.8, 0.6, 0.4, 0.2, 0];
@@ -120,7 +130,7 @@ class HeatMapComponent extends Component {
   }
 
   render() {
-    const { visSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
+    const { visSelector, detailSelector, yAxisH, zAxisH, reduceFnH, separateSlopeH, selectionH } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -138,6 +148,9 @@ class HeatMapComponent extends Component {
         <Table>
           <TableHead>
             <TableRow>
+              {detailSelector &&
+              <TableCell>Data</TableCell>
+              }
               {visSelector &&
               <TableCell>Display</TableCell>
               }
@@ -148,6 +161,13 @@ class HeatMapComponent extends Component {
           </TableHead>
           <TableBody>
             <TableRow>
+              {detailSelector &&
+              <TableCell>
+                <FormControl fullWidth>
+                  {detailSelector}
+                </FormControl>
+              </TableCell>
+              }
               {visSelector &&
               <TableCell>
                 <FormControl fullWidth>

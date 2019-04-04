@@ -25,7 +25,6 @@ from .timeseries import TimeSeries
 from . import configuration
 from . import constants
 
-
 class Route(object):
 
     def __init__(self, resource, route):
@@ -50,7 +49,6 @@ class Project(Resource):
         super(Project, self).__init__()
         deployment = Setting().get(constants.CONFIGURATION_DEPLOYMENT)
         project_route = self.add_route('projectId', self)
-
         if deployment == constants.SOW10_DEPLOYMENT:
             batch_route = project_route.add_child_route(BatchModel().url, 'batchId', resource.create(BatchModel)())
             batch_route.add_child_route(CycleTestModel().url, 'cycletestId', resource.create(CycleTestModel)())
@@ -67,7 +65,6 @@ class Project(Resource):
             platemap_route = composite_route.add_child_route((PlateMapModel().url), 'platemapId', resource.create(PlateMapModel)())
             sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
             sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
-
             self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
 
     def add_route(self, id_name, resource):
@@ -86,16 +83,21 @@ class Project(Resource):
         .jsonParam('project', 'The project', required=True, paramType='body')
     )
     def create(self, project):
-        self.requireParams(['startDate', 'title', 'objective'], project)
+        require = ['title', 'objective']
 
+        if Setting().get(constants.CONFIGURATION_DEPLOYMENT != constants.SOW11_DEPLOYMENT):
+            require.append('startDate')
+
+        self.requireParams(require, project)
         start_date = project.get('startDate')
         title = project.get('title')
         objective = project.get('objective')
         motivation = project.get('motivation', None)
         public = project.get('public', False)
+        data_file_id = project.get('dataFileId')
 
         project = ProjectModel().create(start_date, title,
-            objective, motivation, self.getCurrentUser(), public)
+            objective, motivation, self.getCurrentUser(), data_file_id, public)
 
         cherrypy.response.status = 201
         cherrypy.response.headers['Location'] = '/projects/%s' % project['_id']

@@ -1,6 +1,7 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
+import ReactMarkdown from 'react-markdown'
 
 import { isNil } from 'lodash-es';
 
@@ -52,8 +53,10 @@ export function renderDisplayFields(fields, exclude = null) {
             <Typography gutterBottom variant="subheading" color="textSecondary">
               {label}
             </Typography>
-            <Typography  paragraph>
-              {value}
+            <Typography component='div'>
+              <ReactMarkdown >
+                {value}
+              </ReactMarkdown>
             </Typography>
           </div>
         );

@@ -32,8 +32,7 @@ function createProjectFields(project) {
       label: 'Start date',
       type: 'date',
       value: project ? project.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
+      error: ''
     },
     'title' : {
       label: 'Title',
@@ -44,7 +43,7 @@ function createProjectFields(project) {
     },
     'objective' : {
       label: 'Objective',
-      type: 'text',
+      type: 'textarea',
       value: project ? project.objective : '',
       error: '',
       validate: [required]
@@ -70,8 +69,7 @@ function createBatchFields(batch) {
       label: 'Start date',
       type: 'date',
       value: batch ? batch.startDate : (new Date()).toISOString().slice(0,10),
-      error: '',
-      validate: [required]
+      error: ''
     },
     'title' : {
       label: 'Title',
@@ -104,8 +102,7 @@ function createBatchFields(batch) {
       label: 'Data notes',
       type: 'textarea',
       value: batch ? batch.dataNotes : '',
-      error: '',
-      validate: [required]
+      error: ''
     },
     'completed': {
       label: 'Completed',
@@ -162,8 +159,7 @@ function createTest0Fields(test = undefined) {
       label: 'Battery type',
       type: 'text',
       value: test ? test.batteryType : '',
-      error: '',
-      validate: [required]
+      error: ''
     },
     'cellId' : {
       label: 'Cell ID',
@@ -193,27 +189,20 @@ function createTest0Fields(test = undefined) {
     },
     'scheduleFile' : {
       label: 'Schedule file',
-      type: 'text',
+      type: 'file',
       value: test ? test.scheduleFile : '',
-      error: '',
-      validate: [required]
+      error: ''
+    },
+    'scheduleFileId' : {
+      label: 'Schedule file',
+      type: 'fileId',
+      value: test ? test.scheduleFileId : null,
+      error: ''
     },
     'metaDataFile' : {
       label: 'Metadata file',
       type: 'file',
       value: test ? test.metaDataFile : '',
-      error: ''
-    },
-    'dataFile' : {
-      label: 'Data file',
-      type: 'file',
-      value: test ? test.dataFile : '',
-      error: ''
-    },
-    'comments': {
-      label: 'Comments',
-      type: 'textarea',
-      value: test ? test.comments : '',
       error: ''
     },
     'metaDataFileId' : {
@@ -222,10 +211,22 @@ function createTest0Fields(test = undefined) {
       value: test ? test.metaDataFileId : null,
       error: ''
     },
+    'dataFile' : {
+      label: 'Data file',
+      type: 'file',
+      value: test ? test.dataFile : '',
+      error: ''
+    },
     'dataFileId' : {
       label: 'Data file',
       type: 'fileId',
       value: test ? test.dataFileId : null,
+      error: ''
+    },
+    'comments': {
+      label: 'Comments',
+      type: 'textarea',
+      value: test ? test.comments : '',
       error: ''
     },
     'public': {

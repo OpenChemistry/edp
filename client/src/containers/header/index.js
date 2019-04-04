@@ -8,9 +8,11 @@ import { ROOT_ROUTE } from '../../routes';
 import Header from '../../components/header/';
 
 import { auth } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 import { getServerSettings } from '../../redux/ducks/settings';
 import { SOW10 } from '../../nodes';
-import { isNil } from 'lodash-es';
+import { isNil, isEmpty } from 'lodash-es';
+import logo from '../../assets/logo.svg';
 
 class HeaderContainer extends Component {
 
@@ -35,18 +37,39 @@ class HeaderContainer extends Component {
 
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
-  const { deployment } = getServerSettings(state);
+  const settings = getServerSettings(state);
+  const { deployment, showMenu, showSearch, headerLeftLogoFileId,
+          headerRightLogoFileId, headerRightLogoUrl } = settings;
 
   const props = {
-      loggedIn
+      loggedIn,
+      headerRightLogoUrl
   };
 
-  if (!isNil(deployment)) {
-    props.showMenu = deployment !== SOW10;
-    props.showSearch = deployment !== SOW10;
+  if (!isNil(settings)) {
+    props.showMenu = showMenu;
+    props.showSearch = showSearch;
+  }
+
+  if (!isNil(headerLeftLogoFileId)) {
+    const baseUrl = girderClient().getBaseURL();
+    props.leftLogo = `${baseUrl}/file/${headerLeftLogoFileId}/download`
+  }
+  else if (!isEmpty(settings)) {
+    props.leftLogo = logo;
+  }
+
+  if (!isNil(headerRightLogoFileId)) {
+    const baseUrl = girderClient().getBaseURL();
+    props.rightLogo = `${baseUrl}/file/${headerRightLogoFileId}/download`
   }
 
   return props
+}
+
+HeaderContainer.defaultProps = {
+  showMenu: false,
+  showSearch: false
 }
 
 export default connect(mapStateToProps)(HeaderContainer);

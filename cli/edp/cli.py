@@ -12,6 +12,9 @@ from edp.composite import _ingest_runs, _ingest_samples, _ingest_run_data
 import importlib
 from edp.deploy import deploy
 import pytz
+from pathlib import Path
+from itertools import chain
+
 
 class GC(GirderClient):
 
@@ -56,7 +59,14 @@ class GC(GirderClient):
 def cli():
     pass
 
-def _ingest_batch(gc, data_folder, project, cycle, dir, public,
+def _generate_schedule_file_map(schedule_dir):
+    schedule_map = {}
+    for f in chain(glob.glob('%s/**/*.SDU' % schedule_dir), glob.glob('%s/**/*.sdu' % schedule_dir)):
+        schedule_map[Path(f).name.lower()] = f
+
+    return schedule_map
+
+def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
                   summary_func, timezone):
     timezone = pytz.timezone(timezone)
 
@@ -103,6 +113,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
 
     click.echo(click.style('Batch created: %s' % batch['_id'], fg='red'))
 
+    schedule_file_map = _generate_schedule_file_map(schedule_dir)
     metafile_regex =  re.compile(r'^(\d{4}-\d{2}-\d{2}_.*_CH(\d+))_Metadata.csv$')
     for meta_file in glob.glob('%s/*Metadata.csv' % dir):
         name = os.path.basename(meta_file)
@@ -124,13 +135,21 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
             cell_id = row['item_id']
             schedule_file = row['schedule_file_name']
 
+        # Find the schedule file, there seems to be a mix of case!
+        schedule_file = schedule_file.split('\\')[1]
+        if schedule_file.lower() not in  schedule_file_map:
+            click.echo(click.style('Unable to file schedule file: %s.' % schedule_file, fg='yellow'))
+            schedule_file = None
+        else:
+            click.echo(click.style('Uploading schedule file', fg='blue'))
+            schedule_file = gc.uploadFileToFolder(data_folder['_id'], schedule_file_map[schedule_file.lower()])
+
         click.echo(click.style('Uploading meta data file', fg='blue'))
         meta_file = gc.uploadFileToFolder(data_folder['_id'], meta_file)
         click.echo(click.style('Uploading data file', fg='blue'))
         data_file = gc.uploadFileToFolder(data_folder['_id'], data_file_path)
 
         if summary_func is not None:
-            print(data_file_path)
             summary = summary_func(data_file_path)
 
         test = {
@@ -139,12 +158,14 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
             'cellId': cell_id,
             'batteryType': '',
             'channel': channel,
-            'scheduleFile': schedule_file,
             'metaDataFileId': meta_file['_id'],
             'dataFileId': data_file['_id'],
             'public': 'public',
             'summary': summary
         }
+
+        if schedule_file is not None:
+            test['scheduleFileId'] = schedule_file['_id']
 
         test = gc.post('%s/%s/tests' % (batches_url, batch['_id']), json=test)
 
@@ -155,6 +176,8 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
 @click.option('-c', '--cycle', default=None, help='the cycle id')
 @click.option('-d', '--dir', help='path to batch(es) to ingest',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
+@click.option('-e', '--schedule_dir', help='path to the directory containing the schedule  to ingest',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
                    '(e.g https://girder.example.com/api/v1)')
 @click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
@@ -163,7 +186,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, public,
               help='Marked the data as public')
 @click.option('-s', '--summary-func', default=None, help='Fully qualified name of function to summarize test data.')
 @click.option('-z', '--timezone', default='UTC', help='The timezone (pyz format) for any timestamp conversion.')
-def _ingest(project, cycle, api_url, api_key, dir, public, summary_func, timezone):
+def _ingest(project, cycle, api_url, api_key, dir, schedule_dir, public, summary_func, timezone):
     gc = GC(api_url=api_url, api_key=api_key)
 
     # Try to get edp data folder
@@ -195,7 +218,7 @@ def _ingest(project, cycle, api_url, api_key, dir, public, summary_func, timezon
         batch_dirs = [dir]
 
     for batch_dir in batch_dirs:
-        _ingest_batch(gc, data_folder, project, cycle, batch_dir, public, summary_func, timezone)
+        _ingest_batch(gc, data_folder, project, cycle, batch_dir, schedule_dir, public, summary_func, timezone)
 
 @cli.command('ingest_composite', help='Ingest composite data')
 @click.option('-p', '--project', default=None, help='the project id', required=True)

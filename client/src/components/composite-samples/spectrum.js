@@ -31,7 +31,17 @@ class SpectrumComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    let doUpdate = false;
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
+      doUpdate = true;
+    }
+
+    if (this.props.plots !== prevProps.plots) {
+      doUpdate = true;
+    }
+
+    if (doUpdate) {
       this.updateSpectra();
     }
   }
@@ -42,11 +52,11 @@ class SpectrumComponent extends Component {
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
-      const sampleFields = Object.keys(spectrum);
-      if (!(xAxisS in spectrum)) {
+      const sampleFields = spectrum.getKeys();
+      if (!(spectrum.hasKey(xAxisS))) {
         xAxisS = sampleFields[0];
       }
-      if (!(yAxisS in spectrum)) {
+      if (!(spectrum.hasKey(yAxisS))) {
         yAxisS = sampleFields[1];
       }
       this.spectraPlot.setAxes(xAxisS, yAxisS);
@@ -73,7 +83,7 @@ class SpectrumComponent extends Component {
   }
 
   render() {
-    const { visSelector, xAxisS, yAxisS, yOffsetS } = this.props;
+    const { visSelector, detailSelector, xAxisS, yAxisS, yOffsetS } = this.props;
     let sampleFieldsSelectOptions = [];
     for (let name of this.state.sampleFields) {
       sampleFieldsSelectOptions.push(<MenuItem key={name} value={name}>{name}</MenuItem>)
@@ -84,6 +94,9 @@ class SpectrumComponent extends Component {
         <Table>
           <TableHead>
             <TableRow>
+              {detailSelector &&
+              <TableCell>Data</TableCell>
+              }
               {visSelector &&
               <TableCell>Display</TableCell>
               }
@@ -94,6 +107,13 @@ class SpectrumComponent extends Component {
           </TableHead>
           <TableBody>
             <TableRow>
+              {detailSelector &&
+              <TableCell>
+                <FormControl fullWidth>
+                  {detailSelector}
+                </FormControl>
+              </TableCell>
+              }
               {visSelector &&
               <TableCell>
                 <FormControl fullWidth>

@@ -20,8 +20,19 @@ import {
   createFieldsFactory as sow10createFieldsFactory
 } from './sow10/fields';
 
+import {
+  NODES as sow11NODES,
+  getNodeType as sow11getNodeType
+} from './sow11/hierarchy';
+
+import {
+  createFieldsFactory as sow11createFieldsFactory
+} from './sow11/fields';
+
+
 export const SOW8 = 'sow8';
 export const SOW10 = 'sow10';
+export const SOW11 = 'sow11';
 
 let DEPLOYMENT = null;
 
@@ -36,6 +47,8 @@ export function getNodes() {
       return sow8NODES;
     } case SOW10 : {
       return sow10NODES;
+    } case SOW11 : {
+      return sow11NODES;
     } default : {
       return defaultVal;
     }
@@ -124,6 +137,8 @@ function getNodeType(url, i) {
       return sow8getNodeType(url, i);
     } case SOW10 : {
       return sow10getNodeType(url, i);
+    } case SOW11 : {
+      return sow11getNodeType(url, i);
     } default : {
       return defaultVal(url, i);
     }
@@ -137,6 +152,8 @@ export function createFieldsFactory(nodeType) {
       return sow8createFieldsFactory(nodeType);
     } case SOW10 : {
       return sow10createFieldsFactory(nodeType);
+    } case SOW11 : {
+      return sow11createFieldsFactory(nodeType);
     } default : {
       return defaultVal(nodeType);
     }

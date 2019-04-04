@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import './App.css';
 
-import { Switch, Route } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router'
 
 import { withStyles } from '@material-ui/core/styles';
@@ -10,6 +10,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { history } from './redux/store';
 import PrivateRoute from './containers/privateRoute';
+import PublicRoute from './containers/publicRoute';
 
 import Header from './containers/header/';
 import BreadCrumb from './containers/breadcrumb';
@@ -25,6 +26,7 @@ import CompositeSamplesView from './containers/composite-samples';
 import MultidimensionContainer from './containers/multidimension';
 
 import Footer from './containers/footer';
+import Head from './containers/head';
 
 const appStyles = theme => ({
   root: {
@@ -56,6 +58,7 @@ class App extends Component {
     const {classes} = this.props;
     return (
       <div className={classes.root}>
+        <Head />
         <CssBaseline />
         <Header />
         <ConnectedRouter history={history}>
@@ -64,26 +67,26 @@ class App extends Component {
             <Switch>
               <PrivateRoute path={'/:url0/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
-              <Route path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:action(samples)'} exact component={CompositeSamplesView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2'} exact component={ItemView} />
 
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:action(add)'} exact component={ItemEdit} />
               <PrivateRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3/:action(edit)'} exact component={ItemEdit} />
-              <Route path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
+              <PublicRoute path={'/:url0/:id0/:url1/:id1/:url2/:id2/:url3/:id3'} exact component={ItemView} />
 
-              <Route path={'/search'} exact component={SearchContainer} />
+              <PublicRoute path={'/search'} exact component={SearchContainer} />
 
-              <Route path={'/multidimension'} exact component={MultidimensionContainer} />
+              <PublicRoute path={'/multidimension'} exact component={MultidimensionContainer} />
 
-              <Route path={ROOT_ROUTE} exact component={ItemView} />
+              <PublicRoute path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
           </div>
         </ConnectedRouter>
