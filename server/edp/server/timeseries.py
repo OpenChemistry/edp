@@ -46,7 +46,7 @@ class TimeSeries(resource.create(TimeSeriesModel)):
                                                                  level=AccessType.READ,
                                                                  limit=limit, offset=offset))
 
-        if fitted:
+        if fitted and False:
             for t in timeseries:
                 t['data'] = make_models(t['data'], (1, 3), 0.15)
 
