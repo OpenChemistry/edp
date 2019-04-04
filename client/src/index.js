@@ -11,11 +11,23 @@ import registerServiceWorker from './registerServiceWorker';
 import store from './redux/store';
 
 import { auth } from '@openchemistry/girder-redux';
+import girderClient from '@openchemistry/girder-client';
 
 import { fetchServerSettings } from './redux/ducks/settings';
+import { history } from './redux/store';
 
 const cookies = new Cookies();
 const cookieToken = cookies.get('girderToken');
+
+let path = window.location.hash.slice(1);
+if (path) {
+  window.location.hash = '';
+  history.replace(`/${path}`);
+}
+
+// Set the prefix for API calls if we have one
+girderClient().setPrefix(window.PUBLIC_URL);
+
 // if there is no token the string "undefined" is returned ?!!
 // if (!isNil(cookieToken)) {
 if (cookieToken !== 'undefined') {
@@ -35,3 +47,5 @@ ReactDOM.render(
   document.getElementById('root')
 );
 registerServiceWorker();
+
+
