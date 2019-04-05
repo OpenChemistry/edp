@@ -30,24 +30,72 @@ class Sample(resource.create(SampleModel)):
         .pagingParams(defaultSort='sampleNum')
     )
     def find(self, project, composite, runId, platemapId, offset=0, limit=None, sort=None):
-        sample_ids = None
+        platemap = PlateMapModel().load(ObjectId(platemapId), level=AccessType.READ, user=getCurrentUser())
 
-        if platemapId is not None:
-            platemap = PlateMapModel().load(ObjectId(platemapId), level=AccessType.READ, user=getCurrentUser())
-            sample_ids = platemap['sampleIds']
 
-        query = {}
-
-        if sample_ids is not None:
-            query['_id']= {
-                '$in': sample_ids
+        match_samples = {
+            '$match': {
+                'plateId': platemap['plateId']
             }
+        }
 
-        cursor = SampleModel().find(query=query, offset=offset,
-                                      sort=sort, user=getCurrentUser())
+        lookup_fom_match = {
+            '$expr': {
+                '$and': [{
+                    '$eq': ["$sampleId",  "$$id"]
+                    }]
+            }
+        }
 
+        if runId is not None:
+            lookup_fom_match['$expr']['$and'].append({
+                '$eq': ['$runId', ObjectId(runId)]
+            })
+
+
+        lookup_fom =   {
+            '$lookup':{
+               'from': 'edp.fom',
+               'let': {
+                   'id': '$_id'
+                },
+               'pipeline': [{
+                   '$match': lookup_fom_match
+                },
+                {
+                    '$group': {
+                        '_id': {
+                            'sampleId': '$sampleId',
+                            'runId': '$runId',
+                            'name': '$name',
+                            'value': '$value'
+                        }
+                    }
+                },
+                {
+                    '$replaceRoot': {
+                        'newRoot': "$_id"
+                    }
+                },
+                {
+                    '$project': {
+                        'sampleId': 0
+                    }
+                }
+               ],
+               'as': 'fom'
+             }
+        }
+
+        exclude_empty =  {
+            "$match": {
+                "fom": {"$ne": [] }
+            }
+        }
+
+        pipeline = [match_samples, lookup_fom, exclude_empty]
+        cursor = SampleModel().collection.aggregate(pipeline)
 
         return  list(SampleModel().filterResultsByPermission(cursor=cursor, user=getCurrentUser(),
                                                              level=AccessType.READ,
                                                              limit=limit, offset=offset))
-
