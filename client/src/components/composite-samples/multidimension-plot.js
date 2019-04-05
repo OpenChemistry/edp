@@ -43,7 +43,7 @@ class MultidimensionPlotComponent extends Component {
       filterRange[0] !== prevProps.filterRange[0] ||
       filterRange[1] !== prevProps.filterRange[1]
     ) {
-      this.onFilterRangeChange(activeMap);
+      this.onFilterRangeChange(filterRange);
     }
 
 
