@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { throttle } from 'lodash-es';
 
 import { MultidimensionalPlot } from 'composition-plot';
 import { DataProvider } from 'composition-plot/dist/data-provider/multidimensional';
@@ -11,6 +12,13 @@ class MultidimensionPlotComponent extends Component {
   multidimensionalPlot;
   plotElement;
   dp;
+
+  constructor(props) {
+    super(props);
+
+    this.onColorMapChange = throttle(this.onColorMapChange, 500, {leading: false});
+    this.onFilterRangeChange = throttle(this.onFilterRangeChange, 500, {leading: false});
+  }
 
   componentDidMount() {
     const { compositionToPosition, samples } = this.props;
@@ -111,12 +119,8 @@ class MultidimensionPlotComponent extends Component {
   }
 
   onFilterRangeChange(range) {
-    // const { onParamChanged } = this.props;
-
     this.onNewFilter(range);
     this.multidimensionalPlot.dataUpdated();
-
-    // onParamChanged({filterRange: range});
   }
 
   render() {

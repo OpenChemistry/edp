@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
+import { throttle } from 'lodash-es';
 
-import { QuaternaryPlot, colors } from 'composition-plot';
+import { QuaternaryPlot } from 'composition-plot';
 
 import { DataProvider } from 'composition-plot';
 
@@ -9,6 +10,12 @@ class QuaternaryPlotComponent extends Component {
   compositionElement;
   quaternaryPlot;
   dp;
+
+  constructor(props) {
+    super(props);
+
+    this.onColorMapChange = throttle(this.onColorMapChange, 500, {leading: false});
+  }
 
   componentDidMount() {
     const { onSampleDeselect, onSampleSelect } = this.props;
