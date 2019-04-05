@@ -52,6 +52,22 @@ class Run(Base):
                     'expose': True,
                     'create': True,
                     'ensure_index': True
+                },
+                {
+                    'name': 'name',
+                    'expose': True,
+                    'create': True
+                },
+                {
+                    'name': 'runPath',
+                    'expose': True,
+                    'create': True
+                },
+                {
+                    'name': 'parameters',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False
                 }
             ),
             parent_model=Composite,

@@ -28,6 +28,13 @@ class Sample(Base):
                     'expose': True,
                     'create': True,
                     'mutable': False
+                },
+                {
+                    'name': 'plateId',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False,
+                    'ensure_index': True
                 }
             ),
             paging_key='sampleId',

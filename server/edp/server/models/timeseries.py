@@ -27,6 +27,12 @@ class TimeSeries(Base):
                     'mutable': False,
                     'ensure_index': True,
                     'type': ObjectId
+                },
+                {
+                    'name': 'technique',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False
                 }
             ),
             parent_model=Sample,

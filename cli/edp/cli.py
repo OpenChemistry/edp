@@ -228,7 +228,7 @@ def _ingest(project, cycle, api_url, api_key, dir, schedule_dir, public, summary
                    '(e.g https://girder.example.com/api/v1)')
 @click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
               help='[default: GIRDER_API_KEY env. variable]', required=True)
-def _ingest_composite(project, dir, channel_map, api_url, api_key):
+def _ingest_composite(project, dir, api_url, api_key):
     if dir[-1] != '/':
         dir += '/'
     gc = GirderClient(apiUrl=api_url)
@@ -244,7 +244,7 @@ def _ingest_composite(project, dir, channel_map, api_url, api_key):
 
     experiments = _ingest_runs(gc, project, composite, dir)
 
-    samples = _ingest_samples(gc, project, composite, dir, experiments, channel_map)
+    samples = _ingest_samples(gc, project, composite, dir, experiments)
 
     _ingest_run_data(gc, project, composite, experiments, samples)
 
