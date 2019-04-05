@@ -251,8 +251,6 @@ def _ingest_loading(gc, project, composite, dir, loading_file, platemaps, sample
         else:
             sample = samples.setdefault(plate_id, {}).get(sample_number)
 
-        platemap.setdefault('sampleIds', []).append(sample['_id'])
-
     return samples
 
 
