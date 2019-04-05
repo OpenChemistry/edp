@@ -53,13 +53,11 @@ class MultidimensionPlotComponent extends Component {
     ) {
       this.onFilterRangeChange(filterRange);
     }
-
-
   }
 
   onNewSamples(samples) {
     samples = samples || [];
-    const { activeMap, onParamChanged, colorMaps } = this.props;
+    const { activeMap, onParamChanged, onStateParamChanged, colorMaps } = this.props;
     let { scalarField, colorMapRange, filterRange } = this.props;
     this.dp.setData(samples);
     scalarField = this.dp.getDefaultScalar(scalarField);
@@ -82,6 +80,12 @@ class MultidimensionPlotComponent extends Component {
       scalarField,
       colorMapRange
     });
+
+    const scalarFields = this.dp.getScalars();
+    onStateParamChanged({
+      dataRange,
+      scalarFields
+    });
   }
 
   onNewFilter(range) {
@@ -94,7 +98,7 @@ class MultidimensionPlotComponent extends Component {
   }
 
   onScalarChange(scalarField) {
-    const { activeMap, onParamChanged, colorMaps } = this.props;
+    const { activeMap, onParamChanged, onStateParamChanged, colorMaps } = this.props;
     this.dp.setActiveScalar(scalarField);
     const dataRange = this.dp.getScalarRange(scalarField);
     let colorMapRange = [...dataRange];
@@ -108,6 +112,10 @@ class MultidimensionPlotComponent extends Component {
       scalarField,
       colorMapRange,
       filterRange
+    });
+
+    onStateParamChanged({
+      dataRange
     });
   }
 
