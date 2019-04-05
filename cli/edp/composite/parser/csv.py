@@ -15,7 +15,7 @@ def _build_csv_parser():
 
     csv_header = pp.delimitedList(pp.Word(pp.printables, excludeChars=',')) + pp.LineEnd().suppress()
 
-    csv_row = pp.delimitedList(pp.Word(pp.nums + ';.+-e_') | pp.Literal('custom')) + pp.LineEnd().suppress()
+    csv_row = pp.delimitedList(pp.Word(pp.nums + ';.+-e_') | pp.Literal('custom') | pp.Literal('NaN')) + pp.LineEnd().suppress()
 
     indent_stack = [1]
     block = pp.Forward()
@@ -35,7 +35,7 @@ def _to_float(s):
     except ValueError:
         return s
 
-parser = None 
+parser = None
 def parse_csv(contents):
     global parser
     if parser is None:
