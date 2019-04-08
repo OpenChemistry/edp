@@ -46,14 +46,14 @@ class DoubleSliderControlComponent extends Component {
           <div>
             {value[0].toFixed(3)}
           </div>
-          <div style={{flexGrow: 1, paddingRight: 16}}>
-            <Slider 
-              aria-labelledby="map-range-label"
+          <div style={{flexGrow: 1, paddingRight: 8, paddingLeft: 8}}>
+            <Slider
               min={range[0]} max={range[1]} step={step}
               value={value[0]}
               onChange={(e, val) => {this.onValueChange(val, 0)}}
             />
             <Slider
+              style={{marginTop: '-2rem'}}
               min={range[0]} max={range[1]} step={step}
               value={value[1]}
               onChange={(e, val) => {this.onValueChange(val, 1)}}
