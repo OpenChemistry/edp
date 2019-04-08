@@ -1,12 +1,7 @@
 import React, {Component} from 'react';
 import {
   FormControl,
-  Typography,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  Typography
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 

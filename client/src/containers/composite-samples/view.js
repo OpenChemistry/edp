@@ -9,7 +9,9 @@ import QuaternaryPlotComponent from '../../components/composite-samples/quaterna
 import NotFoundPage from '../../components/notFound.js';
 import { colors } from 'composition-plot';
 import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
+
 import MultidimensionPlotComponent from '../../components/composite-samples/multidimension-plot';
+import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
 import SampleSelectionComponent from '../../components/composite-samples/controls/selection';
@@ -185,35 +187,37 @@ class CompositeSamplesContainer extends Component {
     }
 
     return (
-      <div>
-        <SelectControlComponent
-          label="Scalars"
-          value={scalarField}
-          options={scalarFields}
-          onChange={(scalarField) => {this.onParamChanged({scalarField})}}
-        />
+      <Fragment>
+        <ControlsGrid>
+          <SelectControlComponent
+            label="Composition plot"
+            value={compositionPlot}
+            options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
+            onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
+          />
 
-        <SelectControlComponent
-          label="Color map"
-          value={activeMap}
-          options={Object.keys(this.colorMaps)}
-          onChange={(activeMap) => {this.onParamChanged({activeMap})}}
-        />
+          <SelectControlComponent
+            label="Scalars"
+            value={scalarField}
+            options={scalarFields}
+            onChange={(scalarField) => {this.onParamChanged({scalarField})}}
+          />
 
-        <DoubleSliderControlComponent
-          label="Map range"
-          value={colorMapRange}
-          range={dataRange}
-          step={0.001}
-          onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
-        />
+          <SelectControlComponent
+            label="Color map"
+            value={activeMap}
+            options={Object.keys(this.colorMaps)}
+            onChange={(activeMap) => {this.onParamChanged({activeMap})}}
+          />
 
-        <SelectControlComponent
-          label="Composition plot"
-          value={compositionPlot}
-          options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
-          onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
-        />
+          <DoubleSliderControlComponent
+            label="Map range"
+            value={colorMapRange}
+            range={dataRange}
+            step={0.001}
+            onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
+          />
+        </ControlsGrid>
 
         {compositionPlot !== '3d' &&
         <QuaternaryPlotComponent
@@ -269,7 +273,7 @@ class CompositeSamplesContainer extends Component {
           />
         </Fragment>
         }
-      </div>
+      </Fragment>
     );
   }
 }

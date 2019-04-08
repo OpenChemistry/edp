@@ -3,12 +3,7 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  InputLabel
 } from '@material-ui/core';
 
 import { isString } from 'lodash-es';

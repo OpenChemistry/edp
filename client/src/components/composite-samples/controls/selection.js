@@ -4,6 +4,8 @@ import {
   Button
 } from '@material-ui/core';
 
+import ControlsGrid from './grid';
+
 class SampleSelectionComponent extends Component {
 
   render() {
@@ -14,7 +16,9 @@ class SampleSelectionComponent extends Component {
     } = this.props;
 
     return (
-        <div style={{display: 'flex'}}>
+      <ControlsGrid>
+
+        <div gridsize={{xs: 9}} style={{display: 'flex'}}>
           <TextField fullWidth
             disabled
             label='Selected samples'
@@ -22,17 +26,21 @@ class SampleSelectionComponent extends Component {
             value={selectedSamples.map(sample => sample.sampleNum).join(', ')}
           ></TextField>
           <Button onClick={onClearSelection}>Clear</Button>
-          <TextField
-            label='Add to selection'
-            InputLabelProps={{shrink: true}}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                onSampleSelectById(e.target.value);
-                e.target.value = '';
-              }
-            }}
-          ></TextField>
         </div>
+
+        <TextField
+          gridsize={{xs: 3}}
+          label='Add to selection'
+          InputLabelProps={{shrink: true}}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
+              onSampleSelectById(e.target.value);
+              e.target.value = '';
+            }
+          }}
+        ></TextField>
+
+      </ControlsGrid>
     );
   }
 }
