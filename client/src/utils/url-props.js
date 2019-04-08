@@ -84,7 +84,7 @@ export function onParamChanged(...args) {
 export function updateParams(props) {
   const { dispatch, location } = props;
   const URL_PARAMS = this.getUrlParams();
-  const searchParams = new URLSearchParams();
+  const searchParams = new URLSearchParams(props.location.search);
   for (let key in URL_PARAMS) {
     const val = URL_PARAMS[key].serialize(props[key]);
     if (val !== null && val !== undefined) {

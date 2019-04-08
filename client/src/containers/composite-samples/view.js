@@ -1,12 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
 
-import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
-
-import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
-
-import { parseUrlMatch } from '../../nodes';
 import SamplesDetails from './details';
 
 import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
@@ -27,8 +22,6 @@ import {
   numberDeserialize,
   boolSerialize,
   boolDeserialize,
-  setSerialize,
-  setDeserialize,
   defaultWrapper,
   onStateParamChanged,
   onParamChanged,
@@ -36,18 +29,6 @@ import {
 } from '../../utils/url-props';
 
 const URL_PARAMS = {
-  platemapId: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
-  },
-  runId: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
-  },
-  selectedSampleKeys: {
-    serialize: defaultWrapper(setSerialize, '[]'),
-    deserialize: defaultWrapper(setDeserialize, new Set())
-  },
   display: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'spectrum')
@@ -103,16 +84,6 @@ const URL_PARAMS = {
   selectionH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '')
-  },
-  plots: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, 'raw'),
-    callback: function(currValue, nextValue) {
-      const { selectedSampleKeys } = this.props;
-      for (let _id of selectedSampleKeys.values()) {
-        this.fetchSampleTimeSeries({_id}, nextValue);
-      }
-    }
   }
 }
 
@@ -141,12 +112,6 @@ class CompositeSamplesContainer extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
-    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
-    for (let _id of selectedSampleKeys.values()) {
-      this.fetchSampleTimeSeries({_id}, plots);
-    }
-
     fetch('/8dcomp2xyz.json')
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
@@ -165,54 +130,6 @@ class CompositeSamplesContainer extends Component {
       state.octCompositionToPosition = compositionToPosition;
       return state;
     });
-  }
-
-  onSampleSelectById = (id) => {
-    const { samples, selectedSampleKeys } = this.props;
-    const matches = samples.filter((s) => s.sampleNum == id);
-    if (matches.length === 0) {
-      return;
-    }
-
-    const sample = matches[0];
-
-    if (selectedSampleKeys.has(sample._id)) {
-      return;
-    }
-
-    this.onSampleSelect(sample);
-  }
-
-  onClearSelection = () => {
-    this.onParamChanged('selectedSampleKeys', new Set());
-  }
-
-  onSampleSelect = (sample) => {
-    const { plots } = this.props;
-    this.fetchSampleTimeSeries(sample, plots);
-    const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
-    selectedSampleKeys.add(sample._id);
-    this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
-  }
-
-  onSampleDeselect = (sample) => {
-    const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
-    selectedSampleKeys.delete(sample._id);
-    this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
-  }
-
-  fetchSampleTimeSeries = (sample, plots) => {
-    const { ancestors, item, dispatch, runId } = this.props;
-    const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
-    const item_ = {type: TIMESERIE_NODE};
-    const fetchRaw = plots.includes('raw');
-    const fetchFitted = plots.includes('fitted');
-    if (fetchRaw) {
-      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: false}));
-    }
-    if (fetchFitted) {
-      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: true}));
-    }
   }
 
   getUrlParams() {
@@ -238,8 +155,22 @@ class CompositeSamplesContainer extends Component {
       reduceFnH,
       separateSlopeH,
       selectionH,
-      plots
+      plots,
+      showDetails
     } = this.props;
+
+    let {
+      onSampleSelect,
+      onSampleDeselect,
+      onSampleSelectById,
+      onClearSelection
+    } = this.props;
+
+    const noOp = () => {};
+    onSampleSelect = onSampleSelect || noOp;
+    onSampleDeselect = onSampleDeselect || noOp;
+    onSampleSelectById = onSampleSelectById || noOp;
+    onClearSelection = onClearSelection || noOp;
 
     const {
       quatCompositionToPosition,
@@ -295,8 +226,8 @@ class CompositeSamplesContainer extends Component {
           selectedSampleKeys={selectedSampleKeys}
           onParamChanged={this.onParamChanged}
           onStateParamChanged={this.onStateParamChanged}
-          onSampleSelect={this.onSampleSelect}
-          onSampleDeselect={this.onSampleDeselect}
+          onSampleSelect={onSampleSelect}
+          onSampleDeselect={onSampleDeselect}
         />
         }
 
@@ -314,49 +245,43 @@ class CompositeSamplesContainer extends Component {
         />
         }
 
-        <SampleSelectionComponent
-          selectedSamples={selectedSamples}
-          onSampleSelectById={this.onSampleSelectById}
-          onClearSelection={this.onClearSelection}
-        />
+        {showDetails &&
+        <Fragment>
+          <SampleSelectionComponent
+            selectedSamples={selectedSamples}
+            onSampleSelectById={onSampleSelectById}
+            onClearSelection={onClearSelection}
+          />
 
-        <SamplesDetails
-          display={display}
-          selectedSamples={selectedSamples}
-          onParamChanged={this.onParamChanged}
-          xAxisS={xAxisS}
-          yAxisS={yAxisS}
-          yOffsetS={yOffsetS}
-          yAxisH={yAxisH}
-          zAxisH={zAxisH}
-          reduceFnH={reduceFnH}
-          separateSlopeH={separateSlopeH}
-          selectionH={selectionH}
-          plots={plots}
-        />
+          <SamplesDetails
+            display={display}
+            selectedSamples={selectedSamples}
+            onParamChanged={this.onParamChanged}
+            xAxisS={xAxisS}
+            yAxisS={yAxisS}
+            yOffsetS={yOffsetS}
+            yAxisH={yAxisH}
+            zAxisH={zAxisH}
+            reduceFnH={reduceFnH}
+            separateSlopeH={separateSlopeH}
+            selectionH={selectionH}
+            plots={plots}
+          />
+        </Fragment>
+        }
       </div>
     );
   }
 }
 
 function mapStateToProps(state, ownProps) {
-  const ancestors = parseUrlMatch(ownProps.match);
-  const item = ancestors.pop();
   const props = {
-    ancestors,
-    item
   }
   const searchParams = new URLSearchParams(ownProps.location.search);
 
   for (let key in URL_PARAMS) {
     props[key] = URL_PARAMS[key].deserialize(searchParams.get(key));
   }
-
-  const samples = getSamples(state, props['platemapId'], props['runId']) || [];
-  const selectedSamples = samples.filter(el => props['selectedSampleKeys'].has(el._id));
-
-  props['samples'] = samples;
-  props['selectedSamples'] = selectedSamples;
   return props;
 }
 

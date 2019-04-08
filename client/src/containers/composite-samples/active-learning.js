@@ -1,11 +1,7 @@
 import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
-import { replace } from 'connected-react-router';
-
 import { produce } from 'immer';
-
-import { getSamples, fetchSamples } from '../../redux/ducks/composites';
 
 import { parseUrlMatch } from '../../nodes';
 
@@ -34,14 +30,6 @@ import {
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
 
 const URL_PARAMS = {
-  platemapId: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
-  },
-  runId: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
-  },
   compositionPlot: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '2d')
@@ -159,9 +147,6 @@ class ActiveLearningContainer extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId } = this.props;
-    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
-
     fetch('/8dcomp2xyz.json')
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
@@ -432,9 +417,6 @@ function mapStateToProps(state, ownProps) {
     props[key] = URL_PARAMS[key].deserialize(searchParams.get(key));
   }
 
-  const samples = getSamples(state, props['platemapId'], props['runId']) || [];
-
-  props['samples'] = samples;
   return props;
 }
 

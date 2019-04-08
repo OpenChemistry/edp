@@ -21,8 +21,8 @@ import { ROOT_ROUTE } from './routes';
 import ItemView from './containers/itemView';
 import ItemEdit from './containers/itemEdit';
 import SearchContainer from './containers/search';
-import CompositeSamplesView from './containers/composite-samples';
-import CompositeSamplesLearning from './containers/composite-samples/active-learning';
+import CompositeSamplesView from './containers/composite-samples/connected-view';
+import CompositeSamplesLearning from './containers/composite-samples/connected-active-learning';
 
 import MultidimensionContainer from './containers/multidimension';
 
