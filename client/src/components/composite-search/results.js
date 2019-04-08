@@ -11,8 +11,12 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableBody
+  TableBody,
+  IconButton
 } from '@material-ui/core';
+
+import BarChartIcon from '@material-ui/icons/BarChart';
+import ViewCarouselIcon from '@material-ui/icons/ViewCarousel';
 
 function parseElements(elementsArray) {
   elementsArray = elementsArray.map(el => el.charAt(0).toUpperCase() + el.slice(1));
@@ -22,12 +26,26 @@ function parseElements(elementsArray) {
 const ResultItem = (props) => {
   const {result, i, onOpen} = props;
   return (
-    <TableRow key={i} hover style={{cursor: 'pointer'}} onClick={() => {onOpen(result)}}>
+    <TableRow key={i} hover>
       <TableCell>{parseElements(result.platemap.elements)}</TableCell>
       <TableCell>{result.run.electrolyte}</TableCell>
       <TableCell>{result.run.solutionPh}</TableCell>
       <TableCell>{result.platemap.plateId}</TableCell>
       <TableCell>{result.run.runId}</TableCell>
+      <TableCell>
+        <IconButton
+          color='primary'
+          onClick={() => {onOpen(result, 'view')}}
+        >
+          <ViewCarouselIcon/>
+        </IconButton>
+        <IconButton
+          onClick={() => {onOpen(result, 'active-learning')}}
+          color='secondary'
+        >
+          <BarChartIcon/>
+        </IconButton>
+      </TableCell>
     </TableRow>
   );
 }
@@ -59,6 +77,7 @@ class SearchResults extends Component {
                   <TableCell>pH</TableCell>
                   <TableCell>Plate ID</TableCell>
                   <TableCell>Run ID</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

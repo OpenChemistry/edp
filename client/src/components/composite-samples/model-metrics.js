@@ -12,7 +12,7 @@ class ModelMetricsComponent extends Component {
     const yOffset = 0;
     this.plot = new Spectrum(this.plotElement);
     this.plot.setOffset(yOffset);
-    // this.plot.setShowPoints(true);
+    this.plot.setShowPoints(true);
     this.updatePlot();
   }
 
@@ -49,7 +49,7 @@ class ModelMetricsComponent extends Component {
     dp.setLabel('x', 'Iteration');
     dp.setLabel('y', mlModelMetric);
 
-    // this.plot.setOnSelect(this.onSelect);
+    this.plot.setOnSelect(this.onSelect);
     this.plot.setSpectra([{spectrum: dp, sample: null}]);
     this.plot.setAxes('x', 'y');
   }
