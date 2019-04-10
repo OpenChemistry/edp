@@ -23,8 +23,7 @@ class QuaternaryPlotComponent extends Component {
     this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
     this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
 
-    const { samples } = this.props;
-    this.onNewSamples(samples);
+    this.onNewSamples();
   }
 
   componentDidUpdate(prevProps) {
@@ -37,7 +36,8 @@ class QuaternaryPlotComponent extends Component {
     }
 
     if (scalarField !== prevProps.scalarField) {
-      this.onScalarChange(scalarField);
+      this.onScalarChange();
+      this.quaternaryPlot.dataUpdated();
     }
 
     if (
@@ -45,13 +45,13 @@ class QuaternaryPlotComponent extends Component {
       colorMapRange[0] !== prevProps.colorMapRange[0] ||
       colorMapRange[1] !== prevProps.colorMapRange[1]
     ) {
-      this.onColorMapChange(activeMap);
+      this.onColorMapChange();
+      this.quaternaryPlot.dataUpdated();
     }
   }
 
-  onNewSamples(samples) {
-    const { activeMap, onParamChanged, onStateParamChanged, colorMaps } = this.props;
-    let { scalarField, colorMapRange } = this.props;
+  onNewSamples() {
+    const { samples } = this.props;
     this.dp.setData(samples);
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes();
@@ -59,52 +59,21 @@ class QuaternaryPlotComponent extends Component {
       axes[key] = {...axes[key], range: [0, 1]};
     }
     this.dp.setAxes(axes);
-    scalarField = this.dp.getDefaultScalar(scalarField);
-    this.dp.setActiveScalar(scalarField);
-    // const dataRange = this.dp.getScalarRange(scalarField);
-    // colorMapRange = [
-    //   Math.min(Math.max(colorMapRange[0], dataRange[0]), dataRange[1] - 1e-6),
-    //   Math.max(Math.min(colorMapRange[1], dataRange[1]), dataRange[0] + 1e-6)
-    // ];
-    const colorMap = colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+
+    this.onScalarChange();
     this.quaternaryPlot.dataUpdated();
-    onParamChanged({
-      scalarField,
-      colorMapRange
-    });
-
-    const dataRange = this.dp.getScalarRange(scalarField);
-    const scalarFields = this.dp.getScalars();
-    onStateParamChanged({
-      dataRange,
-      scalarFields
-    });
   }
 
-  onScalarChange(scalarField) {
-    const { activeMap, onParamChanged, onStateParamChanged, colorMaps } = this.props;
-    let { colorMapRange } = this.props;
+  onScalarChange() {
+    const { scalarField } = this.props;
     this.dp.setActiveScalar(scalarField);
-    const dataRange = this.dp.getScalarRange(scalarField);
-    colorMapRange = [...dataRange];
+    this.onColorMapChange();
+  }
+
+  onColorMapChange() {
+    const { activeMap, colorMapRange, colorMaps } = this.props;
     const colorMap = colorMaps[activeMap];
     this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
-    onParamChanged({
-      scalarField,
-      colorMapRange
-    });
-
-    onStateParamChanged({
-      dataRange
-    });
-  }
-
-  onColorMapChange(activeMap) {
-    const { onParamChanged, colorMapRange, colorMaps } = this.props;
-    let colorMap = colorMaps[activeMap];
-    this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
-    onParamChanged({activeMap});
   }
 
   render() {

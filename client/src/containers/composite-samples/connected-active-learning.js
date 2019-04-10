@@ -7,6 +7,7 @@ import { getSamples, fetchSamples } from '../../redux/ducks/composites';
 import { parseUrlMatch } from '../../nodes';
 import NotFoundPage from '../../components/notFound.js';
 import CompositeActiveLearningContainer from './active-learning';
+import InfoExtractor from './info-extractor';
 
 import {
   identity,
@@ -54,10 +55,12 @@ class CompositeSamplesContainer extends Component {
     }
 
     return (
-      <CompositeActiveLearningContainer
-        {...this.props}
-        samples={samples}
-      />
+      <InfoExtractor samples={samples}>
+        <CompositeActiveLearningContainer
+          {...this.props}
+          samples={samples}
+        />
+      </InfoExtractor>
     );
   }
 }

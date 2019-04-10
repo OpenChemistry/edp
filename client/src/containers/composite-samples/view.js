@@ -29,6 +29,7 @@ import {
   onParamChanged,
   updateParams
 } from '../../utils/url-props';
+import { combinations } from '../../utils/combinations';
 
 const URL_PARAMS = {
   display: {
@@ -37,7 +38,24 @@ const URL_PARAMS = {
   },
   scalarField: {
     serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
+    deserialize: defaultWrapper(identity, null),
+    callback: function(currValue, nextValue) {
+      const { info } = this.props;
+      let scalarField = info.getValidScalar(nextValue);
+
+      const updates = {};
+
+      if (scalarField !== nextValue) {
+        updates['scalarField'] = scalarField;
+      }
+
+      let colorMapRange = info.getScalarRange(scalarField);
+      updates['colorMapRange'] = colorMapRange;
+
+      setTimeout(() => {
+        this.onParamChanged(updates);
+      }, 0);
+    }
   },
   activeMap: {
     serialize: defaultWrapper(identity, null),
@@ -95,10 +113,9 @@ class CompositeSamplesContainer extends Component {
     super(props);
 
     this.state = {
+      compositionSpace: [],
       quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
-      octCompositionToPosition: null,
-      scalarFields: [],
-      dataRange: [0, 1]
+      octCompositionToPosition: null
     }
 
     this.colorMaps = {
@@ -114,10 +131,21 @@ class CompositeSamplesContainer extends Component {
   }
 
   componentDidMount() {
+    this.initializeScalars();
+
     fetch('/8dcomp2xyz.json')
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
     .catch(e=> console.log('ERRRR', e));
+  }
+
+  initializeScalars() {
+    const { info } = this.props;
+    let { scalarField } = this.props;
+    let validScalar = info.getValidScalar(scalarField);
+    if (validScalar !== scalarField) {
+      this.onParamChanged({scalarField: validScalar});
+    }
   }
 
   updateCompositionToPosition(data) {
@@ -134,12 +162,35 @@ class CompositeSamplesContainer extends Component {
     });
   }
 
+  onCompositionChange(value) {
+    try {
+      value = JSON.parse(value);
+      if (!Array.isArray(value)) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    let [compositionPlot, ...compositionSpace] = value;
+    const { info } = this.props;
+    const elements = info.getElements();
+    if (compositionPlot === '3d') {
+      compositionSpace = [...elements];
+    }
+    this.onParamChanged({compositionPlot});
+    this.setState(state => {
+      state.compositionSpace = compositionSpace;
+    });
+  }
+
   getUrlParams() {
     return URL_PARAMS;
   }
 
   render() {
     const {
+      info,
       compositionPlot,
       samples,
       selectedSamples,
@@ -177,8 +228,7 @@ class CompositeSamplesContainer extends Component {
     const {
       quatCompositionToPosition,
       octCompositionToPosition,
-      scalarFields,
-      dataRange
+      compositionSpace
     } = this.state;
 
     if (samples.length === 0) {
@@ -186,20 +236,25 @@ class CompositeSamplesContainer extends Component {
       return null;
     }
 
+    let compositionOptions = [{value: JSON.stringify(['3d'].concat(info.getElements())), label: 'Multidimension'}];
+    for (let comb of combinations(info.getElements(), 4)) {
+      compositionOptions.push({value: JSON.stringify(['2d'].concat(comb)), label: comb.join(', ')});
+    }
+
     return (
       <Fragment>
         <ControlsGrid>
           <SelectControlComponent
             label="Composition plot"
-            value={compositionPlot}
-            options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
-            onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
+            value={JSON.stringify([compositionPlot].concat(compositionSpace))}
+            options={compositionOptions}
+            onChange={(value) => {this.onCompositionChange(value)}}
           />
 
           <SelectControlComponent
             label="Scalars"
             value={scalarField}
-            options={scalarFields}
+            options={info.getScalars()}
             onChange={(scalarField) => {this.onParamChanged({scalarField})}}
           />
 
@@ -213,13 +268,13 @@ class CompositeSamplesContainer extends Component {
           <DoubleSliderControlComponent
             label="Map range"
             value={colorMapRange}
-            range={dataRange}
+            range={info.getScalarRange(scalarField)}
             step={0.001}
             onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
           />
         </ControlsGrid>
 
-        {compositionPlot !== '3d' &&
+        {compositionPlot == '2d' &&
         <QuaternaryPlotComponent
           ref={(ref) => {this.quaternaryPlot = ref;}}
           samples={samples}
@@ -229,13 +284,13 @@ class CompositeSamplesContainer extends Component {
           colorMapRange={colorMapRange}
           selectedSampleKeys={selectedSampleKeys}
           onParamChanged={this.onParamChanged}
-          onStateParamChanged={this.onStateParamChanged}
+          onStateParamChanged={noOp}
           onSampleSelect={onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
         }
 
-        {compositionPlot !== '2d' &&
+        {compositionPlot == '3d' &&
         <MultidimensionPlotComponent
           samples={samples}
           compositionToPosition={quatCompositionToPosition}
@@ -245,7 +300,7 @@ class CompositeSamplesContainer extends Component {
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           onParamChanged={this.onParamChanged}
-          onStateParamChanged={this.onStateParamChanged}
+          onStateParamChanged={noOp}
         />
         }
 
