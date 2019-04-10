@@ -65,6 +65,10 @@ const URL_PARAMS = {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
   },
+  compositionSpace: {
+    serialize: defaultWrapper(arraySerialize, null),
+    deserialize: defaultWrapper(arrayDeserialize, [])
+  },
   compositionPlot: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '2d')
@@ -113,7 +117,6 @@ class CompositeSamplesContainer extends Component {
     super(props);
 
     this.state = {
-      compositionSpace: [],
       quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
       octCompositionToPosition: null
     }
@@ -143,9 +146,29 @@ class CompositeSamplesContainer extends Component {
     const { info } = this.props;
     let { scalarField } = this.props;
     let validScalar = info.getValidScalar(scalarField);
+    let updates = {};
     if (validScalar !== scalarField) {
-      this.onParamChanged({scalarField: validScalar});
+      updates['scalarField'] = scalarField;
     }
+
+    let { compositionSpace } = this.props;
+    let validComposition = true;
+    for (let element of compositionSpace) {
+      if (!info.elements.has(element)) {
+        validComposition = false;
+        break;
+      }
+    }
+    validComposition = validComposition && compositionSpace.length >= 4;
+
+    if (!validComposition) {
+      try {
+        compositionSpace = combinations(info.getElements(), 4).next().value;
+        updates['compositionSpace'] = compositionSpace;
+      } catch {}
+    }
+
+    this.onParamChanged(updates);
   }
 
   updateCompositionToPosition(data) {
@@ -178,10 +201,7 @@ class CompositeSamplesContainer extends Component {
     if (compositionPlot === '3d') {
       compositionSpace = [...elements];
     }
-    this.onParamChanged({compositionPlot});
-    this.setState(state => {
-      state.compositionSpace = compositionSpace;
-    });
+    this.onParamChanged({compositionPlot, compositionSpace});
   }
 
   getUrlParams() {
@@ -192,6 +212,7 @@ class CompositeSamplesContainer extends Component {
     const {
       info,
       compositionPlot,
+      compositionSpace,
       samples,
       selectedSamples,
       selectedSampleKeys,
@@ -228,7 +249,6 @@ class CompositeSamplesContainer extends Component {
     const {
       quatCompositionToPosition,
       octCompositionToPosition,
-      compositionSpace
     } = this.state;
 
     if (samples.length === 0) {
@@ -278,13 +298,12 @@ class CompositeSamplesContainer extends Component {
         <QuaternaryPlotComponent
           ref={(ref) => {this.quaternaryPlot = ref;}}
           samples={samples}
+          compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           selectedSampleKeys={selectedSampleKeys}
-          onParamChanged={this.onParamChanged}
-          onStateParamChanged={noOp}
           onSampleSelect={onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
@@ -294,6 +313,7 @@ class CompositeSamplesContainer extends Component {
         <MultidimensionPlotComponent
           samples={samples}
           compositionToPosition={quatCompositionToPosition}
+          compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
