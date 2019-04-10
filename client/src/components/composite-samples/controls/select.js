@@ -3,11 +3,7 @@ import {
   Select,
   MenuItem,
   FormControl,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  InputLabel
 } from '@material-ui/core';
 
 import { isString } from 'lodash-es';
@@ -37,28 +33,18 @@ class SelectControlComponent extends Component {
     }
 
     return (
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>{label}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>
-              <FormControl fullWidth>
-                <Select
-                  value={value || ""}
-                  onChange={(e) => {onChange(e.target.value)}}
-                  inputProps={{name: 'select', id: 'select'}}
-                >
-                  {selectOptions}
-                </Select>
-              </FormControl>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <FormControl fullWidth>
+        <InputLabel>
+          {label}
+        </InputLabel>
+        <Select
+          value={value || ""}
+          onChange={(e) => {onChange(e.target.value)}}
+          inputProps={{name: 'select', id: 'select'}}
+        >
+          {selectOptions}
+        </Select>
+      </FormControl>
     );
   }
 }

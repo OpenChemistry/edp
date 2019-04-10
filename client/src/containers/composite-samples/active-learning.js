@@ -13,6 +13,7 @@ import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionPr
 import { isNil } from 'lodash-es';
 import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
 import MultidimensionPlotComponent from '../../components/composite-samples/multidimension-plot';
+import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
 
@@ -283,35 +284,37 @@ class ActiveLearningContainer extends Component {
     }
 
     return (
-      <div>
-        <SelectControlComponent
-          label="Scalars"
-          value={scalarField}
-          options={scalarFields}
-          onChange={(scalarField) => {this.onParamChanged({scalarField})}}
-        />
+      <Fragment>
+        <ControlsGrid>
+          <SelectControlComponent
+            label="Composition plot"
+            value={compositionPlot}
+            options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
+            onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
+          />
 
-        <SelectControlComponent
-          label="Color map"
-          value={activeMap}
-          options={Object.keys(this.colorMaps)}
-          onChange={(activeMap) => {this.onParamChanged({activeMap})}}
-        />
+          <SelectControlComponent
+            label="Scalars"
+            value={scalarField}
+            options={scalarFields}
+            onChange={(scalarField) => {this.onParamChanged({scalarField})}}
+          />
 
-        <DoubleSliderControlComponent
-          label="Map range"
-          value={colorMapRange}
-          range={dataRange}
-          step={0.001}
-          onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
-        />
+          <SelectControlComponent
+            label="Color map"
+            value={activeMap}
+            options={Object.keys(this.colorMaps)}
+            onChange={(activeMap) => {this.onParamChanged({activeMap})}}
+          />
 
-        <SelectControlComponent
-          label="Composition plot"
-          value={compositionPlot}
-          options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
-          onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
-        />
+          <DoubleSliderControlComponent
+            label="Map range"
+            value={colorMapRange}
+            range={dataRange}
+            step={0.001}
+            onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
+          />
+        </ControlsGrid>
 
         {compositionPlot !== '3d' &&
         <QuaternaryPlotComponent
@@ -343,12 +346,16 @@ class ActiveLearningContainer extends Component {
         />
         }
 
-        <SelectControlComponent
-          label="Model"
-          value={mlModel}
-          options={['None'].concat(Object.keys(mlModels))}
-          onChange={(mlModel) => {this.onParamChanged({mlModel})}}
-        />
+        <ControlsGrid>
+          <SelectControlComponent
+            gridsize={{xs: 12}}
+            label="Model"
+            value={mlModel}
+            options={['None'].concat(Object.keys(mlModels))}
+            onChange={(mlModel) => {this.onParamChanged({mlModel})}}
+          />
+        </ControlsGrid>
+        <br/>
 
         {mlModels[mlModel] &&
         <Fragment>
@@ -399,7 +406,7 @@ class ActiveLearningContainer extends Component {
           }
         </Fragment>
         }
-      </div>
+      </Fragment>
     );
   }
 }

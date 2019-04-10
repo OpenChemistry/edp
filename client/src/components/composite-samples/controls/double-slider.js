@@ -1,10 +1,7 @@
 import React, {Component} from 'react';
 import {
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead
+  FormControl,
+  Typography
 } from '@material-ui/core';
 import { Slider} from '@material-ui/lab';
 
@@ -36,40 +33,32 @@ class DoubleSliderControlComponent extends Component {
     } = this.props;
 
     return (
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>{label}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>
-              <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                <div>
-                  {value[0].toFixed(3)}
-                </div>
-                <div style={{flexGrow: 1, paddingRight: 16}}>
-                  <Slider 
-                    aria-labelledby="map-range-label"
-                    min={range[0]} max={range[1]} step={step}
-                    value={value[0]}
-                    onChange={(e, val) => {this.onValueChange(val, 0)}}
-                  />
-                  <Slider
-                    min={range[0]} max={range[1]} step={step}
-                    value={value[1]}
-                    onChange={(e, val) => {this.onValueChange(val, 1)}}
-                  />
-                </div>
-                <div>
-                  {value[1].toFixed(3)}
-                </div>
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <FormControl fullWidth>
+        <Typography variant='caption'>
+          {label}
+        </Typography>
+        <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+          <div>
+            {value[0].toFixed(3)}
+          </div>
+          <div style={{flexGrow: 1, paddingRight: 8, paddingLeft: 8}}>
+            <Slider
+              min={range[0]} max={range[1]} step={step}
+              value={value[0]}
+              onChange={(e, val) => {this.onValueChange(val, 0)}}
+            />
+            <Slider
+              style={{marginTop: '-2rem'}}
+              min={range[0]} max={range[1]} step={step}
+              value={value[1]}
+              onChange={(e, val) => {this.onValueChange(val, 1)}}
+            />
+          </div>
+          <div>
+            {value[1].toFixed(3)}
+          </div>
+        </div>
+      </FormControl>
     );
   }
 }
