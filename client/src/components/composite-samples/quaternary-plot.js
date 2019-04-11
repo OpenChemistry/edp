@@ -61,7 +61,7 @@ class QuaternaryPlotComponent extends Component {
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes(true);
     for (let key of Object.keys(axes)) {
-      axes[key] = {...axes[key], range: [0, 1]};
+      axes[key] = {...axes[key], range: [0, 1], spacing: 0.1};
     }
     this.dp.setAxes(axes);
 
