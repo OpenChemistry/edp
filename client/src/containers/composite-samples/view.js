@@ -6,7 +6,7 @@ import SamplesDetails from './details';
 
 import NotFoundPage from '../../components/notFound.js';
 import { colors } from 'composition-plot';
-import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
+import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 
 import CompositionPlot from '../../components/composite-samples/composition-plot';
 import ControlsGrid from '../../components/composite-samples/controls/grid';
@@ -115,7 +115,7 @@ class CompositeSamplesContainer extends Component {
     super(props);
 
     this.state = {
-      quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
+      quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
       octCompositionToPosition: null
     }
 

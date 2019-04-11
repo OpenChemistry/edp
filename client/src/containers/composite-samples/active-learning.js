@@ -7,7 +7,7 @@ import { parseUrlMatch } from '../../nodes';
 
 import NotFoundPage from '../../components/notFound.js';
 import { colors } from 'composition-plot';
-import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
+import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 import { isNil } from 'lodash-es';
 import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
 import CompositionPlot from '../../components/composite-samples/composition-plot';
@@ -123,7 +123,7 @@ class ActiveLearningContainer extends Component {
     super(props);
 
     this.state = {
-      quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
+      quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
       octCompositionToPosition: null,
       mlModels: {
         'Model 1': {
