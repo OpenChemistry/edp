@@ -5,7 +5,8 @@ import MultidimensionalPlot from './multidimension-plot';
 
 export default (props) => {
   const {
-    compositionPlot
+    compositionPlot,
+    compositionToPosition
   } = props;
 
   return (
@@ -13,7 +14,7 @@ export default (props) => {
       {compositionPlot === '2d' &&
       <QuaternaryPlot {...props}/>
       }
-      {compositionPlot === '3d' &&
+      {(compositionPlot === '3d' && compositionToPosition) &&
       <MultidimensionalPlot {...props}/>
       }
     </Fragment>
