@@ -27,11 +27,16 @@ class QuaternaryPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { samples, selectedSampleKeys, scalarField, activeMap, colorMapRange  } = this.props;
+    const { samples, compositionSpace, selectedSampleKeys, scalarField, activeMap, colorMapRange  } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
+      this.quaternaryPlot.dataUpdated();
+    }
+
+    if (JSON.stringify(compositionSpace) !== JSON.stringify(prevProps.compositionSpace)) {
+      this.dp.setActiveAxes(compositionSpace);
       this.quaternaryPlot.dataUpdated();
     }
 
@@ -51,14 +56,16 @@ class QuaternaryPlotComponent extends Component {
   }
 
   onNewSamples() {
-    const { samples } = this.props;
+    const { samples, compositionSpace } = this.props;
     this.dp.setData(samples);
     // Force axes to span [0, 1] regardless of the samples
-    const axes = this.dp.getAxes();
+    const axes = this.dp.getAxes(true);
     for (let key of Object.keys(axes)) {
       axes[key] = {...axes[key], range: [0, 1]};
     }
     this.dp.setAxes(axes);
+
+    this.dp.setActiveAxes(compositionSpace);
 
     this.onScalarChange();
     this.quaternaryPlot.dataUpdated();

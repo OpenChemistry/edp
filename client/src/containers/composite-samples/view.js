@@ -309,10 +309,10 @@ class CompositeSamplesContainer extends Component {
         />
         }
 
-        {compositionPlot == '3d' &&
+        {(compositionPlot == '3d' && octCompositionToPosition) &&
         <MultidimensionPlotComponent
           samples={samples}
-          compositionToPosition={quatCompositionToPosition}
+          compositionToPosition={compositionSpace.lenght > 4 ? octCompositionToPosition : quatCompositionToPosition}
           compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
