@@ -18,6 +18,7 @@ import {
   onParamChanged,
   updateParams
 } from '../../utils/url-props';
+import InfoExtractor from './info-extractor';
 
 const URL_PARAMS = {
   platemapId: {
@@ -125,17 +126,19 @@ class CompositeSamplesContainer extends Component {
     }
 
     return (
-      <CompositeViewContainer
-        {...this.props}
-        samples={samples}
-        selectedSamples={selectedSamples}
-        selectedSampleKeys={selectedSampleKeys}
-        onSampleSelect={this.onSampleSelect}
-        onSampleDeselect={this.onSampleDeselect}
-        onSampleSelectById={this.onSampleSelectById}
-        onClearSelection={this.onClearSelection}
-        showDetails={true}
-      />
+      <InfoExtractor samples={samples}>
+        <CompositeViewContainer
+          {...this.props}
+          samples={samples}
+          selectedSamples={selectedSamples}
+          selectedSampleKeys={selectedSampleKeys}
+          onSampleSelect={this.onSampleSelect}
+          onSampleDeselect={this.onSampleDeselect}
+          onSampleSelectById={this.onSampleSelectById}
+          onClearSelection={this.onClearSelection}
+          showDetails={true}
+        />
+      </InfoExtractor>
     );
   }
 }

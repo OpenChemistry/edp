@@ -28,6 +28,7 @@ import {
   onParamChanged,
   updateParams
 } from '../../utils/url-props';
+import { combinations } from '../../utils/combinations';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
 
 const URL_PARAMS = {
@@ -37,7 +38,24 @@ const URL_PARAMS = {
   },
   scalarField: {
     serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, null)
+    deserialize: defaultWrapper(identity, null),
+    callback: function(currValue, nextValue) {
+      const { info } = this.props;
+      let scalarField = info.getValidScalar(nextValue);
+
+      const updates = {};
+
+      if (scalarField !== nextValue) {
+        updates['scalarField'] = scalarField;
+      }
+
+      let colorMapRange = info.getScalarRange(scalarField);
+      updates['colorMapRange'] = colorMapRange;
+
+      setTimeout(() => {
+        this.onParamChanged(updates);
+      }, 0);
+    }
   },
   activeMap: {
     serialize: defaultWrapper(identity, null),
@@ -46,6 +64,10 @@ const URL_PARAMS = {
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
+  },
+  compositionSpace: {
+    serialize: defaultWrapper(arraySerialize, null),
+    deserialize: defaultWrapper(arrayDeserialize, [])
   },
   filterRange: {
     serialize: defaultWrapper(arraySerialize, null),
@@ -130,9 +152,7 @@ class ActiveLearningContainer extends Component {
           samplesCompare: {},
           metrics: {}
         },
-      },
-      scalarFields: [],
-      dataRange: [0, 1]
+      }
     }
 
     this.colorMaps = {
@@ -148,10 +168,41 @@ class ActiveLearningContainer extends Component {
   }
 
   componentDidMount() {
+    this.initializeScalars();
+
     fetch('/8dcomp2xyz.json')
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
     .catch(e=> console.log('ERRRR', e));
+  }
+
+  initializeScalars() {
+    const { info } = this.props;
+    let { scalarField } = this.props;
+    let validScalar = info.getValidScalar(scalarField);
+    let updates = {};
+    if (validScalar !== scalarField) {
+      updates['scalarField'] = scalarField;
+    }
+
+    let { compositionSpace } = this.props;
+    let validComposition = true;
+    for (let element of compositionSpace) {
+      if (!info.elements.has(element)) {
+        validComposition = false;
+        break;
+      }
+    }
+    validComposition = validComposition && compositionSpace.length >= 4;
+
+    if (!validComposition) {
+      try {
+        compositionSpace = combinations(info.getElements(), 4).next().value;
+        updates['compositionSpace'] = compositionSpace;
+      } catch {}
+    }
+
+    this.onParamChanged(updates);
   }
 
   updateCompositionToPosition(data) {
@@ -166,6 +217,25 @@ class ActiveLearningContainer extends Component {
       state.octCompositionToPosition = compositionToPosition;
       return state;
     });
+  }
+
+  onCompositionChange(value) {
+    try {
+      value = JSON.parse(value);
+      if (!Array.isArray(value)) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    let [compositionPlot, ...compositionSpace] = value;
+    const { info } = this.props;
+    const elements = info.getElements();
+    if (compositionPlot === '3d') {
+      compositionSpace = [...elements];
+    }
+    this.onParamChanged({compositionPlot, compositionSpace});
   }
 
   fetchMachineLearningModel = (modelName) => {
@@ -259,7 +329,9 @@ class ActiveLearningContainer extends Component {
 
   render() {
     const {
+      info,
       compositionPlot,
+      compositionSpace,
       samples,
       scalarField,
       activeMap,
@@ -273,9 +345,7 @@ class ActiveLearningContainer extends Component {
     const {
       quatCompositionToPosition,
       octCompositionToPosition,
-      mlModels,
-      scalarFields,
-      dataRange
+      mlModels
     } = this.state;
 
     if (samples.length === 0) {
@@ -283,20 +353,25 @@ class ActiveLearningContainer extends Component {
       return null;
     }
 
+    let compositionOptions = [{value: JSON.stringify(['3d'].concat(info.getElements())), label: 'Multidimension'}];
+    for (let comb of combinations(info.getElements(), 4)) {
+      compositionOptions.push({value: JSON.stringify(['2d'].concat(comb)), label: comb.join(', ')});
+    }
+
     return (
       <Fragment>
         <ControlsGrid>
           <SelectControlComponent
             label="Composition plot"
-            value={compositionPlot}
-            options={[{value: '2d', label: 'Quaternary'}, {value: '3d', label: 'Multidimension'}]}
-            onChange={(compositionPlot) => {this.onParamChanged({compositionPlot})}}
+            value={JSON.stringify([compositionPlot].concat(compositionSpace))}
+            options={compositionOptions}
+            onChange={(value) => {this.onCompositionChange(value)}}
           />
 
           <SelectControlComponent
             label="Scalars"
             value={scalarField}
-            options={scalarFields}
+            options={info.getScalars()}
             onChange={(scalarField) => {this.onParamChanged({scalarField})}}
           />
 
@@ -310,23 +385,22 @@ class ActiveLearningContainer extends Component {
           <DoubleSliderControlComponent
             label="Map range"
             value={colorMapRange}
-            range={dataRange}
+            range={info.getScalarRange(scalarField)}
             step={0.001}
             onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
           />
         </ControlsGrid>
 
-        {compositionPlot !== '3d' &&
+        {compositionPlot === '2d' &&
         <QuaternaryPlotComponent
           ref={(ref) => {this.quaternaryPlot = ref;}}
           samples={samples}
+          compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           selectedSampleKeys={new Set()}
-          onParamChanged={this.onParamChanged}
-          onStateParamChanged={this.onStateParamChanged}
           onSampleSelect={this.onSampleSelect}
           onSampleDeselect={this.onSampleDeselect}
         />
@@ -336,6 +410,7 @@ class ActiveLearningContainer extends Component {
         <MultidimensionPlotComponent
           samples={samples}
           compositionToPosition={quatCompositionToPosition}
+          compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
