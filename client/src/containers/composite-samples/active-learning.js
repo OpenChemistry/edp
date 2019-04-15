@@ -350,6 +350,9 @@ class ActiveLearningContainer extends Component {
       {value: '2d', label: 'Quaternary'}
     ];
 
+    const dataRange = info.getScalarRange(scalarField);
+    const delta = dataRange[1] - dataRange[0];
+
     return (
       <Fragment>
         <ControlsGrid>
@@ -460,7 +463,7 @@ class ActiveLearningContainer extends Component {
             scalarField={scalarField}
             colorMaps={this.colorMaps}
             activeMap='Red White Blue'
-            colorMapRange={[-20, 20]}
+            colorMapRange={[-delta, delta]}
             filterRange={filterRange}
             selectedSampleKeys={new Set()}
           />
