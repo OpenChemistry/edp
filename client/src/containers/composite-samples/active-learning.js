@@ -28,6 +28,7 @@ import {
 } from '../../utils/url-props';
 import { combinations } from '../../utils/combinations';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
+import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -217,21 +218,14 @@ class ActiveLearningContainer extends Component {
     });
   }
 
-  onCompositionChange(value) {
-    try {
-      value = JSON.parse(value);
-      if (!Array.isArray(value)) {
-        return;
-      }
-    } catch {
-      return;
-    }
-
-    let [compositionPlot, ...compositionSpace] = value;
+  onCompositionChange(compositionPlot) {
     const { info } = this.props;
     const elements = info.getElements();
+    let compositionSpace;
     if (compositionPlot === '3d') {
       compositionSpace = [...elements];
+    } else if (compositionPlot === '2d') {
+      compositionSpace = elements.slice(0, 4);
     }
     this.onParamChanged({compositionPlot, compositionSpace});
   }
@@ -351,17 +345,17 @@ class ActiveLearningContainer extends Component {
       return null;
     }
 
-    let compositionOptions = [{value: JSON.stringify(['3d'].concat(info.getElements())), label: 'Multidimension'}];
-    for (let comb of combinations(info.getElements(), 4)) {
-      compositionOptions.push({value: JSON.stringify(['2d'].concat(comb)), label: comb.join(', ')});
-    }
+    let compositionOptions = [
+      {value: '3d', label: 'Multidimension'},
+      {value: '2d', label: 'Quaternary'}
+    ];
 
     return (
       <Fragment>
         <ControlsGrid>
           <SelectControlComponent
             label="Composition plot"
-            value={JSON.stringify([compositionPlot].concat(compositionSpace))}
+            value={compositionPlot}
             options={compositionOptions}
             onChange={(value) => {this.onCompositionChange(value)}}
           />
@@ -372,6 +366,17 @@ class ActiveLearningContainer extends Component {
             options={info.getScalars()}
             onChange={(scalarField) => {this.onParamChanged({scalarField})}}
           />
+
+          {compositionPlot === '2d' &&
+          <CompositionSpaceComponent
+            gridsize={{xs: 12}}
+            compositionSpace={compositionSpace}
+            elements={info.getElements()}
+            n={info.getElements().length}
+            k={4}
+            onChange={(compositionSpace) => {this.onParamChanged({compositionSpace})}}
+          />
+          }
 
           <SelectControlComponent
             label="Color map"
