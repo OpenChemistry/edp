@@ -24,7 +24,7 @@ import SearchContainer from './containers/search';
 import CompositeSamplesView from './containers/composite-samples/connected-view';
 import CompositeSamplesLearning from './containers/composite-samples/connected-active-learning';
 
-import MultidimensionContainer from './containers/multidimension';
+import MultidimensionContainer from './containers/composite-samples/8d-view';
 
 import Footer from './containers/footer';
 import Head from './containers/head';

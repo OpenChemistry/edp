@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 
 import SamplesDetails from './details';
 
-import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
-
 import NotFoundPage from '../../components/notFound.js';
 import { colors } from 'composition-plot';
-import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
+import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 
-import MultidimensionPlotComponent from '../../components/composite-samples/multidimension-plot';
+import CompositionPlot from '../../components/composite-samples/composition-plot';
 import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
@@ -117,7 +115,7 @@ class CompositeSamplesContainer extends Component {
     super(props);
 
     this.state = {
-      quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
+      quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
       octCompositionToPosition: null
     }
 
@@ -294,24 +292,9 @@ class CompositeSamplesContainer extends Component {
           />
         </ControlsGrid>
 
-        {compositionPlot == '2d' &&
-        <QuaternaryPlotComponent
-          ref={(ref) => {this.quaternaryPlot = ref;}}
+        <CompositionPlot
           samples={samples}
-          compositionSpace={compositionSpace}
-          scalarField={scalarField}
-          colorMaps={this.colorMaps}
-          activeMap={activeMap}
-          colorMapRange={colorMapRange}
-          selectedSampleKeys={selectedSampleKeys}
-          onSampleSelect={onSampleSelect}
-          onSampleDeselect={onSampleDeselect}
-        />
-        }
-
-        {(compositionPlot == '3d' && octCompositionToPosition) &&
-        <MultidimensionPlotComponent
-          samples={samples}
+          compositionPlot={compositionPlot}
           compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
           compositionSpace={compositionSpace}
           scalarField={scalarField}
@@ -319,10 +302,10 @@ class CompositeSamplesContainer extends Component {
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
-          onParamChanged={this.onParamChanged}
-          onStateParamChanged={noOp}
+          selectedSampleKeys={selectedSampleKeys}
+          onSampleSelect={onSampleSelect}
+          onSampleDeselect={onSampleDeselect}
         />
-        }
 
         {showDetails &&
         <Fragment>

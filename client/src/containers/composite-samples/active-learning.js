@@ -5,14 +5,12 @@ import { produce } from 'immer';
 
 import { parseUrlMatch } from '../../nodes';
 
-import QuaternaryPlotComponent from '../../components/composite-samples/quaternary-plot';
-
 import NotFoundPage from '../../components/notFound.js';
 import { colors } from 'composition-plot';
-import { NearestCompositionToPositionProvider, AnaliticalCompositionToPositionProvider } from 'composition-plot';
+import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 import { isNil } from 'lodash-es';
 import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
-import MultidimensionPlotComponent from '../../components/composite-samples/multidimension-plot';
+import CompositionPlot from '../../components/composite-samples/composition-plot';
 import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
@@ -125,7 +123,7 @@ class ActiveLearningContainer extends Component {
     super(props);
 
     this.state = {
-      quatCompositionToPosition: new AnaliticalCompositionToPositionProvider(),
+      quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
       octCompositionToPosition: null,
       mlModels: {
         'Model 1': {
@@ -391,35 +389,18 @@ class ActiveLearningContainer extends Component {
           />
         </ControlsGrid>
 
-        {compositionPlot === '2d' &&
-        <QuaternaryPlotComponent
-          ref={(ref) => {this.quaternaryPlot = ref;}}
+        <CompositionPlot
           samples={samples}
-          compositionSpace={compositionSpace}
-          scalarField={scalarField}
-          colorMaps={this.colorMaps}
-          activeMap={activeMap}
-          colorMapRange={colorMapRange}
-          selectedSampleKeys={new Set()}
-          onSampleSelect={this.onSampleSelect}
-          onSampleDeselect={this.onSampleDeselect}
-        />
-        }
-
-        {compositionPlot === '3d' &&
-        <MultidimensionPlotComponent
-          samples={samples}
-          compositionToPosition={quatCompositionToPosition}
+          compositionPlot={compositionPlot}
+          compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
           compositionSpace={compositionSpace}
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
-          onParamChanged={this.onParamChanged}
-          onStateParamChanged={this.onStateParamChanged}
+          selectedSampleKeys={new Set()}
         />
-        }
 
         <ControlsGrid>
           <SelectControlComponent
@@ -451,32 +432,32 @@ class ActiveLearningContainer extends Component {
             onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
           />
           {mlModels[mlModel].samples[mlModelIteration] &&
-          <QuaternaryPlotComponent
+          <CompositionPlot
             samples={mlModels[mlModel].samples[mlModelIteration]}
+            compositionPlot={compositionPlot}
+            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+            compositionSpace={compositionSpace}
             scalarField={scalarField}
             colorMaps={this.colorMaps}
             activeMap={activeMap}
             colorMapRange={colorMapRange}
+            filterRange={filterRange}
             selectedSampleKeys={new Set()}
-            onParamChanged={() => {}}
-            onSampleSelect={() => {}}
-            onSampleDeselect={() => {}}
-            onStateParamChanged={() => {}}
           />
           }
 
           {mlModels[mlModel].samplesCompare[mlModelIteration] &&
-          <QuaternaryPlotComponent
+          <CompositionPlot
             samples={mlModels[mlModel].samplesCompare[mlModelIteration]}
+            compositionPlot={compositionPlot}
+            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+            compositionSpace={compositionSpace}
             scalarField={scalarField}
             colorMaps={this.colorMaps}
             activeMap='Red White Blue'
             colorMapRange={[-20, 20]}
+            filterRange={filterRange}
             selectedSampleKeys={new Set()}
-            onParamChanged={() => {}}
-            onSampleSelect={() => {}}
-            onSampleDeselect={() => {}}
-            onStateParamChanged={() => {}}
           />
           }
         </Fragment>
