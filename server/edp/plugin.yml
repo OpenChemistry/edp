@@ -4,3 +4,4 @@ description: >
 dependencies:
   - thumbnails
   - jobs
+  - worker

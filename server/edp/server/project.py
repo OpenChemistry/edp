@@ -9,6 +9,7 @@ from girder.models.setting import Setting
 
 from . import resource
 from . import comp_search
+from . import execute
 from girder.plugins.edp.models.project import Project as ProjectModel
 from girder.plugins.edp.models.batch import Batch as BatchModel
 from girder.plugins.edp.models.cycletest import CycleTest as CycleTestModel
@@ -66,6 +67,7 @@ class Project(Resource):
             sample_route = composite_route.add_child_route(SampleModel().url, 'sampleId', Sample())
             sample_route.add_child_route(TimeSeriesModel().url, 'timeseriesId', TimeSeries())
             self.route('GET', (':projectId', 'composites', ':compositeId', 'search', ), comp_search.search)
+            self.route('POST', (':projectId', 'composites', ':compositeId', 'execute', ), execute.execute)
 
     def add_route(self, id_name, resource):
         self.route('POST', (), resource.create)
