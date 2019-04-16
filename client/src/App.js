@@ -25,6 +25,7 @@ import CompositeSamplesView from './containers/composite-samples/connected-view'
 import CompositeSamplesLearning from './containers/composite-samples/connected-active-learning';
 
 import MultidimensionContainer from './containers/composite-samples/8d-view';
+import MultidimensionLearningContainer from './containers/composite-samples/8d-active-learning';
 
 import Footer from './containers/footer';
 import Head from './containers/head';
@@ -87,6 +88,7 @@ class App extends Component {
               <PublicRoute path={'/search'} exact component={SearchContainer} />
 
               <PublicRoute path={'/multidimension'} exact component={MultidimensionContainer} />
+              <PublicRoute path={'/multidimension-learning'} exact component={MultidimensionLearningContainer} />
 
               <PublicRoute path={ROOT_ROUTE} exact component={ItemView} />
             </Switch>
