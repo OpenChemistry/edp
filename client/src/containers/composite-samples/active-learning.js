@@ -6,7 +6,7 @@ import { produce } from 'immer';
 import { parseUrlMatch } from '../../nodes';
 
 import NotFoundPage from '../../components/notFound.js';
-import { colors } from 'composition-plot';
+import { colors, makeCamera } from 'composition-plot';
 import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 import { isNil } from 'lodash-es';
 import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
@@ -164,6 +164,8 @@ class ActiveLearningContainer extends Component {
     this.onParamChanged = onParamChanged.bind(this);
     this.updateParams = updateParams.bind(this);
     this.onStateParamChanged = onStateParamChanged.bind(this);
+
+    this.camera = makeCamera();
   }
 
   componentDidMount() {
@@ -408,6 +410,7 @@ class ActiveLearningContainer extends Component {
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
+          camera={this.camera}
         />
 
         <ControlsGrid>
@@ -451,6 +454,7 @@ class ActiveLearningContainer extends Component {
             colorMapRange={colorMapRange}
             filterRange={filterRange}
             selectedSampleKeys={new Set()}
+            camera={this.camera}
           />
           }
 
@@ -466,6 +470,7 @@ class ActiveLearningContainer extends Component {
             colorMapRange={[-delta, delta]}
             filterRange={filterRange}
             selectedSampleKeys={new Set()}
+            camera={this.camera}
           />
           }
         </Fragment>
