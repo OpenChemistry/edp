@@ -1,6 +1,6 @@
 import { fork } from 'redux-saga/effects';
 
-import { auth } from '@openchemistry/girder-redux';
+import { auth, notifications } from '@openchemistry/girder-redux';
 
 import {
   createItemSaga,
@@ -63,6 +63,10 @@ export default function* root() {
   yield fork(auth.sagas.watchInvalidateToken);
   yield fork(auth.sagas.watchNewToken);
   yield fork(auth.sagas.watchUsernameLogin);
+
+  yield fork(notifications.sagas.watchNewToken);
+  yield fork(notifications.sagas.watchNotifications);
+  yield fork(watchReceiveNotification);
 
   yield fork(watchLoadJobs);
   yield fork(watchLoadJobById);
