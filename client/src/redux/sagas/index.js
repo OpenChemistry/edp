@@ -33,6 +33,10 @@ import {
 } from './files';
 
 import {
+  watchReceiveNotification
+} from './notifications';
+
+import {
   watchLoadJobs,
   watchLoadJobById
 } from './jobs';
