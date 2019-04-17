@@ -10,13 +10,17 @@ export function getModelMetadata() {
         parameters: {
           a: {
             label: 'A',
-            type: 'integer',
-            default: '1'
+            type: 'number',
+            default: 2,
+            min: 0,
+            max: 12,
+            step: 1
           },
           b: {
             label: 'B',
-            type: 'float',
-            default: '3.2'
+            type: 'number',
+            default: 5,
+            options: [3, 5, 7, 9]
           },
           c: {
             label: 'C',
@@ -32,8 +36,11 @@ export function getModelMetadata() {
         parameters: {
           a: {
             label: 'A',
-            type: 'integer',
-            default: '1'
+            type: 'number',
+            default: 1,
+            min: -2,
+            max: 3,
+            step: 0.5
           },
           c: {
             label: 'C',

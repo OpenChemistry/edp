@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
-import { produce } from 'immer';
+import { Button } from '@material-ui/core';
 
 import { parseUrlMatch } from '../../nodes';
 
@@ -30,6 +30,7 @@ import { combinations } from '../../utils/combinations';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
 import { fetchModelMetadata, getModelMetadata, runModel, getModelData } from '../../redux/ducks/learning';
+import ActiveLearningParametersComponent from '../../components/composite-samples/controls/active-learning';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -76,15 +77,13 @@ const URL_PARAMS = {
   mlModel: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, ''),
-    callback: function(currValue, nextValue) {
-      const { models, samples, dispatch } = this.props;
-
-      if (isNil(models[nextValue])) {
-        return;
-      }
-
-      const model = models[nextValue];
-      dispatch(runModel({model, samples, parameters: {}}));
+    callback: function(_currValue, _nextValue) {
+      setTimeout(() => {
+        this.setState(state => {
+          state.modelParametersValues = {};
+          return state;
+        })
+      }, 10);
     }
   },
   mlModelIteration: {
@@ -104,7 +103,8 @@ class ActiveLearningContainer extends Component {
 
     this.state = {
       quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
-      octCompositionToPosition: null
+      octCompositionToPosition: null,
+      modelParametersValues: {}
     }
 
     this.colorMaps = {
@@ -187,6 +187,23 @@ class ActiveLearningContainer extends Component {
     this.onParamChanged({compositionPlot, compositionSpace});
   }
 
+  onRunModel = () => {
+    const { samples, models, dispatch, mlModel } = this.props;
+
+    if (isNil(models[mlModel])) {
+      return;
+    }
+
+    const model = models[mlModel];
+    const { modelParametersValues } = this.state;
+    let parameters = {};
+    for (let key in model.parameters) {
+      parameters[key] = modelParametersValues[key] || model.parameters[key].default;
+    }
+
+    dispatch(runModel({model, samples, parameters}));
+  }
+
   getUrlParams() {
     return URL_PARAMS;
   }
@@ -210,7 +227,8 @@ class ActiveLearningContainer extends Component {
 
     const {
       quatCompositionToPosition,
-      octCompositionToPosition
+      octCompositionToPosition,
+      modelParametersValues
     } = this.state;
 
     if (samples.length === 0) {
@@ -284,14 +302,26 @@ class ActiveLearningContainer extends Component {
           camera={this.camera}
         />
 
+        <br/>
         <ControlsGrid>
           <SelectControlComponent
             gridsize={{xs: 12}}
             label="Model"
             value={mlModel}
-            options={['None'].concat(Object.keys(models).map(key => models[key].fileName))}
+            options={['None'].concat(Object.keys(models).map(key => ({value: models[key].fileName, label: models[key].name})))}
             onChange={(mlModel) => {this.onParamChanged({mlModel})}}
           />
+          <ActiveLearningParametersComponent
+            gridsize={{xs: 12}}
+            model={models[mlModel]}
+            values={modelParametersValues}
+            onChange={(key, value) => {this.setState(state => {state.modelParametersValues[key] = value; return state;})}}
+          />
+          { models[mlModel] &&
+          <Button fullWidth gridsize={{xs: 12}} onClick={this.onRunModel} variant='contained' color='secondary'>
+            Run
+          </Button>
+          }
         </ControlsGrid>
         <br/>
 
