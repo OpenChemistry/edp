@@ -45,6 +45,12 @@ const reducer = handleActions({
     }
     return {...state, modelMetadata};
   },
+  [RUN_MODEL_REQUESTED]: (state, action) => {
+    const { model } = action.payload;
+    const modelData = {...state.modelData};
+    modelData[model.fileName] = {pending: true};
+    return {...state, modelData};
+  },
   [RUN_MODEL_SUCCEEDED]: (state, action) => {
     const result = action.payload;
     const { fileName} = result.model;

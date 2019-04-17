@@ -14,6 +14,7 @@ import CompositionPlot from '../../components/composite-samples/composition-plot
 import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
+import SearchPending from '../../components/search/pending';
 
 import {
   identity,
@@ -318,14 +319,17 @@ class ActiveLearningContainer extends Component {
             onChange={(key, value) => {this.setState(state => {state.modelParametersValues[key] = value; return state;})}}
           />
           { models[mlModel] &&
-          <Button fullWidth gridsize={{xs: 12}} onClick={this.onRunModel} variant='contained' color='secondary'>
+          <Button fullWidth gridsize={{xs: 12}} variant='contained' color='secondary'
+            onClick={this.onRunModel}
+            disabled={modelData && modelData.pending}
+          >
             Run
           </Button>
           }
         </ControlsGrid>
         <br/>
 
-        {modelData &&
+        {(modelData && !modelData.pending) &&
         <Fragment>
           {modelData.metrics &&
           <ModelMetricsComponent
@@ -375,6 +379,9 @@ class ActiveLearningContainer extends Component {
           />
           }
         </Fragment>
+        }
+        {(modelData && modelData.pending) &&
+        <SearchPending/>
         }
       </Fragment>
     );
