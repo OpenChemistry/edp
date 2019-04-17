@@ -32,6 +32,11 @@ import {
   fetchFileSaga
 } from './files';
 
+import {
+  fetchModelMetadataSaga,
+  runModelSaga
+} from './learning';
+
 export default function* root() {
   yield fork(createItemSaga);
   yield fork(fetchItemSaga);
@@ -50,6 +55,9 @@ export default function* root() {
   yield fork(fetchServerSettingsSaga);
 
   yield fork(fetchFileSaga);
+
+  yield fork(fetchModelMetadataSaga);
+  yield fork(runModelSaga);
 
   yield fork(auth.sagas.watchAuthenticate);
   yield fork(auth.sagas.watchFetchMe);

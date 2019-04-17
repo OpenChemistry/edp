@@ -29,6 +29,7 @@ import {
 import { combinations } from '../../utils/combinations';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
+import { fetchModelMetadata, getModelMetadata, runModel, getModelData } from '../../redux/ducks/learning';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -76,41 +77,19 @@ const URL_PARAMS = {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, ''),
     callback: function(currValue, nextValue) {
-      const { mlModels } = this.state;
+      const { models, samples, dispatch } = this.props;
 
-      if (isNil(mlModels[nextValue])) {
+      if (isNil(models[nextValue])) {
         return;
       }
 
-      const model = mlModels[nextValue];
-      const mlModelIteration = model.nIterations - 1;
-
-      // If we already fetched the requested ML Model, do nothing
-      if (this.state.mlModels[nextValue].samples[mlModelIteration]) {
-        return;
-      }
-
-      this.fetchMachineLearningModel(nextValue);
-
-      setTimeout(() => {this.onParamChanged('mlModelIteration', mlModelIteration);}, 100);
+      const model = models[nextValue];
+      dispatch(runModel({model, samples, parameters: {}}));
     }
   },
   mlModelIteration: {
     serialize: defaultWrapper(numberSerialize, null),
-    deserialize: defaultWrapper(numberDeserialize, 0),
-    callback: function(currValue, nextValue) {
-      const { mlModel } = this.props;
-      const { mlModels } = this.state;
-
-      if (isNil(mlModels[nextValue])) {
-        return;
-      }
-
-      if (mlModels[mlModel].samples[nextValue]) {
-        return;
-      }
-      // this.fetchMachineLearningModel(mlModel, nextValue);
-    }
+    deserialize: defaultWrapper(numberDeserialize, 0)
   },
   mlModelMetric: {
     serialize: defaultWrapper(identity, null),
@@ -125,33 +104,7 @@ class ActiveLearningContainer extends Component {
 
     this.state = {
       quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
-      octCompositionToPosition: null,
-      mlModels: {
-        'Model 1': {
-          nIterations: 50,
-          samples: {},
-          samplesCompare: {},
-          metrics: {}
-        },
-        'Model 2': {
-          nIterations: 50,
-          samples: {},
-          samplesCompare: {},
-          metrics: {}
-        },
-        'Model 3': {
-          nIterations: 50,
-          samples: {},
-          samplesCompare: {},
-          metrics: {}
-        },
-        'Model 4': {
-          nIterations: 50,
-          samples: {},
-          samplesCompare: {},
-          metrics: {}
-        },
-      }
+      octCompositionToPosition: null
     }
 
     this.colorMaps = {
@@ -169,6 +122,8 @@ class ActiveLearningContainer extends Component {
   }
 
   componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(fetchModelMetadata());
     this.initializeScalars();
 
     fetch('/8dcomp2xyz.json')
@@ -232,91 +187,6 @@ class ActiveLearningContainer extends Component {
     this.onParamChanged({compositionPlot, compositionSpace});
   }
 
-  fetchMachineLearningModel = (modelName) => {
-    const {samples} = this.props;
-
-    const model = this.state.mlModels[modelName];
-
-    for (let modelIteration = 0; modelIteration < model.nIterations; ++modelIteration) {
-      const delta = 40 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / model.nIterations));
-
-      let modelSamples = [];
-      let modelCompareSamples = [];
-
-      for (let i in samples) {
-        let sample = samples[i];
-        let modelSample = {...sample};
-        modelSample.scalars = Object.entries(sample.scalars)
-          .map((val) => {
-            let [key, value] = val;
-            return [key, value - delta / 2 + Math.random() * delta];
-          })
-          .reduce((accumulator, curr) => {
-            return {...accumulator, [curr[0]]: curr[1]};
-          }, {});
-        modelSamples.push(modelSample);
-      }
-
-      for (let i in samples) {
-        let sample = samples[i];
-        let modelCompareSample = {...sample};
-        modelCompareSample.scalars = Object.entries(sample.scalars)
-          .map((val) => {
-            let [key, value] = val;
-            return [key, modelSamples[i].scalars[key] - value];
-          })
-          .reduce((accumulator, curr) => {
-            return {...accumulator, [curr[0]]: curr[1]};
-          }, {});
-        modelCompareSamples.push(modelCompareSample);
-      }
-
-      const metrics = this.calculateMetrics(samples, modelSamples);
-
-      this.setState((state) => {
-        return produce(state, (draft) => {
-          draft.mlModels[modelName].samples[modelIteration] = modelSamples;
-          draft.mlModels[modelName].samplesCompare[modelIteration] = modelCompareSamples;
-          draft.mlModels[modelName].metrics[modelIteration] = metrics;
-        });
-      });
-
-    }
-  }
-
-  calculateMetrics = (samples, modelSamples) => {
-    const metrics = {
-      'MAE': {},
-      'RMSE': {}
-    };
-
-    const n = samples.length;
-
-    for (let i in samples) {
-      let sample = samples[i];
-      let modelSample = modelSamples[i];
-      for (let scalar in sample.scalars) {
-        if (isNil(metrics['MAE'][scalar])) {
-          metrics['MAE'][scalar] = 0;
-          metrics['RMSE'][scalar] = 0;
-        }
-        const diff = sample.scalars[scalar] - modelSample.scalars[scalar];
-        metrics['MAE'][scalar] += Math.abs(diff);
-        metrics['RMSE'][scalar] += diff * diff;
-      }
-    }
-
-    for (let scalar in metrics['MAE']) {
-      metrics['MAE'][scalar] /= n;
-    }
-
-    for (let scalar in metrics['RMSE']) {
-      metrics['RMSE'][scalar] = Math.sqrt(metrics['RMSE'][scalar] / n);
-    }
-
-    return metrics;
-  }
-
   getUrlParams() {
     return URL_PARAMS;
   }
@@ -331,15 +201,16 @@ class ActiveLearningContainer extends Component {
       activeMap,
       colorMapRange,
       filterRange,
+      models,
       mlModel,
       mlModelIteration,
-      mlModelMetric
+      mlModelMetric,
+      modelData
     } = this.props;
 
     const {
       quatCompositionToPosition,
-      octCompositionToPosition,
-      mlModels
+      octCompositionToPosition
     } = this.state;
 
     if (samples.length === 0) {
@@ -418,33 +289,33 @@ class ActiveLearningContainer extends Component {
             gridsize={{xs: 12}}
             label="Model"
             value={mlModel}
-            options={['None'].concat(Object.keys(mlModels))}
+            options={['None'].concat(Object.keys(models).map(key => models[key].fileName))}
             onChange={(mlModel) => {this.onParamChanged({mlModel})}}
           />
         </ControlsGrid>
         <br/>
 
-        {mlModels[mlModel] &&
+        {modelData &&
         <Fragment>
-          {mlModels[mlModel].metrics &&
+          {modelData.metrics &&
           <ModelMetricsComponent
-            metrics={mlModels[mlModel].metrics}
+            metrics={modelData.metrics}
             mlModelMetric={mlModelMetric}
             scalarField={scalarField}
-            nIterations={mlModels[mlModel] ? mlModels[mlModel].nIterations : 1}
+            nIterations={Object.keys(modelData.metrics).length}
             onParamChanged={this.onParamChanged}
           />
           }
           <SliderControlComponent
             label="Model iteration"
             value={mlModelIteration}
-            range={[0, mlModels[mlModel].nIterations - 1]}
+            range={[0, Object.keys(modelData.metrics).length - 1]}
             step={1}
             onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
           />
-          {mlModels[mlModel].samples[mlModelIteration] &&
+          {modelData.samples[mlModelIteration] &&
           <CompositionPlot
-            samples={mlModels[mlModel].samples[mlModelIteration]}
+            samples={modelData.samples[mlModelIteration]}
             compositionPlot={compositionPlot}
             compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
             compositionSpace={compositionSpace}
@@ -458,9 +329,9 @@ class ActiveLearningContainer extends Component {
           />
           }
 
-          {mlModels[mlModel].samplesCompare[mlModelIteration] &&
+          {modelData.samplesCompare[mlModelIteration] &&
           <CompositionPlot
-            samples={mlModels[mlModel].samplesCompare[mlModelIteration]}
+            samples={modelData.samplesCompare[mlModelIteration]}
             compositionPlot={compositionPlot}
             compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
             compositionSpace={compositionSpace}
@@ -492,6 +363,12 @@ function mapStateToProps(state, ownProps) {
   for (let key in URL_PARAMS) {
     props[key] = URL_PARAMS[key].deserialize(searchParams.get(key));
   }
+
+  const models = getModelMetadata(state);
+  props['models'] = models;
+
+  const modelData = getModelData(state, props['mlModel']);
+  props['modelData'] = modelData;
 
   return props;
 }
