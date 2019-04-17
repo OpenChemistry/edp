@@ -19,14 +19,15 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidMount() {
-    const { compositionToPosition } = this.props;
+    const { compositionToPosition, camera } = this.props;
     this.dp = new DataProvider();
     this.multidimensionalPlot = new MultidimensionalPlot(this.plotElement, this.dp, compositionToPosition);
     this.onNewSamples();
+    this.onCameraChange();
   }
 
   componentDidUpdate(prevProps) {
-    const {samples, scalarField, activeMap, colorMapRange, filterRange} = this.props;
+    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera} = this.props;
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
@@ -54,6 +55,10 @@ class MultidimensionPlotComponent extends Component {
       this.onFilterRangeChange();
       this.multidimensionalPlot.dataUpdated();
     }
+
+    if (camera !== prevProps.camera) {
+      this.onCameraChange();
+    }
   }
 
   onNewSamples() {
@@ -61,6 +66,13 @@ class MultidimensionPlotComponent extends Component {
     this.dp.setData(samples);
     this.onScalarChange();
     this.multidimensionalPlot.dataUpdated();
+  }
+
+  onCameraChange() {
+    const { camera } = this.props;
+    if (camera) {
+      this.multidimensionalPlot.setCamera(camera, true, true);
+    }
   }
 
   onNewFilter(range) {
