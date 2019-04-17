@@ -10,13 +10,17 @@ export function getModelMetadata() {
         parameters: {
           a: {
             label: 'A',
-            type: 'integer',
-            default: '1'
+            type: 'number',
+            default: 2,
+            min: 0,
+            max: 12,
+            step: 1
           },
           b: {
             label: 'B',
-            type: 'float',
-            default: '3.2'
+            type: 'number',
+            default: 5,
+            options: [3, 5, 7, 9]
           },
           c: {
             label: 'C',
@@ -32,8 +36,11 @@ export function getModelMetadata() {
         parameters: {
           a: {
             label: 'A',
-            type: 'integer',
-            default: '1'
+            type: 'number',
+            default: 1,
+            min: -2,
+            max: 3,
+            step: 0.5
           },
           c: {
             label: 'C',
@@ -50,57 +57,59 @@ export function getModelMetadata() {
 
 export function runModel(samples, model, parameters) {
   return new Promise((resolve, _reject) => {
-    const result = {
-      model,
-      samples: {},
-      samplesCompare: {},
-      metrics: {}
-    };
+    setTimeout(() => {
+      const result = {
+        model,
+        samples: {},
+        samplesCompare: {},
+        metrics: {}
+      };
 
-    const nIterations = 20;
+      const nIterations = 20;
 
-    for (let modelIteration = 0; modelIteration < nIterations; ++modelIteration) {
-      const delta = 40 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / nIterations));
+      for (let modelIteration = 0; modelIteration < nIterations; ++modelIteration) {
+        const delta = 40 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / nIterations));
 
-      let modelSamples = [];
-      let modelCompareSamples = [];
+        let modelSamples = [];
+        let modelCompareSamples = [];
 
-      for (let i in samples) {
-        let sample = samples[i];
-        let modelSample = {...sample};
-        modelSample.scalars = Object.entries(sample.scalars)
-          .map((val) => {
-            let [key, value] = val;
-            return [key, value - delta / 2 + Math.random() * delta];
-          })
-          .reduce((accumulator, curr) => {
-            return {...accumulator, [curr[0]]: curr[1]};
-          }, {});
-        modelSamples.push(modelSample);
+        for (let i in samples) {
+          let sample = samples[i];
+          let modelSample = {...sample};
+          modelSample.scalars = Object.entries(sample.scalars)
+            .map((val) => {
+              let [key, value] = val;
+              return [key, value - delta / 2 + Math.random() * delta];
+            })
+            .reduce((accumulator, curr) => {
+              return {...accumulator, [curr[0]]: curr[1]};
+            }, {});
+          modelSamples.push(modelSample);
+        }
+
+        for (let i in samples) {
+          let sample = samples[i];
+          let modelCompareSample = {...sample};
+          modelCompareSample.scalars = Object.entries(sample.scalars)
+            .map((val) => {
+              let [key, value] = val;
+              return [key, modelSamples[i].scalars[key] - value];
+            })
+            .reduce((accumulator, curr) => {
+              return {...accumulator, [curr[0]]: curr[1]};
+            }, {});
+          modelCompareSamples.push(modelCompareSample);
+        }
+
+        const metrics = calculateMetrics(samples, modelSamples);
+
+        result.samples[modelIteration] = modelSamples;
+        result.samplesCompare[modelIteration] = modelCompareSamples;
+        result.metrics[modelIteration] = metrics;
       }
 
-      for (let i in samples) {
-        let sample = samples[i];
-        let modelCompareSample = {...sample};
-        modelCompareSample.scalars = Object.entries(sample.scalars)
-          .map((val) => {
-            let [key, value] = val;
-            return [key, modelSamples[i].scalars[key] - value];
-          })
-          .reduce((accumulator, curr) => {
-            return {...accumulator, [curr[0]]: curr[1]};
-          }, {});
-        modelCompareSamples.push(modelCompareSample);
-      }
-
-      const metrics = calculateMetrics(samples, modelSamples);
-
-      result.samples[modelIteration] = modelSamples;
-      result.samplesCompare[modelIteration] = modelCompareSamples;
-      result.metrics[modelIteration] = metrics;
-    }
-
-    resolve(result);
+      resolve(result);
+    }, 3000);
   });
 }
 

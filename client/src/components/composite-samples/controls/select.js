@@ -24,6 +24,10 @@ class SelectControlComponent extends Component {
         selectOptions.push(
           <MenuItem key={option} value={option}>{option.replace('\\u002', '.')}</MenuItem>
         );
+      } else if (Number.isFinite(option)) {
+        selectOptions.push(
+          <MenuItem key={option} value={option}>{option}</MenuItem>
+        );
       } else {
         const {label, value} = option;
         selectOptions.push(
