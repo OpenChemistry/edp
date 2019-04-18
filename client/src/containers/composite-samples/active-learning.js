@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
-import { Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 
 import { parseUrlMatch } from '../../nodes';
 
@@ -358,35 +358,45 @@ class ActiveLearningContainer extends Component {
             />
           </ControlsGrid>
           {modelData.samples[mlModelIteration] &&
-          <CompositionPlot
-            samples={modelData.samples[mlModelIteration]}
-            compositionPlot={compositionPlot}
-            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-            compositionSpace={compositionSpace}
-            scalarField={scalarField}
-            colorMaps={this.colorMaps}
-            activeMap={activeMap}
-            colorMapRange={colorMapRange}
-            filterRange={filterRange}
-            selectedSampleKeys={new Set()}
-            camera={this.camera}
-          />
+          <Fragment>
+            <Typography variant='title' style={{textAlign: 'center'}}>
+              Model
+            </Typography>
+            <CompositionPlot
+              samples={modelData.samples[mlModelIteration]}
+              compositionPlot={compositionPlot}
+              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+              compositionSpace={compositionSpace}
+              scalarField={scalarField}
+              colorMaps={this.colorMaps}
+              activeMap={activeMap}
+              colorMapRange={colorMapRange}
+              filterRange={filterRange}
+              selectedSampleKeys={new Set()}
+              camera={this.camera}
+            />
+          </Fragment>
           }
 
           {modelData.samplesCompare[mlModelIteration] &&
-          <CompositionPlot
-            samples={modelData.samplesCompare[mlModelIteration]}
-            compositionPlot={compositionPlot}
-            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-            compositionSpace={compositionSpace}
-            scalarField={scalarField}
-            colorMaps={this.colorMaps}
-            activeMap='Red White Blue'
-            colorMapRange={[-delta, delta]}
-            filterRange={filterRange}
-            selectedSampleKeys={new Set()}
-            camera={this.camera}
-          />
+          <Fragment>
+            <Typography variant='title' style={{textAlign: 'center'}}>
+              Difference
+            </Typography>
+            <CompositionPlot
+              samples={modelData.samplesCompare[mlModelIteration]}
+              compositionPlot={compositionPlot}
+              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+              compositionSpace={compositionSpace}
+              scalarField={scalarField}
+              colorMaps={this.colorMaps}
+              activeMap='Red White Blue'
+              colorMapRange={[-delta, delta]}
+              filterRange={filterRange}
+              selectedSampleKeys={new Set()}
+              camera={this.camera}
+            />
+          </Fragment>
           }
         </Fragment>
         }
