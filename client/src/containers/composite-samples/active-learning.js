@@ -340,13 +340,23 @@ class ActiveLearningContainer extends Component {
             onParamChanged={this.onParamChanged}
           />
           }
-          <SliderControlComponent
-            label="Model iteration"
-            value={mlModelIteration}
-            range={[0, Object.keys(modelData.metrics).length - 1]}
-            step={1}
-            onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
-          />
+          <ControlsGrid>
+            <SelectControlComponent
+              gridsize={{xs: 4, sm: 3, md: 2}}
+              label="Metrics"
+              value={mlModelMetric}
+              options={['MAE', 'RMSE']}
+              onChange={(mlModelMetric) => {this.onParamChanged({mlModelMetric})}}
+            />
+            <SliderControlComponent
+              gridsize={{xs: 8, sm: 9, md: 10}}
+              label="Model iteration"
+              value={mlModelIteration}
+              range={[0, Object.keys(modelData.metrics).length - 1]}
+              step={1}
+              onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
+            />
+          </ControlsGrid>
           {modelData.samples[mlModelIteration] &&
           <CompositionPlot
             samples={modelData.samples[mlModelIteration]}
