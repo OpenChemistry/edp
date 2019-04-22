@@ -1,4 +1,4 @@
-FROM node:8.11 as build
+FROM node:11.11 as build
 COPY ./client /client
 RUN npm install -g npm
 RUN git clone https://github.com/OpenChemistry/composition-plot.git
