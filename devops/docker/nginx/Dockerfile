@@ -6,6 +6,7 @@ RUN cd /composition-plot && \
   npm install && \
   npm run build && \
   npm link
+ENV NODE_OPTIONS --max_old_space_size=4096
 RUN cd /client && \
   npm install && \
   npm link composition-plot && \
