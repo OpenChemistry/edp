@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
-import { throttle } from 'lodash-es';
+import { throttle, get } from 'lodash-es';
+
+import { withTheme } from '@material-ui/core';
 
 import { MultidimensionalPlot } from 'composition-plot';
 import { DataProvider } from 'composition-plot/dist/data-provider/multidimensional';
@@ -19,9 +21,11 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidMount() {
-    const { compositionToPosition, camera } = this.props;
+    const { compositionToPosition, theme } = this.props;
     this.dp = new DataProvider();
     this.multidimensionalPlot = new MultidimensionalPlot(this.plotElement, this.dp, compositionToPosition);
+    const bgColor = get(theme, 'palette.background.default', '#efefef');
+    this.multidimensionalPlot.setBackground(bgColor);
     this.onNewSamples();
     this.onCameraChange();
   }
@@ -112,4 +116,4 @@ class MultidimensionPlotComponent extends Component {
   }
 }
 
-export default MultidimensionPlotComponent;
+export default withTheme()(MultidimensionPlotComponent);

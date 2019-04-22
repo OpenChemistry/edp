@@ -6,47 +6,85 @@ export function getModelMetadata() {
     const modelMetadata = [
       {
         fileName: 'pull.py',
-        name: 'PullPy',
+        name: 'Some Model',
         parameters: {
           a: {
-            label: 'A',
+            label: 'Alpha',
+            type: 'number',
+            default: 0.75,
+            min: 0,
+            max: 12,
+            step: 1
+          },
+          b: {
+            label: 'Beta',
+            type: 'number',
+            default: 0.5,
+            min: 0,
+            max: 12,
+            step: 1
+          },
+          c: {
+            label: 'Threshold',
+            type: 'number',
+            default: 15.2,
+            min: 0,
+            max: 12,
+            step: 1
+          },
+          d: {
+            label: 'Interpolation',
+            type: 'number',
+            default: 3,
+            options: [1, 3, 5, 7, 9]
+          },
+          e: {
+            label: 'Max Samples',
             type: 'number',
             default: 2,
             min: 0,
             max: 12,
             step: 1
           },
-          b: {
-            label: 'B',
-            type: 'number',
-            default: 5,
-            options: [3, 5, 7, 9]
-          },
-          c: {
-            label: 'C',
+          f: {
+            label: 'Sample Selection',
             type: 'string',
-            default: 'foo',
-            options: ['foo', 'bar', 'baz']
+            default: 'random',
+            options: ['random', 'average']
           }
         }
       },
       {
         fileName: 'stem.py',
-        name: 'StemPy',
+        name: 'Another Model',
         parameters: {
           a: {
-            label: 'A',
+            label: 'Alpha',
             type: 'number',
-            default: 1,
-            min: -2,
-            max: 3,
-            step: 0.5
+            default: 0.25,
+            min: 0,
+            max: 12,
+            step: 1
           },
           c: {
-            label: 'C',
+            label: 'Threshold',
+            type: 'number',
+            default: 9.4,
+            min: 0,
+            max: 12,
+            step: 1
+          },
+          d: {
+            label: 'Interpolation',
+            type: 'number',
+            default: 1,
+            options: [1, 3, 5, 7, 9]
+          },
+          f: {
+            label: 'Sample Selection',
             type: 'string',
-            default: 'foo',
-            options: ['foo', 'bar', 'baz']
+            default: 'average',
+            options: ['random', 'average']
           }
         }
       }

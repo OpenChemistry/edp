@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
-import { Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 
 import { parseUrlMatch } from '../../nodes';
 
@@ -340,43 +340,63 @@ class ActiveLearningContainer extends Component {
             onParamChanged={this.onParamChanged}
           />
           }
-          <SliderControlComponent
-            label="Model iteration"
-            value={mlModelIteration}
-            range={[0, Object.keys(modelData.metrics).length - 1]}
-            step={1}
-            onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
-          />
+          <ControlsGrid>
+            <SelectControlComponent
+              gridsize={{xs: 4, sm: 3, md: 2}}
+              label="Metrics"
+              value={mlModelMetric}
+              options={['MAE', 'RMSE']}
+              onChange={(mlModelMetric) => {this.onParamChanged({mlModelMetric})}}
+            />
+            <SliderControlComponent
+              gridsize={{xs: 8, sm: 9, md: 10}}
+              label="Model iteration"
+              value={mlModelIteration}
+              range={[0, Object.keys(modelData.metrics).length - 1]}
+              step={1}
+              onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
+            />
+          </ControlsGrid>
           {modelData.samples[mlModelIteration] &&
-          <CompositionPlot
-            samples={modelData.samples[mlModelIteration]}
-            compositionPlot={compositionPlot}
-            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-            compositionSpace={compositionSpace}
-            scalarField={scalarField}
-            colorMaps={this.colorMaps}
-            activeMap={activeMap}
-            colorMapRange={colorMapRange}
-            filterRange={filterRange}
-            selectedSampleKeys={new Set()}
-            camera={this.camera}
-          />
+          <Fragment>
+            <Typography variant='title' style={{textAlign: 'center'}}>
+              Model
+            </Typography>
+            <CompositionPlot
+              samples={modelData.samples[mlModelIteration]}
+              compositionPlot={compositionPlot}
+              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+              compositionSpace={compositionSpace}
+              scalarField={scalarField}
+              colorMaps={this.colorMaps}
+              activeMap={activeMap}
+              colorMapRange={colorMapRange}
+              filterRange={filterRange}
+              selectedSampleKeys={new Set()}
+              camera={this.camera}
+            />
+          </Fragment>
           }
 
           {modelData.samplesCompare[mlModelIteration] &&
-          <CompositionPlot
-            samples={modelData.samplesCompare[mlModelIteration]}
-            compositionPlot={compositionPlot}
-            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-            compositionSpace={compositionSpace}
-            scalarField={scalarField}
-            colorMaps={this.colorMaps}
-            activeMap='Red White Blue'
-            colorMapRange={[-delta, delta]}
-            filterRange={filterRange}
-            selectedSampleKeys={new Set()}
-            camera={this.camera}
-          />
+          <Fragment>
+            <Typography variant='title' style={{textAlign: 'center'}}>
+              Difference
+            </Typography>
+            <CompositionPlot
+              samples={modelData.samplesCompare[mlModelIteration]}
+              compositionPlot={compositionPlot}
+              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+              compositionSpace={compositionSpace}
+              scalarField={scalarField}
+              colorMaps={this.colorMaps}
+              activeMap='Red White Blue'
+              colorMapRange={[-delta, delta]}
+              filterRange={filterRange}
+              selectedSampleKeys={new Set()}
+              camera={this.camera}
+            />
+          </Fragment>
           }
         </Fragment>
         }
