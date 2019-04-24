@@ -2,48 +2,44 @@ from .base import Base
 from bson.objectid import ObjectId
 
 
-class FOM(Base):
+class Analysis(Base):
 
     def __init__(self):
-        from girder.plugins.edp.models.sample import Sample
-        super(FOM, self).__init__(
-            name='edp.fom',
+        from girder.plugins.edp.models.composite import Composite
+        super(Analysis, self).__init__(
+            name='edp.analyses',
             props=(
                 {
-                    'name': 'sampleId',
+                    'name': 'type',
+                    'expose': True,
                     'create': True,
-                    'ensure_index': True
+                    'mutable': False,
                 },
                 {
                     'name': 'name',
                     'expose': True,
                     'create': True,
-                    'mutable': False,
-                    'ensure_index': True
+                    'mutable': False
                 },
                 {
-                    'name': 'value',
+                    'name': 'timestamp',
                     'expose': True,
                     'create': True,
                     'mutable': False
                 },
                 {
-                    'name': 'runId',
+                    'name': 'technique',
                     'expose': True,
                     'create': True,
-                    'mutable': False,
-                    'ensure_index': True,
-                    'type': ObjectId
+                    'mutable': False
                 },
                 {
-                    'name': 'analysisId',
+                    'name': 'plateIds',
                     'expose': True,
                     'create': True,
-                    'mutable': False,
-                    'ensure_index': True,
-                    'type': ObjectId
+                    'mutable': False
                 }
             ),
-            parent_model=Sample,
-            url='fom'
+            parent_model=Composite,
+            url='analyses'
         )
