@@ -4,6 +4,10 @@ import glob
 import re
 import math
 import click
+import asyncio
+import aiofiles
+import aiohttp
+import functools
 from multiprocessing import Pool
 from girder_client import GirderClient
 
@@ -74,74 +78,94 @@ def _coerce_values_to_float(d):
 
     return converted
 
-def _ingest_runs(gc, project, composite, dir):
+runint_regex = re.compile(r'run__(\d+)')
+technique_file_regex = re.compile('files_technique__(.*)')
+async def _ingest_run(ratelimit_sem, url_base, session, project, composite, rcp_files, experiment, run):
+    # Extract out the techniques this run used
+    rcp_file = run['rcp_file']
+    #result = await asyncio.wait_for(loop.run_in_executor(None,  functools.partial(glob.glob, '%s/**/%s' % (dir, rcp_file), recursive=True)), timeout=100)
+    #print(result)
+    for f in rcp_files:
+        if f.endswith(rcp_file):
+            run_file = f
+            break
+
+    technique_files = {}
+    techniques = []
+    for key, value in run.items():
+        if key.startswith('files_technique__'):
+            match = technique_file_regex.match(key)
+            technique = match.group(1)
+            techniques.append(technique)
+            run_dir = os.path.dirname(run_file)
+            technique_files[technique] = [os.path.join(run_dir, f) for f in value['pstat_files'].keys()]
+
+    parameters = _coerce_values_to_float(run['parameters'])
+    # Now extract the parameters for these techniques
+    tech_parameters = parameters.setdefault('techniques', {})
+    for technique in techniques:
+        tech_param_key = 'echem_params__%s' % technique
+        if tech_param_key in parameters:
+            tech_parameters[technique] = _coerce_values_to_float(parameters[tech_param_key])
+
+    # Now remove any used technique parameters
+    parameters = {k: v for k, v in parameters.items() if not k.startswith('echem_params__')}
+
+    _compute_run_parameters(parameters, techniques)
+
+    # Extract the runint for sample matching
+    match = runint_regex.match(run['run_key'])
+    if match:
+        run_int = int(match.group(1))
+    else:
+        raise click.ClickException('Unable to extract runint: %s' % run['run_key'])
+
+    click.echo('Ingesting run: %s' % run_file)
+
+    run = {
+        'runId': rcp_file,
+        'name': run['name'],
+        #'runPath': run['run_path'],
+        'solutionPh': parameters['solution_ph'],
+        'plateId': parameters['plate_id'],
+        'electrolyte': parameters['electrolyte'],
+        'parameters': parameters
+    }
+    async with ratelimit_sem:
+        async with session.post('%s/edp/projects/%s/composites/%s/runs' % (url_base, project, composite), json=run) as r:
+            run = await r.json()
+    run['sampleFiles'] = technique_files
+    experiment[run_int] = run
+
+
+async def _ingest_runs(gc, project, composite, dir):
     runint_regex = re.compile(r'run__(\d+)')
     # Find the exp file
     exp_paths = glob.glob('%s/**/*.exp' % dir, recursive=True)
 
     experiments = {}
 
-    technque_file_regex = re.compile('files_technique__(.*)')
+    url_base = gc.urlBase
+    girder_token = gc.token
 
-    for exp_path in exp_paths:
-        with open(exp_path) as f:
-            exp = parse_exp(f.read())
-        name = exp['name']
-        for run in exp['runs']:
-            # See if this is a eche run, skip over everthing else
-            if run['parameters']['experiment_type'] != 'eche':
-                continue
+    headers = {
+        'Girder-Token': girder_token
+    }
 
-            # Extract out the techniques this run used
-            rcp_file = run['rcp_file']
-            [run_file] = glob.glob('%s/**/%s' % (dir, rcp_file), recursive=True)
-            technique_files = {}
-            techniques = []
-            for key, value in run.items():
-                if key.startswith('files_technique__'):
-                    match = technque_file_regex.match(key)
-                    technique = match.group(1)
-                    techniques.append(technique)
-                    run_dir = os.path.dirname(run_file)
-                    technique_files[technique] = [os.path.join(run_dir, f) for f in value['pstat_files'].keys()]
+    ratelimit_sem = asyncio.Semaphore(10)
+    async with aiohttp.ClientSession(headers=headers) as session:
+        for exp_path in exp_paths:
+            async with aiofiles.open(exp_path, mode='r') as f:
+                contents = await f.read()
+            exp = parse_exp(contents)
+            name = exp['name']
+            experiment = experiments.setdefault(name, {})
 
-            parameters = _coerce_values_to_float(run['parameters'])
-            # Now extract the parameters for these techniques
-            tech_parameters = parameters.setdefault('techniques', {})
-            for technique in techniques:
-                tech_param_key = 'echem_params__%s' % technique
-                if tech_param_key in parameters:
-                    tech_parameters[technique] = _coerce_values_to_float(parameters[tech_param_key])
-
-            # Now remove any used technique parameters
-            parameters = {k: v for k, v in parameters.items() if not k.startswith('echem_params__')}
-
-            _compute_run_parameters(parameters, techniques)
-
-            # Extract the runint for sample matching
-            match = runint_regex.match(run['run_key'])
-            if match:
-                run_int = int(match.group(1))
-            else:
-                raise click.ClickException('Unable to extract runint: %s' % run['run_key'])
-
-            runs = experiments.setdefault(name, {})
-
-            click.echo('Ingesting run: %s' % run_file)
-
-            run = {
-                'runId': rcp_file,
-                'name': run['name'],
-                #'runPath': run['run_path'],
-                'solutionPh': parameters['solution_ph'],
-                'plateId': parameters['plate_id'],
-                'electrolyte': parameters['electrolyte'],
-                'parameters': parameters
-            }
-
-            run = gc.post('edp/projects/%s/composites/%s/runs' % (project, composite), json=run)
-            run['sampleFiles'] = technique_files
-            runs[run_int] = run
+            rcp_files = glob.glob( '%s/**/*.rcp' % dir, recursive=True)
+            # for now only look at eche
+            runs = [r for r in exp['runs'] if r['parameters']['experiment_type'] == 'eche']
+            run_tasks = [_ingest_run(ratelimit_sem, url_base, session, project, composite, rcp_files, experiment, run) for run in runs]
+            await asyncio.gather(*run_tasks)
 
     return experiments
 
