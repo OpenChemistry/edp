@@ -216,7 +216,10 @@ def _ingest_loading(gc, project, composite, dir, loading_file, platemaps, sample
             sample_meta['sampleNum'] = sample_number
             sample_meta['plateId'] = plate_id
 
-            comp = {}
+            comp = {
+                'elements': [],
+                'amounts': []
+            }
             sample_meta['composition'] = comp
             nan_comp = False
             for key, value in compositions.items():
@@ -229,10 +232,11 @@ def _ingest_loading(gc, project, composite, dir, loading_file, platemaps, sample
 
                 if comp_value > 0:
                     element = value['element']
-                    comp[element] = comp_value
+                    comp['elements'].append(element)
+                    comp['amounts'].append(comp_value)
                     platemap['elements'].add(element)
 
-            if not nan_comp and sum(comp.values()) <  0.999:
+            if not nan_comp and sum(comp['amounts']) <  0.999:
                 raise click.ClickException('Composite values don\'t add up to 1, for sample: %s' % sample_number)
 
             sample = gc.post('edp/projects/%s/composites/%s/samples'

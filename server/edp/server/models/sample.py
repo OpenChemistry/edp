@@ -42,3 +42,7 @@ class Sample(Base):
             child_model=TimeSeries,
             url='samples'
         )
+
+    def initialize(self):
+        super(Sample, self).initialize()
+        self.ensureIndex('composition.elements')
