@@ -12,6 +12,7 @@ from girder.models.item import Item
 from girder.api.rest import getCurrentUser
 from girder.plugins.jobs.models.job import Job
 from girder.plugins.jobs.constants import JobStatus
+from girder.utility import parseTimestamp
 
 from . import edp_group
 
@@ -57,22 +58,23 @@ class Base(AccessControlledModel):
         model = {}
         for prop in self.create_props:
             prop_value = kwargs.get(prop['name'], prop.get('default'))
-            if prop_value is not None and prop.get('type') == 'file':
-                file = File().load(prop_value, user=getCurrentUser(),
-                        level=AccessType.READ)
-                if file is None:
-                    raise ValidationException('File doesn\'t exists: %s' % prop_value)
-
-                if not isinstance(prop_value, ObjectId):
-                    prop_value = ObjectId(prop_value)
-
-            if prop_value is not None and prop.get('type') == ObjectId:
-                if isinstance(prop_value, list):
-                    prop_value = [ObjectId(x) for x in prop_value]
-                else:
-                    prop_value = ObjectId(prop_value)
-
             if prop_value is not None:
+                if prop.get('type') == 'file':
+                    file = File().load(prop_value, user=getCurrentUser(),
+                            level=AccessType.READ)
+                    if file is None:
+                        raise ValidationException('File doesn\'t exists: %s' % prop_value)
+
+                    if not isinstance(prop_value, ObjectId):
+                        prop_value = ObjectId(prop_value)
+                elif prop.get('type') == ObjectId:
+                    if isinstance(prop_value, list):
+                        prop_value = [ObjectId(x) for x in prop_value]
+                    else:
+                        prop_value = ObjectId(prop_value)
+                elif prop.get('type') == 'timestamp':
+                    prop_value = parseTimestamp(prop_value)
+
                 model[prop['name']] = prop_value
 
         self.setPublic(model, public=kwargs.get('public', False))
