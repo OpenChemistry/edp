@@ -74,21 +74,6 @@ class Sample(resource.create(SampleModel)):
                    '$match': lookup_fom_match
                 },
                 {
-                    '$group': {
-                        '_id': {
-                            'sampleId': '$sampleId',
-                            'runId': '$runId',
-                            'name': '$name',
-                            'value': '$value'
-                        }
-                    }
-                },
-                {
-                    '$replaceRoot': {
-                        'newRoot': "$_id"
-                    }
-                },
-                {
                     '$project': {
                         'sampleId': 0
                     }
