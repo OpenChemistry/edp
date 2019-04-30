@@ -98,7 +98,9 @@ class Base(AccessControlledModel):
 
         return saved_model
 
-    def update(self, model, model_updates, user, parent=None):
+    def update(self, model, model_updates, user=None, parent=None):
+        if user is None:
+            user = getCurrentUser()
 
         query = {
             '_id': model['_id']
@@ -111,7 +113,7 @@ class Base(AccessControlledModel):
             if prop in self.mutable_props:
                 prop_value = model_updates[prop]
                 if prop in self.file_props:
-                    file = File().load(prop_value, user=getCurrentUser(),
+                    file = File().load(prop_value, user=user,
                                        level=AccessType.READ)
                     if file is None:
                         raise ValidationException('File doesn\'t exists: %s' % prop_value)
