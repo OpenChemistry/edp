@@ -5,6 +5,7 @@ import re
 import math
 import click
 from multiprocessing import Pool
+from datetime import datetime
 from girder_client import GirderClient
 
 from edp.composite.parser.exp import parse_exp
@@ -145,13 +146,13 @@ def _ingest_runs(gc, project, composite, dir):
 
     return experiments
 
-def _create_fom(gc, project, composite, name, value, sample_id, run_id, technique):
+def _create_fom(gc, project, composite, name, value, sample_id, run_id, analysis):
     fom = {
         'name': name,
         'value': value,
         'sampleId': sample_id,
         'runId': run_id,
-        'technique': technique
+        'analysisId': analysis['_id']
     }
 
     gc.post('edp/projects/%s/composites/%s/samples/%s/fom'
@@ -298,7 +299,7 @@ def _ingest_run_data(gc, project, composite, experiments, samples):
                     'edp/projects/%s/composites/%s/samples/%s/timeseries'
                     % (project, composite, sample['_id']), json=timeseries)
 
-def _ingest_fom_file(gc, project, composite, fom_file, technique, samples, runs):
+def _ingest_fom_file(gc, project, composite, fom_file, analysis, samples, runs):
     click.echo('Ingesting %s' % fom_file)
     fom_excludes = ['sample_no', 'runint', 'plate_id', 'csv_version', 'plot_parameters']
 
@@ -318,9 +319,24 @@ def _ingest_fom_file(gc, project, composite, fom_file, technique, samples, runs)
         for fom_name in fom:
             sample = samples[plate_id][sample_no]
             _create_fom(gc, project, composite, fom_name, float(fom[fom_name][i]),
-                            sample['_id'], runs[runint]['_id'], technique)
+                            sample['_id'], runs[runint]['_id'], analysis)
+
+def _create_analysis(gc, project, composite, timestamp, name, type, index, technique, plate_ids):
+    analysis = {
+        'timestamp': datetime.strptime(timestamp, '%Y%m%d.%H%M%S').isoformat(),
+        'name': name,
+        'type': type,
+        'technique': technique,
+        'index': index,
+        'plateIds': plate_ids
+    }
+
+    return gc.post('edp/projects/%s/composites/%s/analyses'
+            % (project, composite), json=analysis)
+
 
 def _ingest_samples(gc, project, composite, dir, experiments):
+    ana_regex = re.compile(r'ana__(\d+)')
     ana_files = glob.glob('%s/**/*.ana' % dir, recursive=True)
 
     samples = {}
@@ -336,29 +352,38 @@ def _ingest_samples(gc, project, composite, dir, experiments):
         runs = experiments[experiment_name]
         loading_files_to_process = []
         fom_files_to_process = []
+        ana_name = ana['name']
+        plate_ids = ana['plate_ids']
+        analysis_type = ana['analysis_type']
+
         for key, value in ana.items():
-            if key.startswith('ana__'):
+            match = ana_regex.match(key)
+            if match:
+                analysis_index = int(match.group(1))
                 [file_path] = value['files_multi_run']['fom_files'].keys()
                 technique = value.get('technique')
+                analysis_name = value['name']
+                analysis_name = analysis_name.partition('__')[2] if '__' in analysis_name else analysis_name
+
+                analysis = _create_analysis(gc, project, composite, ana_name,
+                                            analysis_name, analysis_type, analysis_index,
+                                            technique, plate_ids)
+
 
                 if file_path.endswith('Loading.csv'):
-                    # We need to workout what run this is associated with
-                    # we do this by following the select_ana until we find one
-                    # that has a analysis_general_type of 'standard'. Then we
-                    # use the files_run__XXX, to identify the run an it up.
-                    loading_files_to_process.append((file_path, technique))
+                    loading_files_to_process.append(file_path)
                 else:
                     [file_path] = glob.glob('%s/**/%s' % (ana_dir, file_path), recursive=True)
-                    fom_files_to_process.append((file_path, technique))
+                    fom_files_to_process.append((file_path, analysis))
 
         # Ingest the loading files to create the samples
-        for (file_path, technique) in loading_files_to_process:
+        for file_path in loading_files_to_process:
             _ingest_loading(gc, project, composite, ana_dir,
                             file_path, platemaps, samples, runs, pool)
         # Now ingest the other FOM files
-        for (fom_file, technique) in fom_files_to_process:
-            _ingest_fom_file(gc, project, composite, fom_file, technique, samples, runs)
-
+        for (fom_file, analysis) in fom_files_to_process:
+            if not fom_file.endswith('pc__1.csv'):
+                _ingest_fom_file(gc, project, composite, fom_file, analysis, samples, runs)
 
     for platemap in platemaps.values():
         platemap['elements'] = list(platemap['elements'])

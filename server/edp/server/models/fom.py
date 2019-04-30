@@ -1,6 +1,9 @@
+from girder.constants import AccessType
+
 from .base import Base
 from bson.objectid import ObjectId
-
+from girder.plugins.edp.models.analysis import Analysis as AnalysisModel
+from . import edp_group
 
 class FOM(Base):
 
@@ -36,10 +39,12 @@ class FOM(Base):
                     'type': ObjectId
                 },
                 {
-                    'name': 'technique',
+                    'name': 'analysisId',
                     'expose': True,
                     'create': True,
-                    'mutable': False
+                    'mutable': False,
+                    'ensure_index': True,
+                    'type': ObjectId
                 }
             ),
             parent_model=Sample,
