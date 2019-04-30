@@ -80,7 +80,7 @@ class FOM(Base):
                     '$in': [fom['analysisId'], analysis_id]
                 }
             }
-            analyses = list(AnalysisModel().find(query, sort=[('index', 1), ('timestamp', -1)]))
+            analyses = list(AnalysisModel().find(query, sort=[('index', -1), ('timestamp', -1)]))
             if len(analyses) > 0:
                 analysis_id = analyses[0]['_id']
 
