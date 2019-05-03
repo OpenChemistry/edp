@@ -12,11 +12,12 @@ import { auth } from '@openchemistry/girder-redux';
 
 export const history = createBrowserHistory({basename: process.env.PUBLIC_URL});
 
-const rootReducer = connectRouter(history)(combineReducers({
+const rootReducer = combineReducers({
   ...reducers,
   auth: auth.reducer,
-  form: formReducer
-}));
+  form: formReducer,
+  router: connectRouter(history)
+});
 
 const authSelector = (state) => state.auth;
 auth.selectors.setRoot(authSelector);
