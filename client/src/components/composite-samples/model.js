@@ -1,7 +1,9 @@
 import React, { useState, Fragment } from 'react';
 
-import { Typography } from '@material-ui/core';
+import { Typography, Divider, withStyles } from '@material-ui/core';
+import { grey } from '@material-ui/core/colors';
 
+import ModelInfo from './model-info';
 import ModelMetricsComponent from './model-metrics';
 import CompositionPlot from './composition-plot';
 import ControlsGrid from './controls/grid';
@@ -9,10 +11,20 @@ import SelectControlComponent from './controls/select';
 import SliderControlComponent from './controls/slider';
 import SearchPending from '../search/pending';
 
+const styles = (theme) => ({
+  evenModel: {
+    backgroundColor: grey[200]
+  },
+  oddModel: {
+    backgroundColor: theme.palette.background
+  }
+});
+
 const ModelComponent = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
   colorMaps, activeMap, colorMapRange, filterRange, camera,
-  scalarField, samples, samplesCompare, metrics, pending
+  scalarField, samples, samplesCompare, metrics, pending,
+  model, parameters, modelNumber, classes
 }) => {
   const [metricsType, setMetricsType] = useState('MAE');
   const [iteration, setInteration] = useState(0);
@@ -24,13 +36,19 @@ const ModelComponent = ({
   }
 
   return (
-    <Fragment>
+    <div className={modelNumber % 2 === 0 ? classes.evenModel : classes.oddModel}>
+      <Divider/>
+      <br/>
+      <ModelInfo
+        model={model}
+        parameters={parameters}
+      />
       <ModelMetricsComponent
         metrics={metrics}
         mlModelMetric={metricsType}
         scalarField={scalarField}
         nIterations={Object.keys(metrics).length}
-        // onParamChanged={this.onParamChanged}
+        onChange={(iteration) => {setInteration(iteration)}}
       />
       <ControlsGrid>
         <SelectControlComponent
@@ -90,8 +108,8 @@ const ModelComponent = ({
         />
       </Fragment>
       }
-    </Fragment>
+    </div>
   );
 }
 
-export default ModelComponent;
+export default withStyles(styles)(ModelComponent);
