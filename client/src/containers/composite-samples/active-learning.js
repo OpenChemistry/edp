@@ -9,12 +9,11 @@ import NotFoundPage from '../../components/notFound.js';
 import { colors, makeCamera } from 'composition-plot';
 import { NearestCompositionToPositionProvider, AnalyticalCompositionToPositionProvider } from 'composition-plot';
 import { isNil } from 'lodash-es';
-import ModelMetricsComponent from '../../components/composite-samples/model-metrics';
+import ModelsContainer from './models';
 import CompositionPlot from '../../components/composite-samples/composition-plot';
 import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
-import SearchPending from '../../components/search/pending';
 
 import {
   identity,
@@ -28,10 +27,10 @@ import {
   updateParams
 } from '../../utils/url-props';
 import { combinations } from '../../utils/combinations';
-import SliderControlComponent from '../../components/composite-samples/controls/slider';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
-import { fetchModelMetadata, getModelMetadata, runModel, getModelData } from '../../redux/ducks/learning';
+import { fetchModelMetadata, getModelMetadata, runModel } from '../../redux/ducks/learning';
 import ActiveLearningParametersComponent from '../../components/composite-samples/controls/active-learning';
+import ModelComponent from '../../components/composite-samples/model';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -74,26 +73,6 @@ const URL_PARAMS = {
   filterRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
-  },
-  mlModel: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, ''),
-    callback: function(_currValue, _nextValue) {
-      setTimeout(() => {
-        this.setState(state => {
-          state.modelParametersValues = {};
-          return state;
-        })
-      }, 10);
-    }
-  },
-  mlModelIteration: {
-    serialize: defaultWrapper(numberSerialize, null),
-    deserialize: defaultWrapper(numberDeserialize, 0)
-  },
-  mlModelMetric: {
-    serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, 'MAE')
   }
 }
 
@@ -105,7 +84,9 @@ class ActiveLearningContainer extends Component {
     this.state = {
       quatCompositionToPosition: new AnalyticalCompositionToPositionProvider(),
       octCompositionToPosition: null,
-      modelParametersValues: {}
+      modelParametersValues: {},
+      modelIds: [],
+      modelName: ''
     }
 
     this.colorMaps = {
@@ -188,21 +169,38 @@ class ActiveLearningContainer extends Component {
     this.onParamChanged({compositionPlot, compositionSpace});
   }
 
-  onRunModel = () => {
-    const { samples, models, dispatch, mlModel } = this.props;
+  onModelChange = (modelName) => {
+    this.setState(state => {
+      state.modelName = modelName;
+      state.modelParametersValues = {};
+      return state;
+    })
+  }
 
-    if (isNil(models[mlModel])) {
+  onRunModel = () => {
+    const { samples, models, dispatch } = this.props;
+    const { modelName } = this.state;
+
+    if (isNil(models[modelName])) {
       return;
     }
 
-    const model = models[mlModel];
+    const model = models[modelName];
     const { modelParametersValues } = this.state;
     let parameters = {};
     for (let key in model.parameters) {
       parameters[key] = modelParametersValues[key] || model.parameters[key].default;
     }
 
-    dispatch(runModel({model, samples, parameters}));
+    const modelId = Math.floor(Number.MAX_SAFE_INTEGER * Math.random()).toString(32);
+
+    dispatch(runModel({model, samples, parameters, modelId}));
+
+    this.setState( state => {
+      const modelIds = [modelId, ...state.modelIds];
+      state.modelIds = modelIds;
+      return state;
+    })
   }
 
   getUrlParams() {
@@ -220,16 +218,15 @@ class ActiveLearningContainer extends Component {
       colorMapRange,
       filterRange,
       models,
-      mlModel,
-      mlModelIteration,
-      mlModelMetric,
       modelData
     } = this.props;
 
     const {
       quatCompositionToPosition,
       octCompositionToPosition,
-      modelParametersValues
+      modelParametersValues,
+      modelName,
+      modelIds
     } = this.state;
 
     if (samples.length === 0) {
@@ -243,7 +240,6 @@ class ActiveLearningContainer extends Component {
     ];
 
     const dataRange = info.getScalarRange(scalarField);
-    const delta = dataRange[1] - dataRange[0];
 
     return (
       <Fragment>
@@ -308,17 +304,17 @@ class ActiveLearningContainer extends Component {
           <SelectControlComponent
             gridsize={{xs: 12}}
             label="Model"
-            value={mlModel}
+            value={modelName}
             options={['None'].concat(Object.keys(models).map(key => ({value: models[key].fileName, label: models[key].name})))}
-            onChange={(mlModel) => {this.onParamChanged({mlModel})}}
+            onChange={(modelName) => {this.onModelChange(modelName)}}
           />
           <ActiveLearningParametersComponent
             gridsize={{xs: 12}}
-            model={models[mlModel]}
+            model={models[modelName]}
             values={modelParametersValues}
             onChange={(key, value) => {this.setState(state => {state.modelParametersValues[key] = value; return state;})}}
           />
-          { models[mlModel] &&
+          { models[modelName] &&
           <Button fullWidth gridsize={{xs: 12}} variant='contained' color='secondary'
             onClick={this.onRunModel}
             disabled={modelData && modelData.pending}
@@ -329,80 +325,19 @@ class ActiveLearningContainer extends Component {
         </ControlsGrid>
         <br/>
 
-        {(modelData && !modelData.pending) &&
-        <Fragment>
-          {modelData.metrics &&
-          <ModelMetricsComponent
-            metrics={modelData.metrics}
-            mlModelMetric={mlModelMetric}
-            scalarField={scalarField}
-            nIterations={Object.keys(modelData.metrics).length}
-            onParamChanged={this.onParamChanged}
-          />
-          }
-          <ControlsGrid>
-            <SelectControlComponent
-              gridsize={{xs: 4, sm: 3, md: 2}}
-              label="Metrics"
-              value={mlModelMetric}
-              options={['MAE', 'RMSE']}
-              onChange={(mlModelMetric) => {this.onParamChanged({mlModelMetric})}}
-            />
-            <SliderControlComponent
-              gridsize={{xs: 8, sm: 9, md: 10}}
-              label="Model iteration"
-              value={mlModelIteration}
-              range={[0, Object.keys(modelData.metrics).length - 1]}
-              step={1}
-              onChange={(mlModelIteration) => {this.onParamChanged({mlModelIteration})}}
-            />
-          </ControlsGrid>
-          {modelData.samples[mlModelIteration] &&
-          <Fragment>
-            <Typography variant='title' style={{textAlign: 'center'}}>
-              Model
-            </Typography>
-            <CompositionPlot
-              samples={modelData.samples[mlModelIteration]}
-              compositionPlot={compositionPlot}
-              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-              compositionSpace={compositionSpace}
-              scalarField={scalarField}
-              colorMaps={this.colorMaps}
-              activeMap={activeMap}
-              colorMapRange={colorMapRange}
-              filterRange={filterRange}
-              selectedSampleKeys={new Set()}
-              camera={this.camera}
-            />
-          </Fragment>
-          }
-
-          {modelData.samplesCompare[mlModelIteration] &&
-          <Fragment>
-            <Typography variant='title' style={{textAlign: 'center'}}>
-              Difference
-            </Typography>
-            <CompositionPlot
-              samples={modelData.samplesCompare[mlModelIteration]}
-              compositionPlot={compositionPlot}
-              compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-              compositionSpace={compositionSpace}
-              scalarField={scalarField}
-              colorMaps={this.colorMaps}
-              activeMap='Red White Blue'
-              colorMapRange={[-delta, delta]}
-              filterRange={filterRange}
-              selectedSampleKeys={new Set()}
-              camera={this.camera}
-            />
-          </Fragment>
-          }
-        </Fragment>
-        }
-        {(modelData && modelData.pending) &&
-        <SearchPending/>
-        }
+        <ModelsContainer
+          modelIds={modelIds}
+          compositionPlot={compositionPlot}
+          compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+          compositionSpace={compositionSpace}
+          dataRange={dataRange}
+          colorMaps={this.colorMaps}
+          activeMap={activeMap}
+          colorMapRange={colorMapRange}
+          filterRange={filterRange}
+          camera={this.camera}
+          scalarField={scalarField}
+        />
       </Fragment>
     );
   }
@@ -424,8 +359,6 @@ function mapStateToProps(state, ownProps) {
   const models = getModelMetadata(state);
   props['models'] = models;
 
-  const modelData = getModelData(state, props['mlModel']);
-  props['modelData'] = modelData;
 
   return props;
 }

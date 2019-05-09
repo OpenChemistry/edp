@@ -31,9 +31,9 @@ export function* fetchModelMetadataSaga() {
 
 function* onRunModel(action) {
   try {
-    const { samples, model, parameters } = action.payload;
+    const { samples, model, parameters, modelId } = action.payload;
     const modelResult = yield call(runModelRest, samples, model, parameters);
-    yield put(receiveModelResult(modelResult));
+    yield put(receiveModelResult({modelId, modelResult}));
   } catch (e) {
   }
 }

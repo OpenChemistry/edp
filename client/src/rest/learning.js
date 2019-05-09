@@ -98,6 +98,7 @@ export function runModel(samples, model, parameters) {
     setTimeout(() => {
       const result = {
         model,
+        parameters,
         samples: {},
         samplesCompare: {},
         metrics: {}

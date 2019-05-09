@@ -24,9 +24,9 @@ class ModelMetricsComponent extends Component {
     }
   }
 
-  onSelect = (i, d) => {
-    const {onParamChanged} = this.props;
-    onParamChanged('mlModelIteration', i);
+  onSelect = (i, _d) => {
+    const {onChange} = this.props;
+    onChange(i);
   }
 
   updatePlot() {
