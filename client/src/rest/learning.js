@@ -107,7 +107,7 @@ export function runModel(samples, model, parameters) {
       const nIterations = 20;
 
       for (let modelIteration = 0; modelIteration < nIterations; ++modelIteration) {
-        const delta = 40 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / nIterations));
+        const delta = 5 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / nIterations));
 
         let modelSamples = [];
         let modelCompareSamples = [];
@@ -115,28 +115,24 @@ export function runModel(samples, model, parameters) {
         for (let i in samples) {
           let sample = samples[i];
           let modelSample = {...sample};
-          modelSample.scalars = Object.entries(sample.scalars)
-            .map((val) => {
-              let [key, value] = val;
-              return [key, value - delta / 2 + Math.random() * delta];
-            })
-            .reduce((accumulator, curr) => {
-              return {...accumulator, [curr[0]]: curr[1]};
-            }, {});
+          modelSample.fom = sample.fom
+            .map(fom => {
+              let { value } = fom;
+              value = value - delta / 2 + Math.random() * delta;
+              return {...fom, value};
+            });
           modelSamples.push(modelSample);
         }
 
         for (let i in samples) {
           let sample = samples[i];
           let modelCompareSample = {...sample};
-          modelCompareSample.scalars = Object.entries(sample.scalars)
-            .map((val) => {
-              let [key, value] = val;
-              return [key, modelSamples[i].scalars[key] - value];
-            })
-            .reduce((accumulator, curr) => {
-              return {...accumulator, [curr[0]]: curr[1]};
-            }, {});
+          modelCompareSample.fom = sample.fom
+            .map((fom, j) => {
+              let { value } = fom;
+              value = modelSamples[i].fom[j].value - value;
+              return {...fom, value};
+            });
           modelCompareSamples.push(modelCompareSample);
         }
 
@@ -163,15 +159,16 @@ const calculateMetrics = (samples, modelSamples) => {
   for (let i in samples) {
     let sample = samples[i];
     let modelSample = modelSamples[i];
-    for (let scalar in sample.scalars) {
-      if (isNil(metrics['MAE'][scalar])) {
-        metrics['MAE'][scalar] = 0;
-        metrics['RMSE'][scalar] = 0;
+    sample.fom.forEach((fom, j) => {
+      const { name, value } = fom;
+      if (isNil(metrics['MAE'][name])) {
+        metrics['MAE'][name] = 0;
+        metrics['RMSE'][name] = 0;
       }
-      const diff = sample.scalars[scalar] - modelSample.scalars[scalar];
-      metrics['MAE'][scalar] += Math.abs(diff);
-      metrics['RMSE'][scalar] += diff * diff;
-    }
+      const diff = value - modelSample.fom[j].value;
+      metrics['MAE'][name] += Math.abs(diff);
+      metrics['RMSE'][name] += diff * diff;
+    });
   }
 
   for (let scalar in metrics['MAE']) {
