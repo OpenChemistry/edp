@@ -2,7 +2,10 @@ import os
 import json
 import glob
 import re
+import math
 import click
+from multiprocessing import Pool
+from datetime import datetime
 from girder_client import GirderClient
 
 from edp.composite.parser.exp import parse_exp
@@ -16,6 +19,7 @@ scalars_to_extract = [
     'Emax.Vrhe',
     'Jmin.mAcm2',
     'Jmax.mAcm2',
+    'I.A_ave',
     'Eta.V_ave',
     'Eta(V)',
     'Ewe(V)',
@@ -24,7 +28,55 @@ scalars_to_extract = [
     't(s)'
 ]
 
+def _compute_run_parameters(parameters, techniques):
+    vref_regex = re.compile(r'(.*)_vref')
+
+    for technique in techniques:
+        # compute is_dark
+        tech_params = parameters['techniques'][technique]
+
+        tech_params['is_dark'] = 'toggle_dark_time_init' not in tech_params or \
+            tech_params['toggle_dark_time_init'] > 100.0
+
+        reference_vrhe = parameters['reference_vrhe']
+        # compute *_vrhe values
+        new_params = {}
+        for key, value in tech_params.items():
+            match = vref_regex.match(key)
+            if match:
+                prefix = match.group(1)
+                new_params['%s_vrhe' % prefix] = value - reference_vrhe
+
+        tech_params.update(new_params)
+        # Finally calculate min_potential_vref and min_potential_vref for all
+        # CV* techniques
+        if technique.startswith('CV'):
+            potentials = []
+            for k in ['init_potential_vrhe', 'first_potential_vrhe',
+                      'second_potential_vrhe',  'final_potential_vrhe']:
+
+                value = tech_params.get(k)
+                if value is not None:
+                    potentials.append(value)
+
+            tech_params['min_potential_vref'] = min(potentials)
+            tech_params['max_potential_vref'] = max(potentials)
+
+    return parameters
+
+def _coerce_values_to_float(d):
+    converted = {}
+
+    for key, value in d.items():
+        try:
+            converted[key] = float(value)
+        except (TypeError, ValueError):
+            converted[key] = value
+
+    return converted
+
 def _ingest_runs(gc, project, composite, dir):
+    runint_regex = re.compile(r'run__(\d+)')
     # Find the exp file
     exp_paths = glob.glob('%s/**/*.exp' % dir, recursive=True)
 
@@ -37,42 +89,103 @@ def _ingest_runs(gc, project, composite, dir):
             exp = parse_exp(f.read())
         name = exp['name']
         for run in exp['runs']:
+            # See if this is a eche run, skip over everthing else
+            if run['parameters']['experiment_type'] != 'eche':
+                continue
+
+            # Extract out the techniques this run used
             rcp_file = run['rcp_file']
-
-            runs = experiments.setdefault(name, [])
-
             [run_file] = glob.glob('%s/**/%s' % (dir, rcp_file), recursive=True)
-            click.echo('Ingesting run: %s' % run_file)
-
-            with open(run_file) as f:
-                run = parse_ana_rcp(f.read())
-
             technique_files = {}
+            techniques = []
             for key, value in run.items():
                 if key.startswith('files_technique__'):
                     match = technque_file_regex.match(key)
                     technique = match.group(1)
-
+                    techniques.append(technique)
                     run_dir = os.path.dirname(run_file)
                     technique_files[technique] = [os.path.join(run_dir, f) for f in value['pstat_files'].keys()]
 
+            parameters = _coerce_values_to_float(run['parameters'])
+            # Now extract the parameters for these techniques
+            tech_parameters = parameters.setdefault('techniques', {})
+            for technique in techniques:
+                tech_param_key = 'echem_params__%s' % technique
+                if tech_param_key in parameters:
+                    tech_parameters[technique] = _coerce_values_to_float(parameters[tech_param_key])
+
+            # Now remove any used technique parameters
+            parameters = {k: v for k, v in parameters.items() if not k.startswith('echem_params__')}
+
+            _compute_run_parameters(parameters, techniques)
+
+            # Extract the runint for sample matching
+            match = runint_regex.match(run['run_key'])
+            if match:
+                run_int = int(match.group(1))
+            else:
+                raise click.ClickException('Unable to extract runint: %s' % run['run_key'])
+
+            runs = experiments.setdefault(name, {})
+
+            click.echo('Ingesting run: %s' % run_file)
+
             run = {
                 'runId': rcp_file,
-                'solutionPh': float(run['solution_ph']),
-                'plateId': run['plate_id'],
-                'electrolyte': run['electrolyte']
+                'name': run['name'],
+                #'runPath': run['run_path'],
+                'solutionPh': parameters['solution_ph'],
+                'plateId': parameters['plate_id'],
+                'electrolyte': parameters['electrolyte'],
+                'parameters': parameters
             }
 
             run = gc.post('edp/projects/%s/composites/%s/runs' % (project, composite), json=run)
             run['sampleFiles'] = technique_files
-            runs.append(run)
+            runs[run_int] = run
 
     return experiments
 
-def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
-                    elements, platemap, technique, samples):
+def _create_fom(gc, project, composite, name, value, sample_id, run_id, analysis):
+    fom = {
+        'name': name,
+        'value': value,
+        'sampleId': sample_id,
+        'runId': run_id,
+        'analysisId': analysis['_id']
+    }
+
+    gc.post('edp/projects/%s/composites/%s/samples/%s/fom'
+            % (project, composite, sample_id), json=fom)
+
+sample_regex = re.compile('.*ana__.*__run__(\d+)_.*_(.*)_rawlen.txt')
+
+def _process_rawlen_files(gc, project, composite, sample, run_id, sample_files):
+    timeseries_data = {}
+    for sample_file in sample_files:
+        click.echo('Ingesting %s' % sample_file)
+        match = sample_regex.match(sample_file)
+        technique = match.group(2)
+        with open(sample_file) as f:
+            timeseries = parse_rawlen(f.read())
+        timeseries_data.update(
+            {key.replace('.', '\\u002e'):value for (key,value) in timeseries.items()}
+        )
+
+    timeseries = {
+        'data': timeseries_data,
+        'runId': run_id,
+        'technique': technique
+    }
+    timeseries = gc.post(
+        'edp/projects/%s/composites/%s/samples/%s/timeseries'
+        % (project, composite, sample['_id']), json=timeseries)
+
+
+
+def _ingest_loading(gc, project, composite, dir, loading_file, platemaps, samples, runs, pool):
     comp_regex = re.compile('([a-zA-Z]+)\.PM.AtFrac')
-    sample_regex = re.compile('.*ana__.*_(.*)_rawlen.txt')
+    sample_regex = re.compile('.*ana__.*__run__(\d+)__(.*)_rawlen.txt')
 
     [file_path] = glob.glob('%s/**/%s' % (dir, loading_file), recursive=True)
     click.echo('Ingesting: %s' % file_path)
@@ -81,67 +194,67 @@ def _ingest_loading(gc, project, composite, dir, ana_key, loading_file,
 
     sample_numbers = loading['sample_no']
     plate_ids = loading['plate_id']
+    runints = loading['runint']
     compositions = {}
     for key, value in loading.items():
         match = comp_regex.match(key)
         if match:
-            element = match.group(1).lower()
-            if element in elements:
-                compositions[element] = value
+            compositions[key] = {
+                'element': match.group(1).lower(),
+                'values': value
+            }
 
-    for i, (plate_id, sample_number) in enumerate(zip(plate_ids, sample_numbers)):
-        click.echo('Ingesting sample %s on plate %s' % (sample_number, int(plate_id)))
+    for i, (runint, plate_id, sample_number) in enumerate(zip(runints, plate_ids, sample_numbers)):
+        plate_id = int(plate_id)
+        platemap = platemaps.setdefault(plate_id, {
+            'plateId': plate_id,
+            'elements': set()
+        })
+        run_id = runs[runint]['_id']
+        click.echo('Ingesting sample %s on plate %s' % (sample_number, plate_id))
         if sample_number not in samples.setdefault(plate_id, {}):
-            sample_meta = {}
+            sample_meta = samples.setdefault(plate_id, {}).setdefault(sample_number, {})
             sample_meta['sampleNum'] = sample_number
+            sample_meta['plateId'] = plate_id
 
-            comp = {}
+            comp = {
+                'elements': [],
+                'amounts': []
+            }
             sample_meta['composition'] = comp
-            for e in compositions.keys():
-                comp[e] = compositions[e][i]
+            nan_comp = False
+            for key, value in compositions.items():
+                comp_value = value['values'][i]
 
-            if round(sum(comp.values())) != 1:
+                # If we encounter a NAN then don't enforce the
+                if math.isnan(comp_value):
+                    click.echo('Encounter NAN for composition value.')
+                    nan_comp = True
+
+                if comp_value > 0:
+                    element = value['element']
+                    comp['elements'].append(element)
+                    comp['amounts'].append(comp_value)
+                    platemap['elements'].add(element)
+
+            if not nan_comp and sum(comp['amounts']) <  0.999:
                 raise click.ClickException('Composite values don\'t add up to 1, for sample: %s' % sample_number)
-
-            scalars = sample_meta.setdefault('scalars', {})
-            for s in scalars_to_extract:
-                if s in loading:
-                    # We need to replace . with the unicode char so we
-                    # can store the key in mongo
-                    k = s.replace('.', '\\u002e')
-                    scalars[k] = loading[s][i]
 
             sample = gc.post('edp/projects/%s/composites/%s/samples'
                              % (project, composite), json=sample_meta)
             samples.setdefault(plate_id, {})[sample_number] = sample
 
             # Now look up time series data
-            t = technique if technique is not None else '*'
-            glob_path = '%s/**/ana__*__Sample%d_*_%s_rawlen.txt' % (dir, sample_number, t)
+            glob_path = '%s/**/ana__*__Sample%d_*_*_rawlen.txt' % (dir, sample_number)
             sample_files = glob.glob(glob_path, recursive=True)
 
+            def error(ex):
+                click.echo("Exception while process timeseries : %s" % str(ex))
+
             if sample_files:
-                timeseries_data = {}
-                for sample_file in sample_files:
-                    match = sample_regex.match(sample_file)
-                    technique = match.group(1)
-                    with open(sample_file) as f:
-                        timeseries = parse_rawlen(f.read())
-
-                    timeseries_data.update(
-                        {'%s(%s)' % (key.replace('.', '\\u002e'), technique):value for (key,value) in timeseries.items()}
-                    )
-
-                timeseries = {
-                    'data': timeseries_data
-                }
-                timeseries = gc.post(
-                    'edp/projects/%s/composites/%s/samples/%s/timeseries'
-                    % (project, composite, sample['_id']), json=timeseries)
+                pool.apply_async(_process_rawlen_files, (gc, project, composite, sample, run_id, sample_files), error_callback=error)
         else:
             sample = samples.setdefault(plate_id, {}).get(sample_number)
-
-        platemap.setdefault('sampleIds', []).append(sample['_id'])
 
     return samples
 
@@ -152,7 +265,7 @@ def _ingest_run_data(gc, project, composite, experiments, samples):
 
     run_timeseries = {}
     for _, experiment in experiments.items():
-        for run in experiment:
+        for run in experiment.values():
             for technique, technique_files  in run['sampleFiles'].items():
                 technique_files = run['sampleFiles'][technique]
                 for file_path in technique_files:
@@ -172,47 +285,110 @@ def _ingest_run_data(gc, project, composite, experiments, samples):
                     s = parse_sample(data)
                     for key, value in s.items():
                         if key in scalars_to_extract:
-                            key =  '%s(%s)' % (key.replace('.', '\\u002e'), technique)
+                            key =  key.replace('.', '\\u002e')
                             timeseries_data[key] = value
 
             for sample_number, timeseries_data in run_timeseries.items():
                 timeseries = {
                     'data': timeseries_data,
-                    'runId': run['_id']
+                    'runId': run['_id'],
+                    'technique': technique
                 }
                 sample = samples[run['plateId']][sample_number]
                 timeseries = gc.post(
                     'edp/projects/%s/composites/%s/samples/%s/timeseries'
                     % (project, composite, sample['_id']), json=timeseries)
 
+def _ingest_fom_file(gc, project, composite, fom_file, analysis, samples, runs):
+    click.echo('Ingesting %s' % fom_file)
+    fom_excludes = ['sample_no', 'runint', 'plate_id', 'csv_version', 'plot_parameters']
 
-def _ingest_samples(gc, project, composite, dir, experiments, channel_to_element):
+    with open(fom_file) as f:
+        fom = parse_csv(f.read())
+
+    plate_ids = fom['plate_id']
+    sample_numbers = fom['sample_no']
+    runints = fom['runint']
+
+    for exclude in fom_excludes:
+        if exclude in fom:
+            del fom[exclude]
+
+    for i, (runint, plate_id, sample_no) in enumerate(zip(runints, plate_ids, sample_numbers)):
+
+        for fom_name in fom:
+            sample = samples[plate_id][sample_no]
+            _create_fom(gc, project, composite, fom_name, float(fom[fom_name][i]),
+                            sample['_id'], runs[runint]['_id'], analysis)
+
+def _create_analysis(gc, project, composite, timestamp, name, type, index, technique, plate_ids):
+    analysis = {
+        'timestamp': datetime.strptime(timestamp, '%Y%m%d.%H%M%S').isoformat(),
+        'name': name,
+        'type': type,
+        'technique': technique,
+        'index': index,
+        'plateIds': plate_ids
+    }
+
+    return gc.post('edp/projects/%s/composites/%s/analyses'
+            % (project, composite), json=analysis)
+
+
+def _ingest_samples(gc, project, composite, dir, experiments):
+    ana_regex = re.compile(r'ana__(\d+)')
     ana_files = glob.glob('%s/**/*.ana' % dir, recursive=True)
 
     samples = {}
+    platemaps = {}
+
+    pool = Pool()
     for ana_file in ana_files:
+        ana_dir = os.path.dirname(ana_file)
         with open(ana_file) as f:
             ana = parse_ana_rcp(f.read())
 
+        experiment_name = ana['experiment_name']
+        runs = experiments[experiment_name]
+        loading_files_to_process = []
+        fom_files_to_process = []
+        ana_name = ana['name']
+        plate_ids = ana['plate_ids']
+        analysis_type = ana['analysis_type']
+
         for key, value in ana.items():
-            if key.startswith('ana__'):
+            match = ana_regex.match(key)
+            if match:
+                analysis_index = int(match.group(1))
                 [file_path] = value['files_multi_run']['fom_files'].keys()
-                plate_ids = value['plate_ids']
                 technique = value.get('technique')
-                if 'platemap_comp4plot_keylist' not in value['parameters']:
-                    continue
+                analysis_name = value['name']
+                analysis_name = analysis_name.partition('__')[2] if '__' in analysis_name else analysis_name
 
-                keylist = value['parameters']['platemap_comp4plot_keylist']
+                analysis = _create_analysis(gc, project, composite, ana_name,
+                                            analysis_name, analysis_type, analysis_index,
+                                            technique, plate_ids)
 
-                elements = [channel_to_element[x] for x in keylist]
 
-                platemap = {
-                    'plateId': plate_ids,
-                    'elements': elements
-                }
-                _ingest_loading(gc, project, composite, os.path.dirname(ana_file),
-                                key, file_path, elements, platemap, technique, samples)
-                # Now create the plate map
-                platemap = gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
+                if file_path.endswith('Loading.csv'):
+                    loading_files_to_process.append(file_path)
+                else:
+                    [file_path] = glob.glob('%s/**/%s' % (ana_dir, file_path), recursive=True)
+                    fom_files_to_process.append((file_path, analysis))
+
+        # Ingest the loading files to create the samples
+        for file_path in loading_files_to_process:
+            _ingest_loading(gc, project, composite, ana_dir,
+                            file_path, platemaps, samples, runs, pool)
+        # Now ingest the other FOM files
+        for (fom_file, analysis) in fom_files_to_process:
+            if not fom_file.endswith('pc__1.csv'):
+                _ingest_fom_file(gc, project, composite, fom_file, analysis, samples, runs)
+
+    for platemap in platemaps.values():
+        platemap['elements'] = list(platemap['elements'])
+        gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
+
+    pool.close()
 
     return samples

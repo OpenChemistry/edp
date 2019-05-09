@@ -10,10 +10,11 @@ def _build_ana_rcp_parser():
     block_name = key + separator  + pp.LineEnd().suppress()
     platemap_keylist = pp.Literal('platemap_comp4plot_keylist') + separator +  pp.delimitedList(pp.Word(pp.alphas))
     run_ids = pp.Literal('run_ids') + separator +  pp.delimitedList(pyparsing_common.integer)
-    plate_id = (pp.Literal('plate_ids') | pp.Literal('plate_id'))  + separator +  pyparsing_common.integer
+    plate_ids = (pp.Literal('plate_ids') | pp.Literal('plate_id'))  + separator +  pp.delimitedList(pyparsing_common.integer)
+
 
     key_value = (
-        platemap_keylist | run_ids | plate_id |
+        platemap_keylist | run_ids | plate_ids |
         key + separator + value
     )
 

@@ -37,15 +37,6 @@ class PlateMap(Base):
                     'query': {
                         'selector': '$eq'
                     },
-                },
-                {
-                    'name': 'sampleIds',
-                    'create': True,
-                    'ensure_index': True,
-                    'query': {
-                        'selector': '$in'
-                    },
-                    'type': ObjectId
                 }
             ),
             parent_model=Composite,

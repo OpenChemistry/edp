@@ -2,47 +2,51 @@ from .base import Base
 from bson.objectid import ObjectId
 
 
-class Sample(Base):
+class Analysis(Base):
 
     def __init__(self):
         from girder.plugins.edp.models.composite import Composite
-        from girder.plugins.edp.models.timeseries import TimeSeries
-        super(Sample, self).__init__(
-            name='edp.samples',
+        super(Analysis, self).__init__(
+            name='edp.analyses',
             props=(
                 {
-                    'name': 'sampleNum',
+                    'name': 'type',
                     'expose': True,
                     'create': True,
                     'mutable': False,
-                    'ensure_index': True
                 },
                 {
-                    'name': 'composition',
+                    'name': 'name',
                     'expose': True,
                     'create': True,
                     'mutable': False
                 },
                 {
-                    'name': 'scalars',
+                    'name': 'index',
                     'expose': True,
                     'create': True,
                     'mutable': False
                 },
                 {
-                    'name': 'plateId',
+                    'name': 'timestamp',
                     'expose': True,
                     'create': True,
                     'mutable': False,
-                    'ensure_index': True
+                    'type': 'timestamp'
+                },
+                {
+                    'name': 'technique',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False
+                },
+                {
+                    'name': 'plateIds',
+                    'expose': True,
+                    'create': True,
+                    'mutable': False
                 }
             ),
-            paging_key='sampleId',
             parent_model=Composite,
-            child_model=TimeSeries,
-            url='samples'
+            url='analyses'
         )
-
-    def initialize(self):
-        super(Sample, self).initialize()
-        self.ensureIndex('composition.elements')
