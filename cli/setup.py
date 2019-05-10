@@ -43,7 +43,9 @@ setup(
         'pyparsing==2.2.0',
         'boto3',
         'bson',
-        'pytz'
+        'pytz',
+        'aiohttp',
+        'aiofiles'
     ],
     entry_points= {
         'console_scripts': [
