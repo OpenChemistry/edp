@@ -14,6 +14,9 @@ from edp.deploy import deploy
 import pytz
 from pathlib import Path
 from itertools import chain
+import asyncio
+
+from . import composite
 
 
 class GC(GirderClient):
@@ -231,22 +234,8 @@ def _ingest(project, cycle, api_url, api_key, dir, schedule_dir, public, summary
 def _ingest_composite(project, dir, api_url, api_key):
     if dir[-1] != '/':
         dir += '/'
-    gc = GirderClient(apiUrl=api_url)
-    gc.authenticate(apiKey=api_key)
 
-    dir  = os.path.abspath(dir)
-    composite_name = os.path.basename(dir)
-    composite = {
-        'name': composite_name
-    }
-    composite = gc.post('edp/projects/%s/composites' % project, json=composite)
-    composite = composite['_id']
-
-    experiments = _ingest_runs(gc, project, composite, dir)
-
-    samples = _ingest_samples(gc, project, composite, dir, experiments)
-
-    _ingest_run_data(gc, project, composite, experiments, samples)
+    asyncio.run(composite.ingest(project, dir, api_url, api_key))
 
 @cli.command('deploy_static', help='Extract data from Girder and deploy static files to S3')
 @click.option('-b', '--bucket', default=None, help='the S3 bucket to deploy to', required=True)
