@@ -41,6 +41,10 @@ export const fetchTimeSerie = createAction(FETCH_TIMESERIE_REQUESTED);
 function patchSample(sample, platemapId, runId) {
   sample.platemapId = platemapId;
   sample.runId = runId;
+  sample.composition = sample.composition.elements.reduce((total, element, i) => {
+    total[element] = sample.composition.amounts[i];
+    return total;
+  }, {});
   return sample;
 }
 
