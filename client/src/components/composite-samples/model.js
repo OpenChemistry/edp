@@ -24,7 +24,7 @@ const ModelComponent = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
   colorMaps, activeMap, colorMapRange, filterRange, camera,
   scalarField, samples, samplesCompare, metrics, pending,
-  model, parameters, modelNumber, classes
+  model, parameters, modelNumber, classes, testOpacity, trainingOpacity
 }) => {
   const [metricsType, setMetricsType] = useState('MAE');
   const [iteration, setInteration] = useState(0);
@@ -77,6 +77,8 @@ const ModelComponent = ({
           compositionPlot={compositionPlot}
           compositionToPosition={compositionToPosition}
           compositionSpace={compositionSpace}
+          trainingOpacity={trainingOpacity}
+          testOpacity={testOpacity}
           scalarField={scalarField}
           colorMaps={colorMaps}
           activeMap={activeMap}
@@ -98,6 +100,8 @@ const ModelComponent = ({
           compositionPlot={compositionPlot}
           compositionToPosition={compositionToPosition}
           compositionSpace={compositionSpace}
+          trainingOpacity={trainingOpacity}
+          testOpacity={testOpacity}
           scalarField={scalarField}
           colorMaps={colorMaps}
           activeMap='Red White Blue'

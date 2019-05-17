@@ -13,14 +13,13 @@ import ModelsContainer from './models';
 import CompositionPlot from '../../components/composite-samples/composition-plot';
 import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
+import SliderControlComponent from '../../components/composite-samples/controls/slider';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
 
 import {
   identity,
   arraySerialize,
   arrayDeserialize,
-  numberSerialize,
-  numberDeserialize,
   defaultWrapper,
   onStateParamChanged,
   onParamChanged,
@@ -30,7 +29,6 @@ import { combinations } from '../../utils/combinations';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
 import { fetchModelMetadata, getModelMetadata, runModel } from '../../redux/ducks/learning';
 import ActiveLearningParametersComponent from '../../components/composite-samples/controls/active-learning';
-import ModelComponent from '../../components/composite-samples/model';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -86,7 +84,9 @@ class ActiveLearningContainer extends Component {
       octCompositionToPosition: null,
       modelParametersValues: {},
       modelIds: [],
-      modelName: ''
+      modelName: '',
+      trainingOpacity: 1,
+      testOpacity: 0.25
     }
 
     this.colorMaps = {
@@ -226,7 +226,9 @@ class ActiveLearningContainer extends Component {
       octCompositionToPosition,
       modelParametersValues,
       modelName,
-      modelIds
+      modelIds,
+      trainingOpacity,
+      testOpacity
     } = this.state;
 
     if (samples.length === 0) {
@@ -322,6 +324,24 @@ class ActiveLearningContainer extends Component {
             Run
           </Button>
           }
+          {modelIds.length > 0 &&
+          <SliderControlComponent
+            gridsize={{xs: 6}}
+            label='Training Set Opacity'
+            value={trainingOpacity}
+            range={[0, 1]}
+            onChange={(opacity) => {this.setState(state => {state.trainingOpacity = opacity; return state;})}}
+          />
+          }
+          {modelIds.length > 0 &&
+          <SliderControlComponent
+            gridsize={{xs: 6}}
+            label='Test Set Opacity'
+            value={testOpacity}
+            range={[0, 1]}
+            onChange={(opacity) => {this.setState(state => {state.testOpacity = opacity; return state;})}}
+          />
+          }
         </ControlsGrid>
         <br/>
 
@@ -337,6 +357,8 @@ class ActiveLearningContainer extends Component {
           filterRange={filterRange}
           camera={this.camera}
           scalarField={scalarField}
+          trainingOpacity={trainingOpacity}
+          testOpacity={testOpacity}
         />
       </Fragment>
     );

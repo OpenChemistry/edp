@@ -105,6 +105,8 @@ export function runModel(samples, model, parameters) {
       };
 
       const nIterations = 20;
+      const minTrainingProbability = 0.1;
+      const maxTrainingProbability = 0.9;
 
       for (let modelIteration = 0; modelIteration < nIterations; ++modelIteration) {
         const delta = 5 * (1 - (0.7 + Math.random() * 0.3)  * (modelIteration / nIterations));
@@ -121,16 +123,18 @@ export function runModel(samples, model, parameters) {
               value = value - delta / 2 + Math.random() * delta;
               return {...fom, value};
             });
+          modelSample.isTraining = Math.random() > 1 - minTrainingProbability - modelIteration / nIterations * (maxTrainingProbability - minTrainingProbability);
           modelSamples.push(modelSample);
         }
 
         for (let i in samples) {
           let sample = samples[i];
-          let modelCompareSample = {...sample};
+          let modelSample = modelSamples[i];
+          let modelCompareSample = {...modelSample};
           modelCompareSample.fom = sample.fom
             .map((fom, j) => {
               let { value } = fom;
-              value = modelSamples[i].fom[j].value - value;
+              value = modelSample.fom[j].value - value;
               return {...fom, value};
             });
           modelCompareSamples.push(modelCompareSample);
