@@ -10,6 +10,11 @@ import aiohttp
 import functools
 import logging
 import sys
+from pathlib import Path
+from collections import namedtuple
+import itertools
+import concurrent
+
 
 from multiprocessing import Pool
 from datetime import datetime
@@ -210,36 +215,6 @@ async def _create_fom(gc, project, composite, name, value, sample_id, run_id, an
     await gc.post('edp/projects/%s/composites/%s/samples/%s/fom'
                   % (project, composite, sample_id), json=fom)
 
-sample_regex = re.compile('.*ana__.*__run__(\d+)_.*_(.*)_rawlen.txt')
-async def _process_rawlen_file(timeseries_data, sample_file):
-    log.info('Ingesting %s' % sample_file)
-    match = sample_regex.match(sample_file)
-    technique = match.group(2)
-    async with aiofiles.open(sample_file, mode='r') as f:
-        contents = await f.read()
-    timeseries = parse_rawlen(contents)
-    timeseries_data.update(
-        {key.replace('.', '\\u002e'):value for (key,value) in timeseries.items()}
-    )
-
-
-async def _process_rawlen_files(gc, project, composite, sample, run_id, sample_files):
-    timeseries_data = {}
-    tasks = []
-    for sample_file in sample_files:
-        tasks.append(asycio.create_task(_process_rawlen_file(timeseries_data, sample_file)))
-
-    await asyncio.gather(*tasks)
-
-    timeseries = {
-        'data': timeseries_data,
-        'runId': run_id,
-        'technique': technique
-    }
-    timeseries = await gc.post(
-        'edp/projects/%s/composites/%s/samples/%s/timeseries'
-        % (project, composite, sample['_id']), json=timeseries)
-
 async def _ingest_sample(gc, project, composite, runint, plate_id, sample_number,
                          platemaps, compositions, samples, runs, i):
 
@@ -282,13 +257,6 @@ async def _ingest_sample(gc, project, composite, runint, plate_id, sample_number
                                % (project, composite), json=sample_meta)
 
         samples.setdefault(plate_id, {})[sample_number] = sample
-
-        # Now look up time series data
-        glob_path = '%s/**/ana__*__Sample%d_*_*_rawlen.txt' % (dir, sample_number)
-        sample_files = glob.glob(glob_path, recursive=True)
-
-        if sample_files:
-            await _process_rawlen_files(gc, project, composite, sample, run_id, sample_files)
 
     log.info('Ingested sample %d on plate %d' % (sample_number, plate_id))
 
@@ -412,6 +380,43 @@ async def _create_analysis(gc, project, composite, timestamp, name, type, index,
     return await gc.post('edp/projects/%s/composites/%s/analyses'
                          % (project, composite), json=analysis)
 
+sample_num_regex = re.compile(r'.*Sample(\d+).*')
+rawlen_executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
+async def _ingest_rawlen_file(gc, project, composite, technique, run_id, filepath, samples):
+    log.info('Ingesting %s' % filepath)
+    match = sample_num_regex.match(filepath)
+    if not match:
+        raise RuntimeError('Unable to extract sample num from: %s' % filepath)
+    sample = samples[int(match.group(1))]
+
+    async with aiofiles.open(filepath, mode='r') as f:
+        contents = await f.read()
+    loop = asyncio.get_running_loop()
+    timeseries_data = await loop.run_in_executor(rawlen_executor, parse_rawlen, contents)
+
+    timeseries = {
+        'data': timeseries_data,
+        'runId': run_id,
+        'technique': technique
+    }
+
+    await gc.post(
+        'edp/projects/%s/composites/%s/samples/%s/timeseries'
+        % (project, composite, sample['_id']), json=timeseries)
+
+rawlen_files_regex = re.compile(r'files_run__(\d+)')
+def _extract_rawlen_files(technique, ana_block):
+    rawlen_files = []
+    for key, value in ana_block.items():
+        match = run_files_regex.match(key)
+        if match:
+            runint = int(match.group(1))
+            if 'inter_rawlen_files' in value:
+                run_files += list(zip(itertools.repeat(runint), itertools.repeat(technique), value['inter_rawlen_files'].keys()))
+
+    return rawlen_files
+
+
 ana_regex = re.compile(r'ana__(\d+)')
 async def _ingest_ana(gc, project, composite, dir, experiments, ana_file, platemaps, samples):
     ana_dir = os.path.dirname(ana_file)
@@ -425,6 +430,7 @@ async def _ingest_ana(gc, project, composite, dir, experiments, ana_file, platem
     runs = experiments[experiment_name]
     loading_files_to_process = []
     fom_files_to_process = []
+    rawlen_files_to_process = []
     ana_name = ana['name']
     plate_ids = ana['plate_ids']
     analysis_type = ana['analysis_type']
@@ -448,6 +454,8 @@ async def _ingest_ana(gc, project, composite, dir, experiments, ana_file, platem
                 [file_path] = glob.glob('%s/**/%s' % (ana_dir, file_path), recursive=True)
                 fom_files_to_process.append((file_path, analysis))
 
+            rawlen_files_to_process += _extract_rawlen_files(technique, value)
+
     # Ingest the loading files to create the samples
     tasks = []
     for file_path in loading_files_to_process:
@@ -466,6 +474,22 @@ async def _ingest_ana(gc, project, composite, dir, experiments, ana_file, platem
                     _ingest_fom_file(gc, project, composite, fom_file,
                                      analysis, samples, runs)))
     await asyncio.gather(*tasks)
+
+    # Now ingest the run_files associated with the ana files
+    # We use process in batches of 1000, otherwise we run out of file descriptors
+    batch_size = 1000
+    for i in range(0, len(run_files_to_process), batch_size):
+        tasks = []
+        for (runint, technique, filepath) in rawlen_files_to_process[i:i+batch_size]:
+            run = runs[runint]
+            run_samples = samples[run['plateId']]
+            full_path = os.path.join(ana_dir, filepath)
+            tasks.append(
+                asyncio.create_task(
+                    _ingest_rawlen_file(gc, project, composite, technique,
+                                     run['_id'], full_path, run_samples)))
+
+        await asyncio.gather(*tasks)
 
 async def _ingest_samples(gc, project, composite, dir, experiments):
     ana_files = glob.glob('%s/**/*.ana' % dir, recursive=True)
