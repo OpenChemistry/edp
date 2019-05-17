@@ -28,6 +28,15 @@ class MultidimensionPlotComponent extends Component {
     this.multidimensionalPlot.setBackground(bgColor);
     this.onNewSamples();
     this.onCameraChange();
+    window.addEventListener('resize', this.onResize);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  onResize = () => {
+    this.multidimensionalPlot.resize();
   }
 
   componentDidUpdate(prevProps) {

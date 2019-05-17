@@ -19,7 +19,7 @@ class QuaternaryPlotComponent extends Component {
 
   componentDidMount() {
     const { onSampleDeselect, onSampleSelect } = this.props;
-    this.dp = new DataProvider([], 4);
+    this.dp = new DataProvider(4);
     this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
     this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
 
@@ -27,23 +27,29 @@ class QuaternaryPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { samples, compositionSpace, selectedSampleKeys, scalarField, activeMap, colorMapRange  } = this.props;
+    const {
+      samples, compositionSpace, selectedSampleKeys,
+      scalarField, activeMap, colorMapRange
+    } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
+
+    let redraw = false;
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
+      this.fixPlotAxes();
       this.dp.setActiveAxes(compositionSpace);
-      this.quaternaryPlot.dataUpdated();
+      redraw = true;
     }
 
     if (JSON.stringify(compositionSpace) !== JSON.stringify(prevProps.compositionSpace)) {
       this.dp.setActiveAxes(compositionSpace);
-      this.quaternaryPlot.dataUpdated();
+      redraw = true;
     }
 
     if (scalarField !== prevProps.scalarField) {
       this.onScalarChange();
-      this.quaternaryPlot.dataUpdated();
+      redraw = true;
     }
 
     if (
@@ -52,20 +58,29 @@ class QuaternaryPlotComponent extends Component {
       colorMapRange[1] !== prevProps.colorMapRange[1]
     ) {
       this.onColorMapChange();
+      redraw = true;
+    }
+
+    if (redraw) {
       this.quaternaryPlot.dataUpdated();
     }
   }
 
-  onNewSamples() {
-    const { samples, compositionSpace } = this.props;
-    this.dp.setData(samples);
-    this.dp.setActiveAxes(compositionSpace);
+  fixPlotAxes() {
     // Force axes to span [0, 1] regardless of the samples
     const axes = this.dp.getAxes(true);
     for (let key of Object.keys(axes)) {
       axes[key] = {...axes[key], range: [0, 1], spacing: 0.1};
     }
     this.dp.setAxes(axes);
+  }
+
+  onNewSamples() {
+    const { samples, compositionSpace } = this.props;
+    this.dp.setData(samples);
+    this.fixPlotAxes();
+
+    this.dp.setActiveAxes(compositionSpace);
 
     this.onScalarChange();
     this.quaternaryPlot.dataUpdated();
