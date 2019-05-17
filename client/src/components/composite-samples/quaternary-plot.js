@@ -29,7 +29,8 @@ class QuaternaryPlotComponent extends Component {
   componentDidUpdate(prevProps) {
     const {
       samples, compositionSpace, selectedSampleKeys,
-      scalarField, activeMap, colorMapRange
+      scalarField, activeMap, colorMapRange,
+      trainingOpacity, testOpacity
     } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
 
@@ -61,6 +62,10 @@ class QuaternaryPlotComponent extends Component {
       redraw = true;
     }
 
+    if (trainingOpacity !== prevProps.trainingOpacity || testOpacity !== prevProps.testOpacity) {
+      this.onOpacityChange();
+    }
+
     if (redraw) {
       this.quaternaryPlot.dataUpdated();
     }
@@ -83,6 +88,8 @@ class QuaternaryPlotComponent extends Component {
     this.dp.setActiveAxes(compositionSpace);
 
     this.onScalarChange();
+    this.onOpacityChange();
+
     this.quaternaryPlot.dataUpdated();
   }
 
@@ -96,6 +103,17 @@ class QuaternaryPlotComponent extends Component {
     const { activeMap, colorMapRange, colorMaps } = this.props;
     const colorMap = colorMaps[activeMap];
     this.quaternaryPlot.setColorMap(colorMap, colorMapRange);
+  }
+
+  onOpacityChange() {
+    const {trainingOpacity, testOpacity} = this.props;
+    let opacityFn;
+    if (!!trainingOpacity || !!testOpacity) {
+      opacityFn = (sample) => sample.isTraining ? trainingOpacity : testOpacity;
+    } else {
+      opacityFn = () => 1.0;
+    }
+    this.quaternaryPlot.setOpacityFn(opacityFn);
   }
 
   render() {

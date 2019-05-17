@@ -13,7 +13,8 @@ class SliderControlComponent extends Component {
       value,
       range,
       step,
-      onChange
+      onChange,
+      digits
     } = this.props;
 
     return (
@@ -30,7 +31,7 @@ class SliderControlComponent extends Component {
             />
           </div>
           <div>
-            {value}
+            {value.toFixed(!!digits ? digits : 2)}
           </div>
         </div>
       </FormControl>
