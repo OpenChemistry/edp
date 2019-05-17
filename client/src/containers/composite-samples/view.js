@@ -234,8 +234,10 @@ class CompositeSamplesContainer extends Component {
 
     const noOp = () => {};
     onSampleSelect = onSampleSelect || noOp;
+    const _onSampleSelect = (sample) => {onSampleSelect(sample, scalarField)};
     onSampleDeselect = onSampleDeselect || noOp;
     onSampleSelectById = onSampleSelectById || noOp;
+    const _onSampleSelectById = (id) => {onSampleSelectById(id, scalarField)};
     onClearSelection = onClearSelection || noOp;
 
     const {
@@ -308,7 +310,7 @@ class CompositeSamplesContainer extends Component {
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           selectedSampleKeys={selectedSampleKeys}
-          onSampleSelect={onSampleSelect}
+          onSampleSelect={_onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
 
@@ -316,7 +318,7 @@ class CompositeSamplesContainer extends Component {
         <Fragment>
           <SampleSelectionComponent
             selectedSamples={selectedSamples}
-            onSampleSelectById={onSampleSelectById}
+            onSampleSelectById={_onSampleSelectById}
             onClearSelection={onClearSelection}
           />
 

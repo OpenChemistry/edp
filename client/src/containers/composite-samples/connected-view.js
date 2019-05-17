@@ -19,6 +19,7 @@ import {
   updateParams
 } from '../../utils/url-props';
 import InfoExtractor from './info-extractor';
+import { DataProvider } from 'composition-plot';
 
 const URL_PARAMS = {
   platemapId: {
@@ -61,7 +62,7 @@ class CompositeSamplesContainer extends Component {
     }
   }
 
-  onSampleSelectById = (id) => {
+  onSampleSelectById = (id, scalarField) => {
     const { samples, selectedSampleKeys } = this.props;
     const matches = samples.filter((s) => s.sampleNum == id);
     if (matches.length === 0) {
@@ -74,16 +75,17 @@ class CompositeSamplesContainer extends Component {
       return;
     }
 
-    this.onSampleSelect(sample);
+    this.onSampleSelect(sample, scalarField);
   }
 
   onClearSelection = () => {
     this.onParamChanged('selectedSampleKeys', new Set());
   }
 
-  onSampleSelect = (sample) => {
+  onSampleSelect = (sample, scalarField) => {
     const { plots } = this.props;
-    this.fetchSampleTimeSeries(sample, plots);
+    const runId = (DataProvider.getSampleFom(sample, scalarField) || {}).runId;
+    this.fetchSampleTimeSeries(sample, plots, runId);
     const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
     selectedSampleKeys.add(sample._id);
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
@@ -95,8 +97,11 @@ class CompositeSamplesContainer extends Component {
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
   }
 
-  fetchSampleTimeSeries = (sample, plots) => {
-    const { ancestors, item, dispatch, runId } = this.props;
+  fetchSampleTimeSeries = (sample, plots, runId = null) => {
+    if (!runId) {
+      runId = sample.fom[0].runId;
+    }
+    const { ancestors, item, dispatch } = this.props;
     const ancestors_ = [...ancestors, item, {type: SAMPLE_NODE, _id: sample._id}];
     const item_ = {type: TIMESERIE_NODE};
     const fetchRaw = plots.includes('raw');
