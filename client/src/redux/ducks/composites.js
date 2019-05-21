@@ -1,5 +1,4 @@
 import { createAction, handleActions } from 'redux-actions';
-import { merge } from "lodash"
 import { ArrayDataProvider, SplineDataProvider } from 'composition-plot/dist/data-provider/spectrum';
 
 const initialState = {
@@ -48,19 +47,25 @@ function patchSample(sample, platemapId, runId) {
   return sample;
 }
 
-function toArrayProvider(timeserie) {
+function toArrayProvider(timeseries) {
   const provider = new ArrayDataProvider();
-  for (let key in timeserie.data) {
-    provider.setArray(key, timeserie.data[key]);
-  }
+  timeseries.forEach(ts => {
+    const { technique, data } = ts;
+    Object.entries(data).forEach(([key, value]) => {
+      provider.setArray(`${key} - ${technique}`, value);
+    });
+  });
   return provider;
 }
 
-function toSplineProvider(timeserie) {
+function toSplineProvider(timeseries) {
   const provider = new SplineDataProvider();
-  for (let key in timeserie.data) {
-    provider.setArray(key, timeserie.data[key]);
-  }
+  timeseries.forEach(ts => {
+    const { technique, data } = ts;
+    Object.entries(data).forEach(([key, value]) => {
+      provider.setArray(`${key} - ${technique}`, value);
+    });
+  });
   return provider;
 }
 
@@ -78,13 +83,10 @@ const reducer = handleActions({
       return state;
     }
 
-    // For now merge into a single object
-    const timeserie = merge({}, ...timeseries);
-
     if ( fitted ) {
-      return {...state, fittedTimeseries: {...state.fittedTimeseries, [timeserie.sampleId]: toSplineProvider(timeserie)}};
+      return {...state, fittedTimeseries: {...state.fittedTimeseries, [timeseries[0].sampleId]: toSplineProvider(timeseries)}};
     } else {
-      return {...state, timeseries: {...state.timeseries, [timeserie.sampleId]: toArrayProvider(timeserie)}};
+      return {...state, timeseries: {...state.timeseries, [timeseries[0].sampleId]: toArrayProvider(timeseries)}};
     }
   },
 }, initialState);
