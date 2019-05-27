@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { throttle, get } from 'lodash-es';
+import { throttle, get, isNil } from 'lodash-es';
 
 import { withTheme } from '@material-ui/core';
 
@@ -40,7 +40,7 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera} = this.props;
+    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize} = this.props;
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
@@ -69,6 +69,10 @@ class MultidimensionPlotComponent extends Component {
       this.multidimensionalPlot.dataUpdated();
     }
 
+    if (trainingOpacity !== prevProps.trainingOpacity || testOpacity !== prevProps.testOpacity || ballSize !== prevProps.ballSize) {
+      this.onOpacityChange();
+    }
+
     if (camera !== prevProps.camera) {
       this.onCameraChange();
     }
@@ -78,6 +82,7 @@ class MultidimensionPlotComponent extends Component {
     const { samples } = this.props;
     this.dp.setData(samples);
     this.onScalarChange();
+    this.onOpacityChange();
     this.multidimensionalPlot.dataUpdated();
   }
 
@@ -112,6 +117,18 @@ class MultidimensionPlotComponent extends Component {
   onFilterRangeChange(range) {
     this.onNewFilter(range);
     this.multidimensionalPlot.dataUpdated();
+  }
+
+  onOpacityChange() {
+    const {trainingOpacity, testOpacity, ballSize} = this.props;
+    const scale = isNil(ballSize) ? 1.5 : ballSize;
+    let opacityFn;
+    if (!isNil(trainingOpacity) && !isNil(testOpacity)) {
+      opacityFn = (sample) => scale * ( sample.isTraining ? trainingOpacity : testOpacity );
+    } else {
+      opacityFn = () => scale;
+    }
+    this.multidimensionalPlot.setRadiusFn(opacityFn);
   }
 
   render() {
