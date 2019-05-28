@@ -21,9 +21,10 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidMount() {
-    const { compositionToPosition, theme } = this.props;
+    const { compositionToPosition, compositionSpace, theme } = this.props;
     this.dp = new DataProvider();
     this.multidimensionalPlot = new MultidimensionalPlot(this.plotElement, this.dp, compositionToPosition);
+    this.multidimensionalPlot.setCompositionSpace(compositionSpace);
     const bgColor = get(theme, 'palette.background.default', '#efefef');
     this.multidimensionalPlot.setBackground(bgColor);
     this.onNewSamples();
@@ -40,7 +41,7 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize} = this.props;
+    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize, compositionSpace, compositionToPosition} = this.props;
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
@@ -66,6 +67,16 @@ class MultidimensionPlotComponent extends Component {
       filterRange[1] !== prevProps.filterRange[1]
     ) {
       this.onFilterRangeChange();
+      this.multidimensionalPlot.dataUpdated();
+    }
+
+    if (compositionSpace !== prevProps.compositionSpace) {
+      this.multidimensionalPlot.setCompositionSpace(compositionSpace);
+      this.multidimensionalPlot.dataUpdated();
+    }
+
+    if (compositionToPosition !== prevProps.compositionToPosition) {
+      this.multidimensionalPlot.setCompositionToPosition(compositionToPosition);
       this.multidimensionalPlot.dataUpdated();
     }
 
