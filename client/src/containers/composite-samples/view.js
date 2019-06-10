@@ -112,6 +112,16 @@ const URL_PARAMS = {
   ballSize: {
     serialize: defaultWrapper(numberSerialize, null),
     deserialize: defaultWrapper(numberDeserialize, 1.5)
+  },
+  compositionSpaceSize: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 4),
+    callback: function(currValue, nextValue) {
+      setTimeout(() => {
+        const compositionSpace = this.initializeCompositionSpace();
+        this.onParamChanged({compositionSpace});
+      }, 0);
+    }
   }
 }
 
@@ -147,7 +157,7 @@ class CompositeSamplesContainer extends Component {
   }
 
   initializeScalars() {
-    const { info } = this.props;
+    const { compositionSpaceSize, info } = this.props;
     let { scalarField } = this.props;
     let validScalar = info.getValidScalar(scalarField);
     let updates = {};
@@ -163,16 +173,22 @@ class CompositeSamplesContainer extends Component {
         break;
       }
     }
-    validComposition = validComposition && compositionSpace.length >= 4;
+    validComposition = validComposition && compositionSpace.length === compositionSpaceSize;
 
     if (!validComposition) {
-      try {
-        compositionSpace = combinations(info.getElements(), 4).next().value;
-        updates['compositionSpace'] = compositionSpace;
-      } catch {}
+      updates['compositionSpace'] = this.initializeCompositionSpace();
     }
 
     this.onParamChanged(updates);
+  }
+
+  initializeCompositionSpace() {
+    const { compositionSpaceSize, info } = this.props;
+    try {
+      return combinations(info.getElements(), compositionSpaceSize).next().value;
+    } catch {
+      return [];
+    }
   }
 
   updateCompositionToPosition(data) {
@@ -191,14 +207,15 @@ class CompositeSamplesContainer extends Component {
 
   onCompositionChange(compositionPlot) {
     const { info } = this.props;
+    let { compositionSpace, compositionSpaceSize } = this.props;
     const elements = info.getElements();
-    let compositionSpace;
-    if (compositionPlot === '3d') {
-      compositionSpace = [...elements];
-    } else if (compositionPlot === '2d') {
-      compositionSpace = elements.slice(0, 4);
+    if (compositionPlot === '2d') {
+      if (compositionSpaceSize < 4 || compositionSpaceSize > 4) {
+        compositionSpaceSize = 4;
+        compositionSpace = elements.slice(0, 4);
+      }
     }
-    this.onParamChanged({compositionPlot, compositionSpace});
+    this.onParamChanged({compositionPlot, compositionSpace, compositionSpaceSize});
   }
 
   getUrlParams() {
@@ -228,7 +245,8 @@ class CompositeSamplesContainer extends Component {
       selectionH,
       plots,
       showDetails,
-      ballSize
+      ballSize,
+      compositionSpaceSize
     } = this.props;
 
     let {
@@ -261,14 +279,30 @@ class CompositeSamplesContainer extends Component {
       {value: '2d', label: 'Quaternary'}
     ];
 
+    const compositionSpaceSizeOptions = [];
+    const minSpace = compositionPlot === '2d' ? 4 : 2;
+    const maxSpace = compositionPlot === '2d' ? 4 : info.getElements().length;
+    for (let i = minSpace; i <= maxSpace; ++i) {
+      compositionSpaceSizeOptions.push(i);
+    }
+
     return (
       <Fragment>
         <ControlsGrid>
           <SelectControlComponent
+            gridsize={{xs: 3}}
             label="Composition plot"
             value={compositionPlot}
             options={compositionOptions}
             onChange={(value) => {this.onCompositionChange(value)}}
+          />
+
+          <SelectControlComponent
+            gridsize={{xs: 3}}
+            label="Composition space"
+            value={compositionSpaceSize}
+            options={compositionSpaceSizeOptions}
+            onChange={(compositionSpaceSize) => {this.onParamChanged({compositionSpaceSize})}}
           />
 
           <SelectControlComponent
@@ -278,16 +312,14 @@ class CompositeSamplesContainer extends Component {
             onChange={(scalarField) => {this.onParamChanged({scalarField})}}
           />
 
-          {compositionPlot === '2d' &&
           <CompositionSpaceComponent
             gridsize={{xs: 12}}
             compositionSpace={compositionSpace}
             elements={info.getElements()}
             n={info.getElements().length}
-            k={4}
+            k={compositionSpaceSize}
             onChange={(compositionSpace) => {this.onParamChanged({compositionSpace})}}
           />
-          }
 
           {compositionPlot === '3d' &&
           <SliderControlComponent
