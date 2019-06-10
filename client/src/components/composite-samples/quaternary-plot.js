@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { throttle } from 'lodash-es';
+import { throttle, isNil } from 'lodash-es';
 
 import { QuaternaryPlot } from 'composition-plot';
 
@@ -108,7 +108,7 @@ class QuaternaryPlotComponent extends Component {
   onOpacityChange() {
     const {trainingOpacity, testOpacity} = this.props;
     let opacityFn;
-    if (!!trainingOpacity || !!testOpacity) {
+    if (!isNil(trainingOpacity) && !isNil(testOpacity)) {
       opacityFn = (sample) => sample.isTraining ? trainingOpacity : testOpacity;
     } else {
       opacityFn = () => 1.0;

@@ -20,6 +20,8 @@ import {
   identity,
   arraySerialize,
   arrayDeserialize,
+  numberSerialize,
+  numberDeserialize,
   defaultWrapper,
   onStateParamChanged,
   onParamChanged,
@@ -71,6 +73,10 @@ const URL_PARAMS = {
   filterRange: {
     serialize: defaultWrapper(arraySerialize, null),
     deserialize: defaultWrapper(arrayDeserialize, [0, 1])
+  },
+  ballSize: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 1.5)
   }
 }
 
@@ -218,7 +224,8 @@ class ActiveLearningContainer extends Component {
       colorMapRange,
       filterRange,
       models,
-      modelData
+      modelData,
+      ballSize
     } = this.props;
 
     const {
@@ -242,6 +249,8 @@ class ActiveLearningContainer extends Component {
     ];
 
     const dataRange = info.getScalarRange(scalarField);
+
+    const opacityOrSize = compositionPlot === '2d' ? 'Opacity' : 'Size';
 
     return (
       <Fragment>
@@ -271,6 +280,17 @@ class ActiveLearningContainer extends Component {
           />
           }
 
+          {compositionPlot === '3d' &&
+          <SliderControlComponent
+            gridsize={{xs: 12}}
+            label="Sphere size"
+            value={ballSize}
+            range={[0, 6]}
+            step={0.1}
+            onChange={(ballSize) => {this.onParamChanged({ballSize})}}
+          />
+          }
+
           <SelectControlComponent
             label="Color map"
             value={activeMap}
@@ -297,6 +317,7 @@ class ActiveLearningContainer extends Component {
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
+          ballSize={ballSize}
           selectedSampleKeys={new Set()}
           camera={this.camera}
         />
@@ -327,7 +348,7 @@ class ActiveLearningContainer extends Component {
           {modelIds.length > 0 &&
           <SliderControlComponent
             gridsize={{xs: 6}}
-            label='Training Set Opacity'
+            label={`Training Set ${opacityOrSize}`}
             value={trainingOpacity}
             range={[0, 1]}
             onChange={(opacity) => {this.setState(state => {state.trainingOpacity = opacity; return state;})}}
@@ -336,7 +357,7 @@ class ActiveLearningContainer extends Component {
           {modelIds.length > 0 &&
           <SliderControlComponent
             gridsize={{xs: 6}}
-            label='Test Set Opacity'
+            label={`Test Set ${opacityOrSize}`}
             value={testOpacity}
             range={[0, 1]}
             onChange={(opacity) => {this.setState(state => {state.testOpacity = opacity; return state;})}}
@@ -355,6 +376,7 @@ class ActiveLearningContainer extends Component {
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
+          ballSize={ballSize}
           camera={this.camera}
           scalarField={scalarField}
           trainingOpacity={trainingOpacity}

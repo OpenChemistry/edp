@@ -13,6 +13,7 @@ import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
 import SampleSelectionComponent from '../../components/composite-samples/controls/selection';
+import SliderControlComponent from '../../components/composite-samples/controls/slider';
 
 import {
   identity,
@@ -107,6 +108,10 @@ const URL_PARAMS = {
   selectionH: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, '')
+  },
+  ballSize: {
+    serialize: defaultWrapper(numberSerialize, null),
+    deserialize: defaultWrapper(numberDeserialize, 1.5)
   }
 }
 
@@ -222,7 +227,8 @@ class CompositeSamplesContainer extends Component {
       separateSlopeH,
       selectionH,
       plots,
-      showDetails
+      showDetails,
+      ballSize
     } = this.props;
 
     let {
@@ -283,6 +289,17 @@ class CompositeSamplesContainer extends Component {
           />
           }
 
+          {compositionPlot === '3d' &&
+          <SliderControlComponent
+            gridsize={{xs: 12}}
+            label="Sphere size"
+            value={ballSize}
+            range={[0, 6]}
+            step={0.1}
+            onChange={(ballSize) => {this.onParamChanged({ballSize})}}
+          />
+          }
+
           <SelectControlComponent
             label="Color map"
             value={activeMap}
@@ -309,6 +326,7 @@ class CompositeSamplesContainer extends Component {
           activeMap={activeMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
+          ballSize={ballSize}
           selectedSampleKeys={selectedSampleKeys}
           onSampleSelect={_onSampleSelect}
           onSampleDeselect={onSampleDeselect}
