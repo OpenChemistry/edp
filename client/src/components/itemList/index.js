@@ -21,7 +21,8 @@ class ItemList extends Component {
       title,
       onAdd,
       canEdit,
-      ingestComponent
+      ingestComponent,
+      sortFn
     } = this.props;
 
     return (
@@ -50,7 +51,7 @@ class ItemList extends Component {
               </Typography>
             </ListItem>
             }
-            {Object.values(items).map((item) => {
+            {Object.values(items).sort(sortFn || (() => 0 )).map((item) => {
               return (
                 <ItemListItem
                   {...this.props}

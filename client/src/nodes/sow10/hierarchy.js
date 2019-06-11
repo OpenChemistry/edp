@@ -48,7 +48,8 @@ export const NODES = {
     fileFields: ['structFile'],
     color: deepOrange[500],
     icon: Layers,
-    ingest: IngestBatch
+    ingest: IngestBatch,
+    sortFn: (a, b) => a.title < b.title ? -1 : 1
   },
   [TEST0_NODE] : {
     label: 'Test',

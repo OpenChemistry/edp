@@ -116,6 +116,7 @@ class ItemViewContainer extends Component {
           primarySuffix={NODES[child.type].primarySuffix}
           secondaryPrefix={NODES[child.type].secondaryPrefix}
           secondarySuffix={NODES[child.type].secondarySuffix}
+          sortFn={NODES[child.type].sortFn}
           ingestComponent={ingestComponent}
           color={NODES[child.type].color}
           icon={NODES[child.type].icon}
