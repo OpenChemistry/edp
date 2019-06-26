@@ -86,6 +86,7 @@ const ModelComponent = ({
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={camera}
         />
       </Fragment>
@@ -110,6 +111,7 @@ const ModelComponent = ({
           colorMapRange={[-delta, delta]}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={camera}
         />
       </Fragment>

@@ -351,6 +351,7 @@ class ActiveLearningContainer extends Component {
           filterRange={filterRange}
           ballSize={ballSize}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={this.camera}
         />
 

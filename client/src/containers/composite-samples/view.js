@@ -360,6 +360,7 @@ class CompositeSamplesContainer extends Component {
           filterRange={filterRange}
           ballSize={ballSize}
           selectedSampleKeys={selectedSampleKeys}
+          showLegend={true}
           onSampleSelect={_onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
