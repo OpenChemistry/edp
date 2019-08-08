@@ -60,7 +60,7 @@ const URL_PARAMS = {
   },
   activeMap: {
     serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, 'Viridis')
+    deserialize: defaultWrapper(identity, 'viridis')
   },
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
@@ -105,12 +105,7 @@ class ActiveLearningContainer extends Component {
       testOpacity: 0.25
     }
 
-    this.colorMaps = {
-      'Viridis': colors.viridis,
-      'Plasma': colors.plasma,
-      'Red White Blue': colors.redWhiteBlue,
-      'Green Blue': [[0, 1, 0], [0, 0, 1]],
-    }
+    this.colorMaps = {...colors.presets};
 
     this.onParamChanged = onParamChanged.bind(this);
     this.updateParams = updateParams.bind(this);
@@ -351,6 +346,7 @@ class ActiveLearningContainer extends Component {
           filterRange={filterRange}
           ballSize={ballSize}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={this.camera}
         />
 

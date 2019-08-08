@@ -118,7 +118,7 @@ class QuaternaryPlotComponent extends Component {
 
   render() {
     return (
-        <div style={{width: '100%', height: '22.5rem', position: 'relative', overflowX: 'scroll', overflowY: 'hidden'}}>
+        <div style={{width: '100%', height: '100%', position: 'relative', overflowX: 'scroll', overflowY: 'hidden'}}>
           <div style={{width: '70rem', height: '100%'}}>
             <svg style={{width: '100%', height: '100%'}} ref={(ref)=>{this.compositionElement = ref;}}></svg>
           </div>

@@ -86,6 +86,7 @@ const ModelComponent = ({
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={camera}
         />
       </Fragment>
@@ -106,10 +107,11 @@ const ModelComponent = ({
           ballSize={ballSize}
           scalarField={scalarField}
           colorMaps={colorMaps}
-          activeMap='Red White Blue'
+          activeMap='bwr'
           colorMapRange={[-delta, delta]}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
+          showLegend={true}
           camera={camera}
         />
       </Fragment>

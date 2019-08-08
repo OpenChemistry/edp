@@ -59,7 +59,7 @@ const URL_PARAMS = {
   },
   activeMap: {
     serialize: defaultWrapper(identity, null),
-    deserialize: defaultWrapper(identity, 'Viridis')
+    deserialize: defaultWrapper(identity, 'viridis')
   },
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
@@ -135,12 +135,7 @@ class CompositeSamplesContainer extends Component {
       octCompositionToPosition: null
     }
 
-    this.colorMaps = {
-      'Viridis': colors.viridis,
-      'Plasma': colors.plasma,
-      'Red White Blue': colors.redWhiteBlue,
-      'Green Blue': [[0, 1, 0], [0, 0, 1]],
-    }
+    this.colorMaps = {...colors.presets};
 
     this.onStateParamChanged = onStateParamChanged.bind(this);
     this.onParamChanged = onParamChanged.bind(this);
@@ -360,6 +355,7 @@ class CompositeSamplesContainer extends Component {
           filterRange={filterRange}
           ballSize={ballSize}
           selectedSampleKeys={selectedSampleKeys}
+          showLegend={true}
           onSampleSelect={_onSampleSelect}
           onSampleDeselect={onSampleDeselect}
         />
