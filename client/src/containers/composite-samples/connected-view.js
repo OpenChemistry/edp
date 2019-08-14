@@ -98,7 +98,7 @@ class CompositeSamplesContainer extends Component {
   }
 
   fetchSampleTimeSeries = (sample, plots, runId = null) => {
-    if (!runId) {
+    if (!runId && sample && sample.fom && sample.fom.length > 0) {
       runId = sample.fom[0].runId;
     }
     const { ancestors, item, dispatch } = this.props;
