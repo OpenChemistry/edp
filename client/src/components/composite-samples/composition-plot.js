@@ -7,20 +7,16 @@ import ColorMapLegend from './colormap-legend';
 
 const styles = _theme => ({
   root: {
-    position: 'relative',
     width: '100%',
-    height: '22.5rem'
+    display: 'flex'
   },
   plot: {
-    position: 'absolute',
-    height: '100%',
     width: '100%'
   },
   legend: {
-    position: 'absolute',
     height: '100%',
     width: '4rem',
-    right: 0
+    marginLeft: '-4rem'
   }
 });
 
