@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux'
+import { Provider } from 'react-redux';
 
 import Cookies from 'universal-cookie';
+import { isNil } from 'lodash-es';
 
 import './index.css';
 import App from './App';
@@ -27,6 +28,10 @@ if (path) {
 
 // Set the prefix for API calls if we have one
 girderClient().setPrefix(window.PUBLIC_URL);
+// If we have been provided with an API URL, use that as the base URL.
+if (!isNil(window.API_URL)) {
+  girderClient().setBaseURL(window.API_URL);
+}
 
 // if there is no token the string "undefined" is returned ?!!
 // if (!isNil(cookieToken)) {
