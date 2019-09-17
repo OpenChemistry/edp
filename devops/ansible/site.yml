@@ -66,7 +66,7 @@
         collection:
           name: "edp"
           description: "EDP collection"
-          public: "{{ public_data | default(no) }}"
+          public: "{{ public_data | default('no') }}"
         state: present
       register: edp_collection
 
@@ -82,13 +82,13 @@
           parentId: "{{edp_collection['gc_return']['_id'] }}"
           name: "data"
           description: "EDP data folder"
-          public: "{{ public_data | default(no) }}"
+          public: "{{ public_data | default('no') }}"
           access:
             groups:
               - name: edp
                 type: admin
         state: present
-        
+
     - name: Enable EDP plugins
       girder:
         host: "{{girder_host}}"
