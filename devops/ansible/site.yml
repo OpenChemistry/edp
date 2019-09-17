@@ -525,7 +525,7 @@
           path: "item/{{ footer_logo_item['gc_return']['_id'] }}/files"
 
       register: footer_logo_file
-      when: footer_logo_item is defined
+      when: footer_logo_path is defined and footer_logo_item is defined
 
     - name: Set footer logo ID
       girder:
@@ -543,7 +543,7 @@
           "key": "edp.configuration.footer.logo.file.id",
           "value": "{{ footer_logo_file['gc_return'][0]['_id'] }}"
         }
-      when: footer_logo_file is defined
+      when: footer_logo_path is defined and footer_logo_file is defined
 
     - name: Set MIME type to image/svg+xml
       girder:
@@ -556,7 +556,7 @@
           path: "file/{{ footer_logo_file['gc_return'][0]['_id'] }}"
           parameters:
             mimeType: "image/svg+xml"
-      when: (footer_logo_path | basename | splitext)[1] == '.svg'
+      when: footer_logo_path is defined  and (footer_logo_path | basename | splitext)[1] == '.svg'
 
     - name: Set footer logo URL
       girder:
