@@ -29,7 +29,7 @@ if (path) {
 // Set the prefix for API calls if we have one
 girderClient().setPrefix(window.PUBLIC_URL);
 // If we have been provided with an API URL, use that as the base URL.
-if (!isNil(window.API_URL)) {
+if (!isNil(window.API_URL) && !window.API_URL.startsWith('%')) {
   girderClient().setBaseURL(window.API_URL);
 }
 
