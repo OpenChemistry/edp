@@ -19,6 +19,7 @@ class CompositeSearch extends Component {
 
   componentDidMount() {
     this.compositeSearch();
+    this.props.dispatch(fetchDatabases());
   }
 
   componentDidUpdate(prevProps) {

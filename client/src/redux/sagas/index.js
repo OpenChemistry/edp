@@ -37,6 +37,10 @@ import {
   runModelSaga
 } from './learning';
 
+import {
+  fetchDatabasesSaga
+} from './databases'
+
 export default function* root() {
   yield fork(createItemSaga);
   yield fork(fetchItemSaga);
@@ -66,4 +70,6 @@ export default function* root() {
   yield fork(auth.sagas.watchInvalidateToken);
   yield fork(auth.sagas.watchNewToken);
   yield fork(auth.sagas.watchUsernameLogin);
+
+  yield fork(fetchDatabasesSaga);
 }
