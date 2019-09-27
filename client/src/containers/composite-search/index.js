@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { debounce } from 'lodash-es';
+import { debounce, has, keys } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
+import { fetchDatabases, getDatabases } from '../../redux/ducks/databases';
 import { createFieldsFactory, makeUrl } from '../../nodes';
 import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
@@ -93,12 +94,19 @@ function mapStateToProps(state, ownProps) {
     const [key, value] = pair;
     fields[key] = value;
   }
+  const databases = getDatabases(state);
+  if (!has(fields, 'dataset')) {
+    // Just pick the first
+    fields['dataset'] = keys(databases).sort()[0];
+  }
+
   return {
     matches: getCompositeMatches(state),
     pending: getCompositePending(state),
     fields,
     initialValues: fields,
-    currentValues: getFormValues('compositeSearch')(state)
+    currentValues: getFormValues('compositeSearch')(state),
+    databases: databases
   }
 }
 
