@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
+import { isNil } from 'lodash-es'
+
 import { TIMESERIE_NODE, SAMPLE_NODE } from '../../nodes/sow8/hierarchy';
 
 import { getSamples, fetchSamples, fetchTimeSerie } from '../../redux/ducks/composites';
@@ -22,6 +24,10 @@ import InfoExtractor from './info-extractor';
 import { DataProvider } from 'composition-plot';
 
 const URL_PARAMS = {
+  dataset: {
+    serialize: defaultWrapper(identity, null),
+    deserialize: defaultWrapper(identity, null)
+  },
   platemapId: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, null)
@@ -38,9 +44,9 @@ const URL_PARAMS = {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'raw'),
     callback: function(currValue, nextValue) {
-      const { selectedSampleKeys } = this.props;
+      const { selectedSampleKeys, dataset } = this.props;
       for (let _id of selectedSampleKeys.values()) {
-        this.fetchSampleTimeSeries({_id}, nextValue);
+        this.fetchSampleTimeSeries({_id}, nextValue, null, dataset);
       }
     }
   }
@@ -55,10 +61,12 @@ class CompositeSamplesContainer extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
-    dispatch(fetchSamples({ancestors, item, platemapId, runId}));
+    const {
+      dispatch, ancestors, item, platemapId,
+      runId, selectedSampleKeys, plots, dataset } = this.props;
+    dispatch(fetchSamples({ancestors, item, platemapId, runId, dataset}));
     for (let _id of selectedSampleKeys.values()) {
-      this.fetchSampleTimeSeries({_id}, plots);
+      this.fetchSampleTimeSeries({_id}, plots, null, dataset);
     }
   }
 
@@ -83,9 +91,9 @@ class CompositeSamplesContainer extends Component {
   }
 
   onSampleSelect = (sample, scalarField) => {
-    const { plots } = this.props;
+    const { plots, dataset } = this.props;
     const runId = (DataProvider.getSampleFom(sample, scalarField) || {}).runId;
-    this.fetchSampleTimeSeries(sample, plots, runId);
+    this.fetchSampleTimeSeries(sample, plots, runId, dataset);
     const selectedSampleKeys = new Set(this.props['selectedSampleKeys']);
     selectedSampleKeys.add(sample._id);
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
@@ -97,8 +105,8 @@ class CompositeSamplesContainer extends Component {
     this.onParamChanged('selectedSampleKeys', selectedSampleKeys);
   }
 
-  fetchSampleTimeSeries = (sample, plots, runId = null) => {
-    if (!runId) {
+  fetchSampleTimeSeries = (sample, plots, runId = null, dataset = null) => {
+    if (!isNil(runId)) {
       runId = sample.fom[0].runId;
     }
     const { ancestors, item, dispatch } = this.props;
@@ -107,10 +115,18 @@ class CompositeSamplesContainer extends Component {
     const fetchRaw = plots.includes('raw');
     const fetchFitted = plots.includes('fitted');
     if (fetchRaw) {
-      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: false}));
+      dispatch(
+        fetchTimeSerie(
+          {ancestors: ancestors_, item: item_, runId, dataset, fitted: false}
+        )
+      );
     }
     if (fetchFitted) {
-      dispatch(fetchTimeSerie({ancestors: ancestors_, item: item_, runId, fitted: true}));
+      dispatch(
+        fetchTimeSerie(
+          {ancestors: ancestors_, item: item_, runId, dataset, fitted: true}
+        )
+      );
     }
   }
 

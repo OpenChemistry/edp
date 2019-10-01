@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { debounce, has, keys } from 'lodash-es';
+import { debounce, has, keys, isEqual } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
 import { fetchDatabases, getDatabases } from '../../redux/ducks/databases';
@@ -19,14 +19,15 @@ class CompositeSearch extends Component {
   }
 
   componentDidMount() {
-    this.compositeSearch();
     this.props.dispatch(fetchDatabases());
   }
 
   componentDidUpdate(prevProps) {
-    const { fields } = this.props;
+    const { fields, databases } = this.props;
     const prevFields = prevProps.fields;
-    if (JSON.stringify(fields) !== JSON.stringify(prevFields)) {
+    const prevDatabases = prevProps.databases;
+    if (!isEqual(fields, prevFields) ||
+        !isEqual(databases, prevDatabases)) {
       this.compositeSearch();
     }
   }
@@ -50,10 +51,12 @@ class CompositeSearch extends Component {
   }
 
   onOpen = (match, mode) => {
-    const { ancestors, item, dispatch } = this.props;
+    const { ancestors, item, dispatch, currentValues } = this.props;
+    const { dataset } = currentValues;
     const platemapId = match.platemap._id;
     const runId = match.run._id;
     const searchParams = new URLSearchParams();
+    searchParams.append('dataset', dataset);
     searchParams.append('platemapId', platemapId);
     searchParams.append('runId', runId);
     // dispatch(fetchSamples({ancestors, item, platemapId, runId}));
@@ -112,7 +115,10 @@ function mapStateToProps(state, ownProps) {
 
 CompositeSearch = reduxForm({
   form: 'compositeSearch',
-  enableReinitialize: true
+  enableReinitialize: true,
+  onChange: (values, dispatch, props, previousValues) => {
+    props.submit();
+  }
 })(CompositeSearch);
 
 CompositeSearch = connect(mapStateToProps)(CompositeSearch);

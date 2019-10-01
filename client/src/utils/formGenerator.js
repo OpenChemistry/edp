@@ -162,7 +162,7 @@ const renderSelectField = (field) => {
     <div style={{marginBottom: "1rem"}}>
       <FormControl>
         <InputLabel htmlFor="selectField">{field.label}</InputLabel>
-          <Select
+        <Select
           inputProps={{
             id: 'selectField',
           }}
