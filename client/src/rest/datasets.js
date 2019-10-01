@@ -1,6 +1,6 @@
 import girderClient from '@openchemistry/girder-client';
 
-export function getDatabases() {
-  return  girderClient().get('databases')
+export function getDatasets() {
+  return  girderClient().get('datasets')
     .then(response => response.data );
 }

@@ -5,7 +5,7 @@ import { push } from 'connected-react-router';
 import { debounce, has, keys, isEqual } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
-import { fetchDatabases, getDatabases } from '../../redux/ducks/databases';
+import { fetchDatasets, getDatasets } from '../../redux/ducks/datasets';
 import { createFieldsFactory, makeUrl } from '../../nodes';
 import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
@@ -19,15 +19,15 @@ class CompositeSearch extends Component {
   }
 
   componentDidMount() {
-    this.props.dispatch(fetchDatabases());
+    this.props.dispatch(fetchDatasets());
   }
 
   componentDidUpdate(prevProps) {
-    const { fields, databases } = this.props;
+    const { fields, datasets } = this.props;
     const prevFields = prevProps.fields;
-    const prevDatabases = prevProps.databases;
+    const prevDatasets = prevProps.datasets;
     if (!isEqual(fields, prevFields) ||
-        !isEqual(databases, prevDatabases)) {
+        !isEqual(datasets, prevDatasets)) {
       this.compositeSearch();
     }
   }
@@ -97,10 +97,10 @@ function mapStateToProps(state, ownProps) {
     const [key, value] = pair;
     fields[key] = value;
   }
-  const databases = getDatabases(state);
+  const datasets = getDatasets(state);
   if (!has(fields, 'dataset')) {
     // Just pick the first
-    fields['dataset'] = keys(databases).sort()[0];
+    fields['dataset'] = keys(datasets).sort()[0];
   }
 
   return {
@@ -109,7 +109,7 @@ function mapStateToProps(state, ownProps) {
     fields,
     initialValues: fields,
     currentValues: getFormValues('compositeSearch')(state),
-    databases: databases
+    datasets: datasets
   }
 }
 

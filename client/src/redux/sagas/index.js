@@ -38,8 +38,8 @@ import {
 } from './learning';
 
 import {
-  fetchDatabasesSaga
-} from './databases'
+  fetchDatasetsSaga
+} from './datasets'
 
 export default function* root() {
   yield fork(createItemSaga);
@@ -71,5 +71,5 @@ export default function* root() {
   yield fork(auth.sagas.watchNewToken);
   yield fork(auth.sagas.watchUsernameLogin);
 
-  yield fork(fetchDatabasesSaga);
+  yield fork(fetchDatasetsSaga);
 }
