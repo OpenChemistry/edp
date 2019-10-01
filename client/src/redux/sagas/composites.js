@@ -13,8 +13,8 @@ import { getItems as getItemsRest } from '../../rest/items';
 
 function* onFetchSamples(action) {
   try {
-    const { ancestors, item, platemapId, runId } = action.payload;
-    const samples = yield call(getSamplesRest, ancestors, item, platemapId, runId);
+    const { dataset, ancestors, item, platemapId, runId } = action.payload;
+    const samples = yield call(getSamplesRest, ancestors, item, platemapId, runId, dataset);
     yield put({type: FETCH_SAMPLES_SUCCEEDED, payload: {samples, platemapId, runId}});
   } catch (e) {
     yield put({type: FETCH_SAMPLES_FAILED, error: e});
@@ -27,8 +27,8 @@ export function* fetchSamplesSaga() {
 
 function* onFetchTimeserie(action) {
   try {
-    const { ancestors, item, runId, fitted } = action.payload;
-    const timeseries = yield call(getItemsRest, ancestors, item, {runId, fitted});
+    const { ancestors, item, runId, fitted, dataset } = action.payload;
+    const timeseries = yield call(getItemsRest, ancestors, item, {runId, fitted, dataset});
     yield put({type: FETCH_TIMESERIE_SUCCEEDED, payload: {timeseries, fitted}});
   } catch (e) {
     yield put({type: FETCH_TIMESERIE_FAILED, error: e});
