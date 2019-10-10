@@ -29,10 +29,21 @@ import {
   createFieldsFactory as sow11createFieldsFactory
 } from './sow11/fields';
 
+import {
+  NODES as aceNODES,
+  getNodeType as aceGetNodeType
+} from './ace/hierarchy';
+
+import {
+  createFieldsFactory as aceCreateFieldsFactory
+} from './ace/fields';
+
+
 
 export const SOW8 = 'sow8';
 export const SOW10 = 'sow10';
 export const SOW11 = 'sow11';
+export const ACE = 'ace';
 
 let DEPLOYMENT = null;
 
@@ -49,6 +60,8 @@ export function getNodes() {
       return sow10NODES;
     } case SOW11 : {
       return sow11NODES;
+    } case ACE : {
+      return aceNODES;
     } default : {
       return defaultVal;
     }
@@ -139,6 +152,9 @@ function getNodeType(url, i) {
       return sow10getNodeType(url, i);
     } case SOW11 : {
       return sow11getNodeType(url, i);
+    } case ACE : {
+      return aceGetNodeType(url, i);
+
     } default : {
       return defaultVal(url, i);
     }
@@ -154,6 +170,8 @@ export function createFieldsFactory(nodeType) {
       return sow10createFieldsFactory(nodeType);
     } case SOW11 : {
       return sow11createFieldsFactory(nodeType);
+    } case ACE : {
+      return aceCreateFieldsFactory(nodeType);
     } default : {
       return defaultVal(nodeType);
     }
