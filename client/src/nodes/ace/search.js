@@ -1,0 +1,1 @@
+export const COMPOSITE_SEARCH = 'COMPOSITE_SEARCH';
