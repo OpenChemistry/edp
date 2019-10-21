@@ -19,7 +19,7 @@ class CompositeSearch extends Component {
   }
 
   componentDidMount() {
-    this.props.dispatch(fetchDatasets());
+    this.compositeSearch();
   }
 
   componentDidUpdate(prevProps) {
