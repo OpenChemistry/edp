@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { debounce, isEqual } from 'lodash-es';
+import { debounce, isEqual, has, isNil } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
+import { fetchItem, getItem } from '../../redux/ducks/items';
 import { createFieldsFactory, makeUrl } from '../../nodes';
 import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
@@ -18,19 +19,34 @@ class CompositeSearch extends Component {
   }
 
   componentDidMount() {
-    this.compositeSearch();
+
+    if (!isNil(this.props.dataset)) {
+      this.compositeSearch();
+    }
+    // We need to load the parent to get the dataset
+    else {
+      let {dispatch, ancestors} = this.props;
+      if (ancestors.length > 0) {
+        const item = ancestors[ancestors.length - 1];
+        ancestors = ancestors.slice(0, ancestors.length - 1)
+        dispatch(fetchItem({ancestors, item}));
+      }
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { fields } = this.props;
+    const { fields, dataset } = this.props;
     const prevFields = prevProps.fields;
-    if (!isEqual(fields, prevFields))) {
+    if (!isEqual(fields, prevFields) || prevProps.dataset != dataset) {
       this.compositeSearch();
     }
   }
 
   compositeSearch() {
-    const { ancestors, item, fields, dispatch } = this.props;
+    const { ancestors, item, dataset, dispatch } = this.props;
+    // Augment the fields with the dataset
+    let { fields }  = this.props;
+    fields = {...fields, dataset};
     dispatch(searchComposite({ancestors, item, fields}));
   }
 
@@ -48,10 +64,14 @@ class CompositeSearch extends Component {
   }
 
   onOpen = (match, mode) => {
-    const { ancestors, item, dispatch } = this.props;
+    const { ancestors, item, dispatch, dataset, currentValues } = this.props;
+
     const platemapId = match.platemap._id;
     const runId = match.run._id;
     const searchParams = new URLSearchParams();
+    if (!isNil(dataset)) {
+      searchParams.append('dataset', dataset);
+    }
     searchParams.append('platemapId', platemapId);
     searchParams.append('runId', runId);
     // dispatch(fetchSamples({ancestors, item, platemapId, runId}));
@@ -92,13 +112,32 @@ function mapStateToProps(state, ownProps) {
     const [key, value] = pair;
     fields[key] = value;
   }
-  return {
+
+  // Extract the dateset property from the parent project, if its available
+  let dataset = null;
+  const { ancestors } = ownProps;
+  if (ancestors.length > 0) {
+     const parent = ancestors[ancestors.length - 1]
+     if (has(parent, '_id')) {
+      const parentId = parent['_id'];
+      const item = getItem(state, parentId);
+      dataset = item ? item.dataset : null;
+     }
+  }
+
+  const props = {
     matches: getCompositeMatches(state),
     pending: getCompositePending(state),
     fields,
     initialValues: fields,
     currentValues: getFormValues('compositeSearch')(state)
   }
+
+  if (!isNil(dataset)) {
+    props.dataset = dataset;
+  }
+
+  return props;
 }
 
 CompositeSearch = reduxForm({
