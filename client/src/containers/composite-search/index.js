@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { debounce, has, keys, isEqual } from 'lodash-es';
+import { debounce, isEqual } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
-import { fetchDatasets, getDatasets } from '../../redux/ducks/datasets';
 import { createFieldsFactory, makeUrl } from '../../nodes';
 import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
@@ -23,11 +22,9 @@ class CompositeSearch extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { fields, datasets } = this.props;
+    const { fields } = this.props;
     const prevFields = prevProps.fields;
-    const prevDatasets = prevProps.datasets;
-    if (!isEqual(fields, prevFields) ||
-        !isEqual(datasets, prevDatasets)) {
+    if (!isEqual(fields, prevFields))) {
       this.compositeSearch();
     }
   }
@@ -51,12 +48,10 @@ class CompositeSearch extends Component {
   }
 
   onOpen = (match, mode) => {
-    const { ancestors, item, dispatch, currentValues } = this.props;
-    const { dataset } = currentValues;
+    const { ancestors, item, dispatch } = this.props;
     const platemapId = match.platemap._id;
     const runId = match.run._id;
     const searchParams = new URLSearchParams();
-    searchParams.append('dataset', dataset);
     searchParams.append('platemapId', platemapId);
     searchParams.append('runId', runId);
     // dispatch(fetchSamples({ancestors, item, platemapId, runId}));
@@ -97,19 +92,12 @@ function mapStateToProps(state, ownProps) {
     const [key, value] = pair;
     fields[key] = value;
   }
-  const datasets = getDatasets(state);
-  if (!has(fields, 'dataset')) {
-    // Just pick the first
-    fields['dataset'] = keys(datasets).sort()[0];
-  }
-
   return {
     matches: getCompositeMatches(state),
     pending: getCompositePending(state),
     fields,
     initialValues: fields,
-    currentValues: getFormValues('compositeSearch')(state),
-    datasets: datasets
+    currentValues: getFormValues('compositeSearch')(state)
   }
 }
 

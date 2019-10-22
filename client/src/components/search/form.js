@@ -22,8 +22,7 @@ class SearchForm extends Component {
       invalid,
       initialValues,
       currentValues,
-      liveSearch,
-      datasets
+      liveSearch
     } = this.props;
 
     let fields;
@@ -32,10 +31,6 @@ class SearchForm extends Component {
     } else {
       fields = fieldsCreator(currentValues);
     }
-
-    // Insert the options for dataset select box
-    fields.dataset.options = datasets;
-
     let formFields = renderFormFields(fields);
 
     return (

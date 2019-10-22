@@ -400,12 +400,6 @@ function createGlobalSearchFields(filters) {
 
 function createCompositeSearchFields(filters) {
   let fields = {
-    'dataset' : {
-      label: 'Dataset',
-      type: 'select',
-      value: has(filters, 'dataset') ? filters.dataset : '',
-      error: ''
-    },
     'elements' : {
       label: 'Elements (comma separated)',
       type: 'text',
