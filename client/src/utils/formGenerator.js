@@ -3,30 +3,13 @@ import { Field } from 'redux-form'
 
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-// import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import FileInputField from '../components/fields/file';
-
-export function handleInputChange(event) {
-  let value = event.target.value;
-  let name = event.target.name;
-  let newState = {...this.state};
-  newState.fields[name].value = value;
-  if (event.target.type === 'checkbox') {
-    newState.fields[event.target.name].value = event.target.checked;
-  }
-  let err = '';
-  if (this.state.fields[name].validate) {
-    for (let fn of this.state.fields[name].validate) {
-      err = fn(value);
-      if (err.length > 0) {
-        break;
-      }
-    }
-  }
-  newState.fields[event.target.name].error = err;
-  this.setState(newState);
-}
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 export function renderFormFields(fields) {
   let formFields = [];
@@ -38,6 +21,8 @@ export function renderFormFields(fields) {
     const disabled = field.hasOwnProperty('disabled') ? field.disabled : false;
     const hidden = field.hasOwnProperty('hidden') ? field.hidden : false;
     const validate = field.validate || [];
+    const options = field.options || {};
+    const value = field.value;
 
     switch (type) {
       case 'checkbox': {
@@ -99,6 +84,24 @@ export function renderFormFields(fields) {
         );
         break;
       }
+      case 'select': {
+        formFields.push(
+          <div
+            key={key}
+            hidden={hidden}
+          >
+            <Field
+              name={key}
+              component={renderSelectField}
+              label={label}
+              disabled={disabled}
+              hidden={hidden}
+              options={options}
+            />
+          </div>
+        );
+        break;
+      }
 
       default: {
         break;
@@ -144,6 +147,30 @@ const renderCheckField = (field) => {
         }
         label={field.label}
       />
+    </div>
+  )
+};
+
+const renderSelectField = (field) => {
+  const menuItems = [];
+  for (const op in field.options) {
+    menuItems.push(
+      <MenuItem key={op} value={op}>{field.options[op]}</MenuItem>
+    );
+  }
+  return (
+    <div style={{marginBottom: "1rem"}}>
+      <FormControl>
+        <InputLabel htmlFor="selectField">{field.label}</InputLabel>
+        <Select
+          inputProps={{
+            id: 'selectField',
+          }}
+          {...field.input}
+        >
+          {menuItems}
+        </Select>
+      </FormControl>
     </div>
   )
 };

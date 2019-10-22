@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Form } from 'redux-form'
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -32,8 +33,6 @@ class SearchForm extends Component {
     }
     let formFields = renderFormFields(fields);
 
-    const onChange = liveSearch ? () => {setTimeout(handleSubmit(onSubmit))} : () => {};
-
     return (
       <div>
         <div style={{paddingBottom: '0.5rem'}}>
@@ -44,7 +43,7 @@ class SearchForm extends Component {
           </ListItem>
         </div>
         <Card elevation={1}>
-          <form onSubmit={handleSubmit(onSubmit)} onChange={onChange}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
           <CardContent>
             {formFields}
           </CardContent>
@@ -58,7 +57,7 @@ class SearchForm extends Component {
             </Button>
           </CardActions>
           }
-          </form>
+          </Form>
         </Card>
       </div>
     );
