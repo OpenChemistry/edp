@@ -38,7 +38,7 @@ const URL_PARAMS = {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'raw'),
     callback: function(currValue, nextValue) {
-      const { selectedSampleKeys } = this.props;
+      const { selectedSampleKeys, runId } = this.props;
       for (let _id of selectedSampleKeys.values()) {
         this.fetchSampleTimeSeries({_id}, nextValue);
       }
@@ -58,7 +58,7 @@ class CompositeSamplesContainer extends Component {
     const { dispatch, ancestors, item, platemapId, runId, selectedSampleKeys, plots } = this.props;
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
     for (let _id of selectedSampleKeys.values()) {
-      this.fetchSampleTimeSeries({_id}, plots);
+      this.fetchSampleTimeSeries({_id}, plots, runId);
     }
   }
 
