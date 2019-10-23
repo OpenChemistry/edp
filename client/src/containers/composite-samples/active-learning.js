@@ -330,6 +330,7 @@ class ActiveLearningContainer extends Component {
             value={colorMapRange}
             range={info.getScalarRange(scalarField)}
             step={0.001}
+            digits={3}
             onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
           />
         </ControlsGrid>

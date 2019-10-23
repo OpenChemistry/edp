@@ -5,13 +5,13 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Slider,
   Table,
   TableBody,
   TableRow,
   TableCell,
   TableHead
 } from '@material-ui/core';
-import { Slider} from '@material-ui/lab';
 
 class SpectrumComponent extends Component {
   spectraElement;

@@ -153,4 +153,4 @@ class MultidimensionPlotComponent extends Component {
   }
 }
 
-export default withTheme()(MultidimensionPlotComponent);
+export default withTheme(MultidimensionPlotComponent);

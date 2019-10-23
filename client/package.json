@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.9.3",
-    "@material-ui/icons": "^3.0.2",
-    "@material-ui/lab": "^3.0.0-alpha.30",
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
     "@openchemistry/girder-client": "^0.0.12",
     "@openchemistry/girder-redux": "^0.0.19",
     "@openchemistry/girder-ui": "^0.0.22",
@@ -35,8 +34,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "patch-sw": "replace-in-file '\/.*blacklist.*\/g' '  blacklist: [\/^\\\/_\/,\/\\\/[^\\\/]+\\.[^\\\/]+$\/, \/^.*\\\/download$\/],' build\/service-worker.js  --isRegex",
-    "build": "react-scripts build && npm run patch-sw" ,
+    "patch-sw": "replace-in-file '/.*blacklist.*/g' '  blacklist: [/^\\/_/,/\\/[^\\/]+\\.[^\\/]+$/, /^.*\\/download$/],' build/service-worker.js  --isRegex",
+    "build": "react-scripts build && npm run patch-sw",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "gh-pages": "PUBLIC_URL=/edp react-scripts build && gh-pages -d build"

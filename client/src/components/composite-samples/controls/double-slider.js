@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {
   FormControl,
-  Typography
+  Typography,
+  Slider
 } from '@material-ui/core';
-import { Slider} from '@material-ui/lab';
 
 class DoubleSliderControlComponent extends Component {
 
@@ -29,33 +29,29 @@ class DoubleSliderControlComponent extends Component {
       label,
       value,
       step,
-      range
+      range,
+      digits,
+      onChange
     } = this.props;
 
     return (
       <FormControl fullWidth>
-        <Typography variant='caption'>
+        <Typography variant='caption' color='textSecondary'>
           {label}
         </Typography>
         <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
           <div>
-            {value[0].toFixed(3)}
+            {value[0].toFixed(!!digits ? digits : 2)}
           </div>
           <div style={{flexGrow: 1, paddingRight: 8, paddingLeft: 8}}>
             <Slider
               min={range[0]} max={range[1]} step={step}
-              value={value[0]}
-              onChange={(e, val) => {this.onValueChange(val, 0)}}
-            />
-            <Slider
-              style={{marginTop: '-2rem'}}
-              min={range[0]} max={range[1]} step={step}
-              value={value[1]}
-              onChange={(e, val) => {this.onValueChange(val, 1)}}
+              value={value}
+              onChange={(_e, val) => { onChange(val); }}
             />
           </div>
           <div>
-            {value[1].toFixed(3)}
+            {value[1].toFixed(!!digits ? digits : 2)}
           </div>
         </div>
       </FormControl>

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {
   FormControl,
-  Typography
+  Typography,
+  Slider
 } from '@material-ui/core';
-import { Slider} from '@material-ui/lab';
 
 class SliderControlComponent extends Component {
 
@@ -19,7 +19,7 @@ class SliderControlComponent extends Component {
 
     return (
       <FormControl fullWidth>
-        <Typography variant='caption'>
+        <Typography variant='caption' color='textSecondary'>
           {label}
         </Typography>
         <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
