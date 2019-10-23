@@ -26,6 +26,7 @@ const CompositionPlot = (props) => {
     compositionToPosition,
     showLegend,
     activeMap,
+    invertMap,
     colorMapRange,
     colorMaps,
     classes
@@ -45,6 +46,7 @@ const CompositionPlot = (props) => {
       <div className={classes.legend}>
         <ColorMapLegend
           activeMap={activeMap} colorMapRange={colorMapRange} colorMaps={colorMaps}
+          invertMap={invertMap}
           digits={3}
           direction='vertical'
         />

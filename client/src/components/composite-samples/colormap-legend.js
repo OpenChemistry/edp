@@ -13,24 +13,26 @@ class ColorMapComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { activeMap, colorMapRange, direction, digits } = this.props;
+    const { activeMap, colorMapRange, direction, digits, invertMap } = this.props;
     if (
       direction !== prevProps.direction ||
       activeMap !== prevProps.activeMap ||
       colorMapRange[0] !== prevProps.colorMapRange[0] ||
       colorMapRange[1] !== prevProps.colorMapRange[1] ||
-      digits !== prevProps.digits
+      digits !== prevProps.digits ||
+      invertMap !== prevProps.invertMap
     ) {
       this.updateLegend();
     }
   }
 
   updateLegend() {
-    const { activeMap, colorMapRange, colorMaps, direction, digits } = this.props;
+    const { activeMap, colorMapRange, colorMaps, direction, digits, invertMap } = this.props;
     const colorMap = colorMaps[activeMap];
     this.colorMapLegend.setDirection(direction);
     this.colorMapLegend.setColors(colorMap);
     this.colorMapLegend.setRange(colorMapRange);
+    this.colorMapLegend.setInverted(invertMap)
     this.colorMapLegend.setDigits(digits);
     this.colorMapLegend.draw();
   }

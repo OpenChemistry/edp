@@ -22,7 +22,7 @@ const styles = (theme) => ({
 
 const ModelComponent = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
-  colorMaps, activeMap, colorMapRange, filterRange, camera,
+  colorMaps, activeMap, invertMap, colorMapRange, filterRange, camera,
   scalarField, samples, samplesCompare, metrics, pending,
   model, parameters, modelNumber, classes, testOpacity, trainingOpacity, ballSize
 }) => {
@@ -83,6 +83,7 @@ const ModelComponent = ({
           scalarField={scalarField}
           colorMaps={colorMaps}
           activeMap={activeMap}
+          invertMap={invertMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           selectedSampleKeys={new Set()}
