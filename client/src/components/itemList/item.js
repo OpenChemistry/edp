@@ -4,6 +4,7 @@ import Avatar from '@material-ui/core/Avatar';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -36,11 +37,13 @@ class ItemListItem extends Component {
         key={item._id}
         onClick={() => {onOpen(item)}}
       >
-        <Avatar
-          style={{backgroundColor: color}}
-        >
-          <NodeIcon/>
-        </Avatar>
+        <ListItemAvatar>
+          <Avatar
+            style={{backgroundColor: color}}
+          >
+            <NodeIcon/>
+          </Avatar>
+        </ListItemAvatar>
         <ListItemText
           primary={`${primaryPrefix || ''} ${item[primaryField]} ${primarySuffix || ''}`}
           secondary={`${secondaryPrefix || ''} ${item[secondaryField] || ''} ${secondarySuffix || ''}`}
