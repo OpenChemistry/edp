@@ -7,7 +7,7 @@ import ModelComponent from '../../components/composite-samples/model';
 
 const ModelsContainer = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
-  colorMaps, activeMap, colorMapRange, filterRange, camera,
+  colorMaps, activeMap, invertMap, colorMapRange, filterRange, camera,
   scalarField, models, modelIds, trainingOpacity, testOpacity, ballSize
 }) => {
   return models.map((modelData, i) => {
@@ -24,6 +24,7 @@ const ModelsContainer = ({
         dataRange={dataRange}
         colorMaps={colorMaps}
         activeMap={activeMap}
+        invertMap={invertMap}
         colorMapRange={colorMapRange}
         filterRange={filterRange}
         ballSize={ballSize}

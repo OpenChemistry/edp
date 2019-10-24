@@ -15,6 +15,7 @@ import ControlsGrid from '../../components/composite-samples/controls/grid';
 import SelectControlComponent from '../../components/composite-samples/controls/select';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
+import CheckboxControlComponent from '../../components/composite-samples/controls/checkbox';
 
 import {
   identity,
@@ -22,6 +23,8 @@ import {
   arrayDeserialize,
   numberSerialize,
   numberDeserialize,
+  boolSerialize,
+  boolDeserialize,
   defaultWrapper,
   onStateParamChanged,
   onParamChanged,
@@ -61,6 +64,10 @@ const URL_PARAMS = {
   activeMap: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'viridis')
+  },
+  invertMap: {
+    serialize: defaultWrapper(boolSerialize, null),
+    deserialize: defaultWrapper(boolDeserialize, false)
   },
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
@@ -233,6 +240,7 @@ class ActiveLearningContainer extends Component {
       samples,
       scalarField,
       activeMap,
+      invertMap,
       colorMapRange,
       filterRange,
       models,
@@ -318,18 +326,31 @@ class ActiveLearningContainer extends Component {
           />
           }
 
-          <SelectControlComponent
-            label="Color map"
-            value={activeMap}
-            options={Object.keys(this.colorMaps)}
-            onChange={(activeMap) => {this.onParamChanged({activeMap})}}
-          />
+          <div style={{display: 'flex'}}>
+            <div style={{flexGrow: 1}}>
+              <SelectControlComponent
+                label="Color map"
+                value={activeMap}
+                options={Object.keys(this.colorMaps)}
+                onChange={(activeMap) => {this.onParamChanged({activeMap})}}
+              />
+            </div>
+
+            <div>
+              <CheckboxControlComponent
+                label="Invert"
+                value={invertMap}
+                onChange={(invertMap) => {this.onParamChanged({invertMap})}}
+              />
+            </div>
+          </div>
 
           <DoubleSliderControlComponent
             label="Map range"
             value={colorMapRange}
             range={info.getScalarRange(scalarField)}
             step={0.001}
+            digits={3}
             onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
           />
         </ControlsGrid>
@@ -342,6 +363,7 @@ class ActiveLearningContainer extends Component {
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
+          invertMap={invertMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           ballSize={ballSize}
@@ -379,6 +401,7 @@ class ActiveLearningContainer extends Component {
             label={`Training Set ${opacityOrSize}`}
             value={trainingOpacity}
             range={[0, 1]}
+            step={0.05}
             onChange={(opacity) => {this.setState(state => {state.trainingOpacity = opacity; return state;})}}
           />
           }
@@ -388,6 +411,7 @@ class ActiveLearningContainer extends Component {
             label={`Test Set ${opacityOrSize}`}
             value={testOpacity}
             range={[0, 1]}
+            step={0.05}
             onChange={(opacity) => {this.setState(state => {state.testOpacity = opacity; return state;})}}
           />
           }
@@ -402,6 +426,7 @@ class ActiveLearningContainer extends Component {
           dataRange={dataRange}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
+          invertMap={invertMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           ballSize={ballSize}

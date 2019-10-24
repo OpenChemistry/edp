@@ -41,7 +41,7 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {samples, scalarField, activeMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize, compositionSpace, compositionToPosition} = this.props;
+    const {samples, scalarField, activeMap, invertMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize, compositionSpace, compositionToPosition} = this.props;
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
@@ -60,6 +60,10 @@ class MultidimensionPlotComponent extends Component {
     ) {
       this.onColorMapChange();
       this.multidimensionalPlot.dataUpdated();
+    }
+
+    if (invertMap !== prevProps.invertMap) {
+      this.onInvertChange();
     }
 
     if (
@@ -94,6 +98,7 @@ class MultidimensionPlotComponent extends Component {
     this.dp.setData(samples);
     this.onScalarChange();
     this.onOpacityChange();
+    this.onInvertChange();
     this.multidimensionalPlot.dataUpdated();
   }
 
@@ -125,6 +130,11 @@ class MultidimensionPlotComponent extends Component {
     this.multidimensionalPlot.setColorMap(colorMap, colorMapRange);
   }
 
+  onInvertChange() {
+    const { invertMap } = this.props;
+    this.multidimensionalPlot.setInverted(invertMap);
+  }
+
   onFilterRangeChange(range) {
     this.onNewFilter(range);
     this.multidimensionalPlot.dataUpdated();
@@ -145,7 +155,7 @@ class MultidimensionPlotComponent extends Component {
   render() {
     return (
       <div
-        style={{width: '100%', height: '22.5rem'}}
+        style={{width: '100%', height: '22.5rem', position: 'relative', overflow: 'hidden'}}
         ref={(ref) => {this.plotElement = ref;}}
       >
       </div>
@@ -153,4 +163,4 @@ class MultidimensionPlotComponent extends Component {
   }
 }
 
-export default withTheme()(MultidimensionPlotComponent);
+export default withTheme(MultidimensionPlotComponent);

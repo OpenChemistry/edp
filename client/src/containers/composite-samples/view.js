@@ -14,6 +14,7 @@ import SelectControlComponent from '../../components/composite-samples/controls/
 import DoubleSliderControlComponent from '../../components/composite-samples/controls/double-slider';
 import SampleSelectionComponent from '../../components/composite-samples/controls/selection';
 import SliderControlComponent from '../../components/composite-samples/controls/slider';
+import CheckboxControlComponent from '../../components/composite-samples/controls/checkbox';
 
 import {
   identity,
@@ -60,6 +61,10 @@ const URL_PARAMS = {
   activeMap: {
     serialize: defaultWrapper(identity, null),
     deserialize: defaultWrapper(identity, 'viridis')
+  },
+  invertMap: {
+    serialize: defaultWrapper(boolSerialize, null),
+    deserialize: defaultWrapper(boolDeserialize, false)
   },
   colorMapRange: {
     serialize: defaultWrapper(arraySerialize, null),
@@ -228,6 +233,7 @@ class CompositeSamplesContainer extends Component {
       display,
       scalarField,
       activeMap,
+      invertMap,
       colorMapRange,
       filterRange,
       xAxisS,
@@ -327,18 +333,31 @@ class CompositeSamplesContainer extends Component {
           />
           }
 
-          <SelectControlComponent
-            label="Color map"
-            value={activeMap}
-            options={Object.keys(this.colorMaps)}
-            onChange={(activeMap) => {this.onParamChanged({activeMap})}}
-          />
+          <div style={{display: 'flex'}}>
+            <div style={{flexGrow: 1}}>
+              <SelectControlComponent
+                label="Color map"
+                value={activeMap}
+                options={Object.keys(this.colorMaps)}
+                onChange={(activeMap) => {this.onParamChanged({activeMap})}}
+              />
+            </div>
+
+            <div>
+              <CheckboxControlComponent
+                label="Invert"
+                value={invertMap}
+                onChange={(invertMap) => {this.onParamChanged({invertMap})}}
+              />
+            </div>
+          </div>
 
           <DoubleSliderControlComponent
             label="Map range"
             value={colorMapRange}
             range={info.getScalarRange(scalarField)}
             step={0.001}
+            digits={3}
             onChange={(colorMapRange) => {this.onParamChanged({colorMapRange})}}
           />
         </ControlsGrid>
@@ -351,6 +370,7 @@ class CompositeSamplesContainer extends Component {
           scalarField={scalarField}
           colorMaps={this.colorMaps}
           activeMap={activeMap}
+          invertMap={invertMap}
           colorMapRange={colorMapRange}
           filterRange={filterRange}
           ballSize={ballSize}

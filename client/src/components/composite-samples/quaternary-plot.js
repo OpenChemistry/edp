@@ -29,7 +29,7 @@ class QuaternaryPlotComponent extends Component {
   componentDidUpdate(prevProps) {
     const {
       samples, compositionSpace, selectedSampleKeys,
-      scalarField, activeMap, colorMapRange,
+      scalarField, activeMap, invertMap, colorMapRange,
       trainingOpacity, testOpacity
     } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
@@ -64,6 +64,11 @@ class QuaternaryPlotComponent extends Component {
 
     if (trainingOpacity !== prevProps.trainingOpacity || testOpacity !== prevProps.testOpacity) {
       this.onOpacityChange();
+    }
+
+    if (invertMap !== prevProps.invertMap) {
+      this.quaternaryPlot.setInverted(invertMap);
+      redraw = true;
     }
 
     if (redraw) {
