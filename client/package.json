@@ -34,7 +34,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "patch-sw": "replace-in-file '/.*blacklist.*/g' '  blacklist: [/^\\/_/,/\\/[^\\/]+\\.[^\\/]+$/, /^.*\\/download$/],' build/service-worker.js  --isRegex",
+    "patch-sw": "replace-in-file '\/.*blacklist.*\/g' '  blacklist: [\/^\\\/_\/,\/\\\/[^\\\/]+\\.[^\\\/]+$\/, \/^.*\\\/download$\/],' build\/service-worker.js  --isRegex",
     "build": "react-scripts build && npm run patch-sw",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
