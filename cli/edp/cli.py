@@ -141,7 +141,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
         # Find the schedule file, there seems to be a mix of case!
         schedule_file = schedule_file.split('\\')[1]
         if schedule_file.lower() not in  schedule_file_map:
-            click.echo(click.style('Unable to file schedule file: %s.' % schedule_file, fg='yellow'))
+            click.echo(click.style('Unable to find schedule file: %s.' % schedule_file, fg='yellow'))
             schedule_file = None
         else:
             click.echo(click.style('Uploading schedule file', fg='blue'))
@@ -179,7 +179,7 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
 @click.option('-c', '--cycle', default=None, help='the cycle id')
 @click.option('-d', '--dir', help='path to batch(es) to ingest',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
-@click.option('-e', '--schedule_dir', help='path to the directory containing the schedule  to ingest',
+@click.option('-e', '--schedule_dir', help='path to the directory containing the schedule to ingest',
               type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
 @click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
                    '(e.g https://girder.example.com/api/v1)')

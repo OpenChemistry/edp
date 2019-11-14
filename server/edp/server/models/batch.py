@@ -33,6 +33,7 @@ class Batch(Base):
                     'name': 'startDate',
                     'expose': True,
                     'create': True,
+                    'mutable': True,
                     'required': True
                 },
                 {
