@@ -90,6 +90,13 @@ class Batch(Base):
                     'type': 'file'
                 },
                 {
+                    'name': 'jsonStructZipFileId',
+                    'expose': True,
+                    'create': True,
+                    'mutable': True,
+                    'type': 'file'
+                },
+                {
                     'name': parent_id,
                     'create': True
                 }
