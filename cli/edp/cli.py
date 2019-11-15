@@ -7,7 +7,7 @@ import types
 import sys
 import datetime
 import json
-from girder_client import GirderClient
+from girder_client import GirderClient, HttpError
 from edp.composite import _ingest_runs, _ingest_samples, _ingest_run_data
 import importlib
 from edp.deploy import deploy
@@ -193,7 +193,11 @@ def _ingest(project, cycle, api_url, api_key, dir, schedule_dir, public, summary
     gc = GC(api_url=api_url, api_key=api_key)
 
     # Try to get edp data folder
-    data_folder = gc.resourceLookup('/collection/edp/data', test=True)
+    data_folder = None
+    try:
+        data_folder = gc.resourceLookup('/collection/edp/data')
+    except HttpError:
+        pass
 
     # Create a private folder
     if data_folder is None:
