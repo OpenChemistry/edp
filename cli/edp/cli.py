@@ -92,6 +92,13 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
         click.echo(click.style('Uploading MatLab struct file', fg='red'))
         struct_file = gc.uploadFileToFolder(data_folder['_id'], struct_file[0])
 
+    # See if we have JSON zip
+    json_struct_zip_file = glob.glob('%s/*.zip' % dir)
+    if json_struct_zip_file:
+        click.echo(click.style('Uploading JSON structure zip', fg='red'))
+        json_struct_zip_file = gc.uploadFileToFolder(data_folder['_id'], json_struct_zip_file[0])
+
+
     # Create the batch
     batch = {
         'startDate': '',
@@ -105,6 +112,9 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
 
     if struct_file:
         batch['structFileId'] = struct_file['_id']
+
+    if json_struct_zip_file:
+        batch['jsonStructZipFileId'] = json_struct_zip_file['_id']
 
     # Determine the batches url, depending on whether we have been given a cycle
     batches_url = 'edp/projects/%s' % project
