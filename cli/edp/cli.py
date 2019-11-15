@@ -7,7 +7,7 @@ import types
 import sys
 import datetime
 import json
-from girder_client import GirderClient
+from girder_client import GirderClient, HttpError
 from edp.composite import _ingest_runs, _ingest_samples, _ingest_run_data
 import importlib
 from edp.deploy import deploy
@@ -64,7 +64,8 @@ def cli():
 
 def _generate_schedule_file_map(schedule_dir):
     schedule_map = {}
-    for f in chain(glob.glob('%s/**/*.SDU' % schedule_dir), glob.glob('%s/**/*.sdu' % schedule_dir)):
+    for f in chain(glob.glob('%s/**/*.SDU' % schedule_dir, recursive=True),
+                   glob.glob('%s/**/*.sdu' % schedule_dir, recursive=True)):
         schedule_map[Path(f).name.lower()] = f
 
     return schedule_map
@@ -91,6 +92,13 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
         click.echo(click.style('Uploading MatLab struct file', fg='red'))
         struct_file = gc.uploadFileToFolder(data_folder['_id'], struct_file[0])
 
+    # See if we have JSON zip
+    json_struct_zip_file = glob.glob('%s/*.zip' % dir)
+    if json_struct_zip_file:
+        click.echo(click.style('Uploading JSON structure zip', fg='red'))
+        json_struct_zip_file = gc.uploadFileToFolder(data_folder['_id'], json_struct_zip_file[0])
+
+
     # Create the batch
     batch = {
         'startDate': '',
@@ -104,6 +112,9 @@ def _ingest_batch(gc, data_folder, project, cycle, dir, schedule_dir, public,
 
     if struct_file:
         batch['structFileId'] = struct_file['_id']
+
+    if json_struct_zip_file:
+        batch['jsonStructZipFileId'] = json_struct_zip_file['_id']
 
     # Determine the batches url, depending on whether we have been given a cycle
     batches_url = 'edp/projects/%s' % project
@@ -193,7 +204,11 @@ def _ingest(project, cycle, api_url, api_key, dir, schedule_dir, public, summary
     gc = GC(api_url=api_url, api_key=api_key)
 
     # Try to get edp data folder
-    data_folder = gc.resourceLookup('/collection/edp/data', test=True)
+    data_folder = None
+    try:
+        data_folder = gc.resourceLookup('/collection/edp/data')
+    except HttpError:
+        pass
 
     # Create a private folder
     if data_folder is None:

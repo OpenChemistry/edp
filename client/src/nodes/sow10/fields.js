@@ -130,6 +130,18 @@ function createBatchFields(batch) {
       value: batch ? batch.structFileId : null,
       error: ''
     },
+    'jsonStructZipFile' : {
+      label: 'JSON Structure files',
+      type: 'file',
+      value: batch ? batch.jsonStructZipFile : '',
+      error: ''
+    },
+    'jsonStructZipFileId' : {
+      label: 'JSON Structure files',
+      type: 'fileId',
+      value: batch ? batch.jsonStructZipFileId : null,
+      error: ''
+    },
     'public': {
       label: 'Public',
       type: 'checkbox',

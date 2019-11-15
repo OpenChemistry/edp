@@ -45,7 +45,7 @@ export const NODES = {
     parentId: 'projectId',
     primaryField: 'title',
     secondaryField: 'startDate',
-    fileFields: ['structFile'],
+    fileFields: ['structFile', 'jsonStructZipFile'],
     color: deepOrange[500],
     icon: Layers,
     ingest: IngestBatch,
