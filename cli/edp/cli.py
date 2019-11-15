@@ -64,7 +64,8 @@ def cli():
 
 def _generate_schedule_file_map(schedule_dir):
     schedule_map = {}
-    for f in chain(glob.glob('%s/**/*.SDU' % schedule_dir), glob.glob('%s/**/*.sdu' % schedule_dir)):
+    for f in chain(glob.glob('%s/**/*.SDU' % schedule_dir, recursive=True),
+                   glob.glob('%s/**/*.sdu' % schedule_dir, recursive=True)):
         schedule_map[Path(f).name.lower()] = f
 
     return schedule_map
