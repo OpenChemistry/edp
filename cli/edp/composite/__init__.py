@@ -549,7 +549,7 @@ async def _create_platemap_csv(gc, project, composite, file):
             return platemap
 
 
-async def _create_analysis_csv(gc, project, composite, file):
+async def _create_analysis_csv(gc, project, composite, file, glob_files):
     dir = os.path.dirname(file)
     [ana_file] = glob.glob('%s/**/*.ana' % (dir), recursive=True)
 
@@ -573,7 +573,7 @@ async def _create_analysis_csv(gc, project, composite, file):
             analysis_name = value['name']
             analysis_name = analysis_name.partition('__')[2] if '__' in analysis_name else analysis_name
 
-            if 'ana__2__code_0_100.csv' in files:
+            if any(f in files for f in glob_files):
                 analysis = await _create_analysis(gc, project, composite, ana_name, analysis_name, analysis_type, analysis_index, technique, plate_ids)
 
                 return (experiment_name, analysis)
@@ -662,7 +662,7 @@ async def ingest_csv(project, dir, api_url, api_key, glob_pattern):
     files = glob.glob('%s/%s' % (dir, glob_pattern), recursive=True)
 
     for file in files:
-        platemap = await _create_platemap_csv(gc, project, composite, file)
+        platemap = await _create_platemap_csv(gc, project, composite, file, glob_pattern)
         (experiment_name, analysis) = await _create_analysis_csv(gc, project, composite, file)
         runs = await _create_runs_csv(gc, project, composite, dir,  experiment_name)
         await _create_samples_csv(gc, project, composite, platemap, analysis, runs, file)
