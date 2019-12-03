@@ -1,4 +1,4 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery, select } from 'redux-saga/effects';
 
 import {
   FETCH_SAMPLES_REQUESTED, FETCH_SAMPLES_SUCCEEDED, FETCH_SAMPLES_FAILED,
@@ -6,15 +6,27 @@ import {
 } from '../ducks/composites';
 
 import {
-  getSamples as getSamplesRest
+  getSamples as getSamplesRest, getSamplesStatic
 } from '../../rest/composites';
 import { getItems as getItemsRest } from '../../rest/items';
+
+import { getServerSettings } from  '../ducks/settings'
 
 
 function* onFetchSamples(action) {
   try {
     const { ancestors, item, platemapId, runId } = action.payload;
-    const samples = yield call(getSamplesRest, ancestors, item, platemapId, runId);
+    const state = yield select();
+    const settings = getServerSettings(state);
+
+    let get = getSamplesRest
+    // If we are a static deployment on S3 use static call that will
+    // the urlencode the ? and =
+    if (settings.static) {
+      get = getSamplesStatic;
+    }
+
+    const samples = yield call(get, ancestors, item, platemapId, runId);
     yield put({type: FETCH_SAMPLES_SUCCEEDED, payload: {samples, platemapId, runId}});
   } catch (e) {
     yield put({type: FETCH_SAMPLES_FAILED, error: e});
