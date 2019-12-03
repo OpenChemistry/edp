@@ -260,3 +260,42 @@ def _ingest_composite(project, dir, api_url, api_key):
                    '(e.g https://girder.example.com/api/v1)')
 def _deploy_static(bucket, prefix, api_url):
     deploy(api_url, 'edp/projects', ('batches', 'tests'), bucket, prefix)
+
+@cli.command('ingest_composite_csv', help='Ingest composite data')
+@click.option('-p', '--project', default=None, help='the project id', required=True)
+@click.option('-d', '--dir', help='base path to data to ingest',
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True), default='.')
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1', help='RESTful API URL '
+                   '(e.g https://girder.example.com/api/v1)')
+@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
+              help='[default: GIRDER_API_KEY env. variable]', required=True)
+@click.option('-g', '--glob-pattern', default=None, help='the project id', required=True)
+def _ingest_composite_csv(project, dir, api_url, api_key, glob_pattern):
+    if dir[-1] != '/':
+        dir += '/'
+
+    asyncio.run(composite.ingest_csv(project, dir, api_url, api_key, glob_pattern))
+
+
+def _samples_by_plate(get, api_path):
+    """
+    Given a path to a composite return a list of the urls to select
+    samples by platemap id.
+    """
+    url = '%s/platemaps' % (api_path)
+    r = get(url)
+    samples_urls = [ 'samples?platemapId=%s&limit=9007199254740991' % x['_id'] for x in r.json()]
+
+    return samples_urls
+
+@cli.command('deploy_static_composite', help='Extract data from Girder and deploy static files to S3')
+@click.option('-b', '--bucket', default=None, help='the S3 bucket to deploy to', required=True)
+@click.option('-p', '--prefix', default='', help='the bucket prefix')
+@click.option('-r',  '--project', default=None, help='the project', required=True)
+@click.option('-u', '--api-url', default='http://localhost:8080/api/v1',
+              help='RESTful API URL for the instance we extracting from '
+                   '(e.g https://girder.example.com/api/v1)')
+@click.option('-k', '--api-key', envvar='GIRDER_API_KEY', default=None,
+              help='[default: GIRDER_API_KEY env. variable]', required=True)
+def _deploy_static_composite(bucket, prefix, project, api_url, api_key):
+    deploy(api_url, 'edp/projects', ['composites', [_samples_by_plate, 'platemaps', 'search']], bucket, prefix, api_key)
