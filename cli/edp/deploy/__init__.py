@@ -10,9 +10,12 @@ import functools
 
 
 def get(url, token=None, **kwargs):
-    return requests.get(url, headers={
-        'Girder-Token': token
-    }, **kwargs)
+    headers = kwargs.setdefault('headers', {})
+
+    if token is not None:
+        headers['Girder-Token'] = token
+
+    return requests.get(url, **kwargs)
 
 def extract_url(api_url, token, s3_bucket, s3_bucket_prefix, path, update=None):
     api_path = os.path.join(api_url, path)
