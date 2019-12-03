@@ -101,7 +101,7 @@ function mapStateToProps(state, ownProps) {
     fields,
     initialValues: fields,
     currentValues: getFormValues('compositeSearch')(state),
-    showSearch: !(config.static || false)
+    showSearch: !config.static
   }
 }
 
