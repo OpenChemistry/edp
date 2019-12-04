@@ -150,7 +150,7 @@ class CompositeSamplesContainer extends Component {
   componentDidMount() {
     this.initializeScalars();
 
-    fetch('/8dcomp2xyz.json')
+    fetch(`${window.PUBLIC_URL}/8dcomp2xyz.json`)
     .then(res => res.json())
     .then(data => {this.updateCompositionToPosition(data);})
     .catch(e=> console.log('ERRRR', e));

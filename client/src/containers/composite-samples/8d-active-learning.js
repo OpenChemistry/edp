@@ -14,7 +14,7 @@ class CompositeSamplesContainer extends Component {
   }
 
   componentDidMount() {
-    fetch('/8d_samples.json')
+    fetch(`${window.PUBLIC_URL}/8d_samples.json`)
     .then(res => res.json())
     .then(samples => {
       this.setState(state => {

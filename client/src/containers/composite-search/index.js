@@ -5,6 +5,7 @@ import { push } from 'connected-react-router';
 import { debounce } from 'lodash-es';
 
 import { getCompositeMatches, searchComposite, getCompositePending } from '../../redux/ducks/search';
+import { getServerSettings } from '../../redux/ducks/settings';
 import { createFieldsFactory, makeUrl } from '../../nodes';
 import { COMPOSITE_SEARCH } from '../../nodes/sow8/search';
 import SearchForm from '../../components/search/form';
@@ -65,15 +66,16 @@ class CompositeSearch extends Component {
   }
 
   render() {
-    const {matches, pending} = this.props;
+    const {matches, pending, showSearch} = this.props;
     return (
       <div>
+        {showSearch &&
         <SearchForm
           {...this.props}
           fieldsCreator={createFieldsFactory(COMPOSITE_SEARCH)}
           onSubmit={this.onSearch}
           liveSearch
-        />
+        />}
         {!pending &&
         <SearchResults  matches={matches} onOpen={this.onOpen}/>
         }
@@ -92,12 +94,14 @@ function mapStateToProps(state, ownProps) {
     const [key, value] = pair;
     fields[key] = value;
   }
+  const config = getServerSettings(state);
   return {
     matches: getCompositeMatches(state),
     pending: getCompositePending(state),
     fields,
     initialValues: fields,
-    currentValues: getFormValues('compositeSearch')(state)
+    currentValues: getFormValues('compositeSearch')(state),
+    showSearch: !config.static
   }
 }
 

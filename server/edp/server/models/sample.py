@@ -35,6 +35,10 @@ class Sample(Base):
                     'create': True,
                     'mutable': False,
                     'ensure_index': True
+                },
+                {
+                    'name': 'compositeId',
+                    'create': True
                 }
             ),
             paging_key='sampleId',

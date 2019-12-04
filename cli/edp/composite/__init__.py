@@ -10,6 +10,7 @@ import aiohttp
 import functools
 import logging
 import sys
+import csv
 
 from multiprocessing import Pool
 from datetime import datetime
@@ -517,3 +518,157 @@ async def ingest(project, dir, api_url, api_key):
         samples = await _ingest_samples(gc, project, composite, dir, experiments)
 
         await _ingest_run_data(gc, project, composite, experiments, samples)
+
+
+def _extract_elements(header):
+    at_fracs = header[4:]
+
+    elements = []
+    for at_frac in at_fracs:
+        elements.append(at_frac.split('.')[0])
+
+    return elements
+
+async def _create_platemap_csv(gc, project, composite, file):
+    with open(file) as csvfile:
+            reader = csv.reader(csvfile)
+
+            header = next(reader)
+            first = next(reader)
+            plate_id = first[2]
+            elements = _extract_elements(header)
+
+            platemap = {
+                'plateId': int(plate_id),
+                'elements': elements,
+                'public': True
+            }
+
+            platemap = await gc.post('edp/projects/%s/composites/%s/platemaps' % (project, composite), json=platemap)
+
+            return platemap
+
+
+async def _create_analysis_csv(gc, project, composite, file, glob_files):
+    dir = os.path.dirname(file)
+    [ana_file] = glob.glob('%s/**/*.ana' % (dir), recursive=True)
+
+
+    async with aiofiles.open(ana_file, mode='r') as f:
+        contents = await f.read()
+
+    ana = parse_ana_rcp(contents)
+
+    experiment_name = ana['experiment_name']
+    ana_name = ana['name']
+    plate_ids = ana['plate_ids']
+    analysis_type = ana['analysis_type']
+
+    for key, value in ana.items():
+        match = ana_regex.match(key)
+        if match:
+            analysis_index = int(match.group(1))
+            files = list(value['files_multi_run']['fom_files'].keys())
+            technique = value.get('technique')
+            analysis_name = value['name']
+            analysis_name = analysis_name.partition('__')[2] if '__' in analysis_name else analysis_name
+
+            if any(f in files for f in glob_files):
+                analysis = await _create_analysis(gc, project, composite, ana_name, analysis_name, analysis_type, analysis_index, technique, plate_ids)
+
+                return (experiment_name, analysis)
+
+
+async def _create_runs_csv(gc, project, composite, base_dir, experiment_name):
+    print(experiment_name)
+    [exp_file] = glob.glob('%s/**/%s.exp' % (base_dir, experiment_name), recursive=True)
+
+    async with aiofiles.open(exp_file, mode='r') as f:
+        contents = await f.read()
+
+    exp = parse_exp(contents)
+    name = exp['name']
+    runs_by_id = {}
+    tasks = []
+
+    rcp_files = glob.glob( '%s/**/*.rcp' % base_dir, recursive=True)
+    # for now only look at eche
+    runs = [r for r in exp['runs'] if r['parameters']['experiment_type'] == 'eche']
+    for run in runs:
+        task = asyncio.create_task(_ingest_run(gc, project, composite, rcp_files, runs_by_id, run))
+        tasks.append(task)
+
+    await asyncio.gather(*tasks)
+
+    return runs_by_id
+
+async def _create_samples_csv(gc, project, composite, platemap, analysis, runs, file):
+    samples = []
+    with open(file) as csvfile:
+        reader = csv.reader(csvfile)
+        header = next(reader)
+
+        for r in reader:
+            sample_number = int(r[0])
+            run_int = int(r[1])
+            plate_id = platemap['plateId']
+            log.info('Ingesting sample %s on plate %s' % (sample_number, plate_id))
+            sample_meta = {}
+            sample_meta['sampleNum'] = sample_number
+            sample_meta['plateId'] = plate_id
+
+            comp = {
+                'elements': platemap['elements'],
+                'amounts': [float(x) for x in r[4:]]
+            }
+            sample_meta['composition'] = comp
+
+            sample = await gc.post('edp/projects/%s/composites/%s/samples'
+                                % (project, composite), json=sample_meta)
+
+            name = header[3]
+            value = float(r[3])
+            run = runs[run_int]
+            await _create_fom(gc, project, composite, name, value, sample['_id'], run['_id'], analysis)
+
+            samples.append(samples)
+
+
+async def ingest_csv(project, dir, api_url, api_key, glob_pattern):
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+
+    dir  = os.path.abspath(dir)
+
+    #composite_name = os.path.basename(dir)
+    composite = {
+        'name': 'test',
+        'public': True
+    }
+
+    async with aiohttp.ClientSession() as session:
+        gc = AsyncGirderClient(api_url, session)
+        await gc.authenticate(api_key)
+        composite = await gc.post('edp/projects/%s/composites' % (project), json=composite)
+        composite = composite['_id']
+
+
+    files = glob.glob('%s/%s' % (dir, glob_pattern), recursive=True)
+
+    for file in files:
+        platemap = await _create_platemap_csv(gc, project, composite, file, glob_pattern)
+        (experiment_name, analysis) = await _create_analysis_csv(gc, project, composite, file)
+        runs = await _create_runs_csv(gc, project, composite, dir,  experiment_name)
+        await _create_samples_csv(gc, project, composite, platemap, analysis, runs, file)
+
+        #experiments = await _ingest_runs(gc, project, composite, dir)
+
+        #samples = await _ingest_samples(gc, project, composite, dir, experiments)
+
+        #await _ingest_run_data(gc, project, composite, experiments, samples)
