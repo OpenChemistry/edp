@@ -91,3 +91,7 @@ export function getNodeType(url, index) {
   console.warn('No matching node for this url');
   return null;
 }
+
+export function redirectItemView(nodeType) {
+  return nodeType !== COMPOSITION_NODE;
+}

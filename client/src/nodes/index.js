@@ -31,7 +31,8 @@ import {
 
 import {
   NODES as aceNODES,
-  getNodeType as aceGetNodeType
+  getNodeType as aceGetNodeType,
+  redirectItemView as aceRedirectItemView
 } from './ace/hierarchy';
 
 import {
@@ -174,6 +175,17 @@ export function createFieldsFactory(nodeType) {
       return aceCreateFieldsFactory(nodeType);
     } default : {
       return defaultVal(nodeType);
+    }
+  }
+}
+
+export function redirectItemView(nodeType) {
+  switch (DEPLOYMENT) {
+    case ACE : {
+      return aceRedirectItemView(nodeType);
+    }
+    default : {
+      return false;
     }
   }
 }
