@@ -77,7 +77,7 @@ class CompositeSearch extends Component {
           liveSearch
         />}
         {!pending &&
-        <SearchResults  matches={matches} onOpen={this.onOpen}/>
+        <SearchResults {...this.props} matches={matches} onOpen={this.onOpen}/>
         }
         {pending &&
         <SearchPending/>

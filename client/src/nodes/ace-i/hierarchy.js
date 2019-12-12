@@ -57,6 +57,9 @@ export const NODES = {
     color: cyan[500],
     icon: Grain,
     viewComponent: CompositeSearch,
+    viewComponentProps: {
+      availableUrls: ['active-learning']
+    },
     ingest: IngestComposite
   },
   // Nodes only needed to create urls

@@ -107,9 +107,10 @@ class ItemViewContainer extends Component {
       }
     }
 
+    const viewComponentProps = NODES[item.type].viewComponentProps || {};
     const viewComponent = NODES[item.type].viewComponent ? React.createElement(
       NODES[item.type].viewComponent,
-      {item, ancestors, location, canEdit}
+      {...viewComponentProps, item, ancestors, location, canEdit}
     ) :  null;
 
     const childrenLists = [];

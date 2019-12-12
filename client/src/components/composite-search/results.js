@@ -24,28 +24,41 @@ function parseElements(elementsArray) {
 }
 
 const ResultItem = (props) => {
-  const {result, i, onOpen} = props;
+  const {result, i, onOpen, availableUrls} = props;
+  const nUrls = (availableUrls || []).length;
+
+  const style = {};
+  let onRowClick = () => {};
+  if (nUrls === 1) {
+    onRowClick = () => {
+      onOpen(result, availableUrls[0]);
+    }
+    style['cursor'] = 'pointer';
+  }
+
   return (
-    <TableRow key={i} hover>
+    <TableRow key={i} hover onClick={onRowClick} style={style}>
       <TableCell>{parseElements(result.platemap.elements)}</TableCell>
       <TableCell>{result.run.electrolyte}</TableCell>
       <TableCell>{result.run.solutionPh}</TableCell>
       <TableCell>{result.platemap.plateId}</TableCell>
       <TableCell>{result.run.runId}</TableCell>
+      {nUrls === 2 &&
       <TableCell>
         <IconButton
           color='primary'
-          onClick={() => {onOpen(result, 'view')}}
+          onClick={() => {onOpen(result, availableUrls[0])}}
         >
           <ViewCarouselIcon/>
         </IconButton>
         <IconButton
-          onClick={() => {onOpen(result, 'active-learning')}}
+          onClick={() => {onOpen(result, availableUrls[1])}}
           color='secondary'
         >
           <BarChartIcon/>
         </IconButton>
       </TableCell>
+      }
     </TableRow>
   );
 }
@@ -53,10 +66,12 @@ const ResultItem = (props) => {
 class SearchResults extends Component {
 
   render() {
-    const {matches, onOpen} = this.props;
+    const {matches, onOpen, availableUrls} = this.props;
     if (!isNil(matches)) {
 
     }
+
+    const nUrls = (availableUrls || []).length;
 
     return (
       <div>
@@ -77,11 +92,13 @@ class SearchResults extends Component {
                   <TableCell>pH</TableCell>
                   <TableCell>Plate ID</TableCell>
                   <TableCell>Run ID</TableCell>
+                  {nUrls === 2 &&
                   <TableCell></TableCell>
+                  }
                 </TableRow>
               </TableHead>
               <TableBody>
-                {matches.map((match, i) => ResultItem({result: match, i, onOpen}))}
+                {matches.map((match, i) => ResultItem({result: match, i, onOpen, availableUrls}))}
               </TableBody>
             </Table>
           </Paper>
