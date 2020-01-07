@@ -31,19 +31,28 @@ import {
 
 import {
   NODES as aceNODES,
-  getNodeType as aceGetNodeType
+  getNodeType as aceGetNodeType,
 } from './ace/hierarchy';
 
 import {
   createFieldsFactory as aceCreateFieldsFactory
 } from './ace/fields';
 
+import {
+  NODES as ace1NODES,
+  getNodeType as ace1GetNodeType,
+  redirectItemView as ace1RedirectItemView
+} from './ace-i/hierarchy';
 
+import {
+  createFieldsFactory as ace1CreateFieldsFactory
+} from './ace-i/fields';
 
 export const SOW8 = 'sow8';
 export const SOW10 = 'sow10';
 export const SOW11 = 'sow11';
 export const ACE = 'ace';
+export const ACE_1 = 'ace-i';
 
 let DEPLOYMENT = null;
 
@@ -62,6 +71,8 @@ export function getNodes() {
       return sow11NODES;
     } case ACE : {
       return aceNODES;
+    } case ACE_1 : {
+      return ace1NODES;
     } default : {
       return defaultVal;
     }
@@ -154,7 +165,8 @@ function getNodeType(url, i) {
       return sow11getNodeType(url, i);
     } case ACE : {
       return aceGetNodeType(url, i);
-
+    } case ACE_1 : {
+      return ace1GetNodeType(url, i);
     } default : {
       return defaultVal(url, i);
     }
@@ -172,8 +184,21 @@ export function createFieldsFactory(nodeType) {
       return sow11createFieldsFactory(nodeType);
     } case ACE : {
       return aceCreateFieldsFactory(nodeType);
+    } case ACE_1 : {
+      return ace1CreateFieldsFactory(nodeType);
     } default : {
       return defaultVal(nodeType);
+    }
+  }
+}
+
+export function redirectItemView(nodeType) {
+  switch (DEPLOYMENT) {
+    case ACE_1 : {
+      return ace1RedirectItemView(nodeType);
+    }
+    default : {
+      return false;
     }
   }
 }

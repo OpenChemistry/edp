@@ -58,7 +58,7 @@ export const NODES = {
     icon: Grain,
     viewComponent: CompositeSearch,
     viewComponentProps: {
-      availableUrls: ['view', 'active-learning']
+      availableUrls: ['active-learning']
     },
     ingest: IngestComposite
   },
@@ -93,4 +93,8 @@ export function getNodeType(url, index) {
 
   console.warn('No matching node for this url');
   return null;
+}
+
+export function redirectItemView(nodeType) {
+  return nodeType !== COMPOSITION_NODE;
 }

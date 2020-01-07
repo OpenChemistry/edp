@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
-import { push } from 'connected-react-router';
+import { push, replace } from 'connected-react-router';
 import { isNil } from 'lodash-es';
 
 import { auth } from '@openchemistry/girder-redux';
@@ -13,7 +13,7 @@ import ItemView from '../components/itemView';
 import ItemList from '../components/itemList';
 import NotFoundPage from '../components/notFound.js';
 
-import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory } from '../nodes';
+import { getNodes, makeUrl, parseUrlMatch, createFieldsFactory, redirectItemView } from '../nodes';
 import { ROOT_NODE } from '../nodes/root';
 
 import { hasAdminAccess } from '../utils/permissions';
@@ -23,6 +23,7 @@ class ItemViewContainer extends Component {
 
   componentDidMount() {
     this.requestItems();
+    this.redirect();
   }
 
   componentDidUpdate(prevProps) {
@@ -32,6 +33,8 @@ class ItemViewContainer extends Component {
     if (prevItem._id !== item._id || prevDeployment !== deployment) {
       this.requestItems();
     }
+
+    this.redirect();
   }
 
   requestItems() {
@@ -48,6 +51,16 @@ class ItemViewContainer extends Component {
     const ancestors_ = ancestors.concat(item);
     for (let child of children) {
       dispatch(fetchItems({ancestors: ancestors_, item: child}));
+    }
+  }
+
+  redirect() {
+    const { ancestors, item, children, dispatch } = this.props;
+    if (redirectItemView(item.type) && children.length > 0 &&
+        Object.keys(children[0].items || {}).length > 0) {
+      const child = children[0].items[Object.keys(children[0].items)[0]];
+      const url = `${makeUrl(ancestors.concat(item), child)}`;
+      dispatch(replace(url));
     }
   }
 
@@ -83,6 +96,10 @@ class ItemViewContainer extends Component {
       return <NotFoundPage />;
     }
 
+    if (redirectItemView(item.type)) {
+      return null;
+    }
+
     let canEdit = false;
     if (!isNil(me)) {
       if (item.type === ROOT_NODE || hasAdminAccess(me, item.fields)) {
@@ -90,9 +107,10 @@ class ItemViewContainer extends Component {
       }
     }
 
+    const viewComponentProps = NODES[item.type].viewComponentProps || {};
     const viewComponent = NODES[item.type].viewComponent ? React.createElement(
       NODES[item.type].viewComponent,
-      {item, ancestors, location, canEdit}
+      {...viewComponentProps, item, ancestors, location, canEdit}
     ) :  null;
 
     const childrenLists = [];
