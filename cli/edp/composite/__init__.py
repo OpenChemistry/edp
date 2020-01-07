@@ -11,6 +11,7 @@ import functools
 import logging
 import sys
 import csv
+from pathlib import Path
 
 from multiprocessing import Pool
 from datetime import datetime
@@ -550,6 +551,9 @@ async def _create_platemap_csv(gc, project, composite, file):
 
 
 async def _create_analysis_csv(gc, project, composite, file, glob_files):
+    glob_files = [Path(f).name for f in glob_files]
+    glob_files = set(glob_files)
+
     dir = os.path.dirname(file)
     [ana_file] = glob.glob('%s/**/*.ana' % (dir), recursive=True)
 
@@ -646,9 +650,9 @@ async def ingest_csv(project, dir, api_url, api_key, glob_pattern):
 
     dir  = os.path.abspath(dir)
 
-    #composite_name = os.path.basename(dir)
+    composite_name = os.path.basename(dir)
     composite = {
-        'name': 'test',
+        'name': composite_name,
         'public': True
     }
 
@@ -662,8 +666,8 @@ async def ingest_csv(project, dir, api_url, api_key, glob_pattern):
     files = glob.glob('%s/%s' % (dir, glob_pattern), recursive=True)
 
     for file in files:
-        platemap = await _create_platemap_csv(gc, project, composite, file, glob_pattern)
-        (experiment_name, analysis) = await _create_analysis_csv(gc, project, composite, file)
+        platemap = await _create_platemap_csv(gc, project, composite, file)
+        (experiment_name, analysis) = await _create_analysis_csv(gc, project, composite, file, files)
         runs = await _create_runs_csv(gc, project, composite, dir,  experiment_name)
         await _create_samples_csv(gc, project, composite, platemap, analysis, runs, file)
 
