@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Button } from '@material-ui/core';
 
-import { parseUrlMatch } from '../../nodes';
+import { parseUrlMatch, ACE_1 } from '../../nodes';
 
 import NotFoundPage from '../../components/notFound.js';
 import { colors, makeCamera } from 'composition-plot';
@@ -34,6 +34,7 @@ import { combinations } from '../../utils/combinations';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
 import { fetchModelMetadata, getModelMetadata, runModel } from '../../redux/ducks/learning';
 import ActiveLearningParametersComponent from '../../components/composite-samples/controls/active-learning';
+import { getServerSettings } from '../../redux/ducks/settings';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -246,7 +247,8 @@ class ActiveLearningContainer extends Component {
       models,
       modelData,
       ballSize,
-      compositionSpaceSize
+      compositionSpaceSize,
+      deployment
     } = this.props;
 
     const {
@@ -373,68 +375,72 @@ class ActiveLearningContainer extends Component {
         />
 
         <br/>
-        <ControlsGrid>
-          <SelectControlComponent
-            gridsize={{xs: 12}}
-            label="Model"
-            value={modelName}
-            options={['None'].concat(Object.keys(models).map(key => ({value: models[key].fileName, label: models[key].name})))}
-            onChange={(modelName) => {this.onModelChange(modelName)}}
-          />
-          <ActiveLearningParametersComponent
-            gridsize={{xs: 12}}
-            model={models[modelName]}
-            values={modelParametersValues}
-            onChange={(key, value) => {this.setState(state => {state.modelParametersValues[key] = value; return state;})}}
-          />
-          { models[modelName] &&
-          <Button fullWidth gridsize={{xs: 12}} variant='contained' color='secondary'
-            onClick={this.onRunModel}
-            disabled={modelData && modelData.pending}
-          >
-            Run
-          </Button>
-          }
-          {modelIds.length > 0 &&
-          <SliderControlComponent
-            gridsize={{xs: 6}}
-            label={`Training Set ${opacityOrSize}`}
-            value={trainingOpacity}
-            range={[0, 1]}
-            step={0.05}
-            onChange={(opacity) => {this.setState(state => {state.trainingOpacity = opacity; return state;})}}
-          />
-          }
-          {modelIds.length > 0 &&
-          <SliderControlComponent
-            gridsize={{xs: 6}}
-            label={`Test Set ${opacityOrSize}`}
-            value={testOpacity}
-            range={[0, 1]}
-            step={0.05}
-            onChange={(opacity) => {this.setState(state => {state.testOpacity = opacity; return state;})}}
-          />
-          }
-        </ControlsGrid>
-        <br/>
+        {deployment !== ACE_1 &&
+        <Fragment>
+          <ControlsGrid>
+            <SelectControlComponent
+              gridsize={{xs: 12}}
+              label="Model"
+              value={modelName}
+              options={['None'].concat(Object.keys(models).map(key => ({value: models[key].fileName, label: models[key].name})))}
+              onChange={(modelName) => {this.onModelChange(modelName)}}
+            />
+            <ActiveLearningParametersComponent
+              gridsize={{xs: 12}}
+              model={models[modelName]}
+              values={modelParametersValues}
+              onChange={(key, value) => {this.setState(state => {state.modelParametersValues[key] = value; return state;})}}
+            />
+            { models[modelName] &&
+            <Button fullWidth gridsize={{xs: 12}} variant='contained' color='secondary'
+              onClick={this.onRunModel}
+              disabled={modelData && modelData.pending}
+            >
+              Run
+            </Button>
+            }
+            {modelIds.length > 0 &&
+            <SliderControlComponent
+              gridsize={{xs: 6}}
+              label={`Training Set ${opacityOrSize}`}
+              value={trainingOpacity}
+              range={[0, 1]}
+              step={0.05}
+              onChange={(opacity) => {this.setState(state => {state.trainingOpacity = opacity; return state;})}}
+            />
+            }
+            {modelIds.length > 0 &&
+            <SliderControlComponent
+              gridsize={{xs: 6}}
+              label={`Test Set ${opacityOrSize}`}
+              value={testOpacity}
+              range={[0, 1]}
+              step={0.05}
+              onChange={(opacity) => {this.setState(state => {state.testOpacity = opacity; return state;})}}
+            />
+            }
+          </ControlsGrid>
+          <br/>
 
-        <ModelsContainer
-          modelIds={modelIds}
-          compositionPlot={compositionPlot}
-          compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
-          compositionSpace={compositionSpace}
-          dataRange={dataRange}
-          colorMaps={this.colorMaps}
-          activeMap={activeMap}
-          invertMap={invertMap}
-          colorMapRange={colorMapRange}
-          filterRange={filterRange}
-          ballSize={ballSize}
-          camera={this.camera}
-          scalarField={scalarField}
-          trainingOpacity={trainingOpacity}
-          testOpacity={testOpacity}
-        />
+          <ModelsContainer
+            modelIds={modelIds}
+            compositionPlot={compositionPlot}
+            compositionToPosition={compositionSpace.length > 4 ? octCompositionToPosition : quatCompositionToPosition}
+            compositionSpace={compositionSpace}
+            dataRange={dataRange}
+            colorMaps={this.colorMaps}
+            activeMap={activeMap}
+            invertMap={invertMap}
+            colorMapRange={colorMapRange}
+            filterRange={filterRange}
+            ballSize={ballSize}
+            camera={this.camera}
+            scalarField={scalarField}
+            trainingOpacity={trainingOpacity}
+            testOpacity={testOpacity}
+          />
+        </Fragment>
+        }
       </Fragment>
     );
   }
@@ -456,6 +462,8 @@ function mapStateToProps(state, ownProps) {
   const models = getModelMetadata(state);
   props['models'] = models;
 
+  const settings = getServerSettings(state);
+  props['deployment'] = settings['deployment'];
 
   return props;
 }
