@@ -247,7 +247,8 @@ class CompositeSamplesContainer extends Component {
       plots,
       showDetails,
       ballSize,
-      compositionSpaceSize
+      compositionSpaceSize,
+      showDownload
     } = this.props;
 
     let {
