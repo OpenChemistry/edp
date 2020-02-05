@@ -32,6 +32,7 @@ markupsafe==1.0           # via mako
 mock==2.0.0               # via mongomock
 mongomock==3.10.0
 more-itertools==4.3.0     # via cheroot, jaraco.functools, pytest
+numpy==1.18.1             # via scipy
 pbr==4.2.0                # via mock
 pluggy==0.7.1             # via pytest
 portend==2.3              # via cherrypy
@@ -46,7 +47,8 @@ pytz==2018.5              # via girder, tempora
 pyyaml==3.13              # via girder
 requests==2.20.0
 s3transfer==0.1.13        # via boto3
+scipy==1.4.1
 sentinels==1.0.0          # via mongomock
 six==1.11.0               # via bcrypt, cheroot, cherrypy, girder, mock, mongomock, more-itertools, pytest, python-dateutil, tempora
 tempora==1.13             # via portend
-urllib3==1.23             # via requests
+urllib3==1.24.2           # via requests
