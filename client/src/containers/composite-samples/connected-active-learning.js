@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
+import { samplesToLines, downloadLinesAsCSV } from 'composition-plot';
 
 import { getSamples, fetchSamples } from '../../redux/ducks/composites';
 
@@ -40,6 +41,18 @@ class CompositeSamplesContainer extends Component {
     dispatch(fetchSamples({ancestors, item, platemapId, runId}));
   }
 
+  downloadSamples = () => {
+    const { samples, plateId } = this.props;
+    let filename;
+    if (plateId) {
+      filename = `plate_${plateId}.csv`;
+    } else {
+      filename = 'plate.csv';
+    }
+    const lines = samplesToLines(samples, plateId);
+    downloadLinesAsCSV(lines, filename);
+  }
+
   getUrlParams() {
     return URL_PARAMS;
   }
@@ -59,6 +72,7 @@ class CompositeSamplesContainer extends Component {
         <CompositeActiveLearningContainer
           {...this.props}
           samples={samples}
+          onDownload={this.downloadSamples}
         />
       </InfoExtractor>
     );
@@ -76,6 +90,11 @@ function mapStateToProps(state, ownProps) {
 
   for (let key in URL_PARAMS) {
     props[key] = URL_PARAMS[key].deserialize(searchParams.get(key));
+  }
+
+  const plateId = searchParams.get('plateId');
+  if (plateId) {
+    props['plateId'] = plateId;
   }
 
   const samples = getSamples(state, props['platemapId'], props['runId']) || [];

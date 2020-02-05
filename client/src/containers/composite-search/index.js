@@ -51,10 +51,12 @@ class CompositeSearch extends Component {
   onOpen = (match, mode) => {
     const { ancestors, item, dispatch } = this.props;
     const platemapId = match.platemap._id;
+    const plateId = match.platemap.plateId;
     const runId = match.run._id;
     const searchParams = new URLSearchParams();
     searchParams.append('platemapId', platemapId);
     searchParams.append('runId', runId);
+    searchParams.append('plateId', plateId);
     // dispatch(fetchSamples({ancestors, item, platemapId, runId}));
     let destination = 'samples';
     if (mode === 'active-learning') {

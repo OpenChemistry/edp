@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 
 import { connect } from 'react-redux';
-import { Button } from '@material-ui/core';
+import { Button, Grid, Box } from '@material-ui/core';
+import { CloudDownload } from '@material-ui/icons';
 
 import { parseUrlMatch, ACE_1 } from '../../nodes';
 
@@ -248,7 +249,8 @@ class ActiveLearningContainer extends Component {
       modelData,
       ballSize,
       compositionSpaceSize,
-      deployment
+      deployment,
+      onDownload
     } = this.props;
 
     const {
@@ -373,6 +375,16 @@ class ActiveLearningContainer extends Component {
           showLegend={true}
           camera={this.camera}
         />
+
+        { deployment === ACE_1 &&
+        <Grid container justify='flex-end'>
+          <Box marginTop={2}>
+            <Button onClick={onDownload} color="primary" variant="outlined" size="small">
+              <CloudDownload/>&nbsp;&nbsp;<b>Download as CSV</b>
+            </Button>
+          </Box>
+        </Grid>
+        }
 
         <br/>
         {deployment !== ACE_1 &&
