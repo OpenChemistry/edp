@@ -8,7 +8,8 @@ import ModelComponent from '../../components/composite-samples/model';
 const ModelsContainer = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
   colorMaps, activeMap, invertMap, colorMapRange, filterRange, camera,
-  scalarField, models, modelIds, trainingOpacity, testOpacity, ballSize
+  scalarField, models, modelIds, trainingOpacity, testOpacity, ballSize,
+  darkMode
 }) => {
   return models.map((modelData, i) => {
     if (!modelData) {
@@ -38,6 +39,7 @@ const ModelsContainer = ({
         pending={modelData.pending}
         trainingOpacity={trainingOpacity}
         testOpacity={testOpacity}
+        darkMode={darkMode}
       />
     );
   });

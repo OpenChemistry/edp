@@ -13,10 +13,10 @@ import SearchPending from '../search/pending';
 
 const styles = (theme) => ({
   evenModel: {
-    backgroundColor: grey[200]
+    backgroundColor: theme.palette.background.paper
   },
   oddModel: {
-    backgroundColor: theme.palette.background
+    backgroundColor: theme.palette.background.default
   }
 });
 
@@ -24,7 +24,8 @@ const ModelComponent = ({
   compositionPlot, compositionToPosition, compositionSpace, dataRange,
   colorMaps, activeMap, invertMap, colorMapRange, filterRange, camera,
   scalarField, samples, samplesCompare, metrics, pending,
-  model, parameters, modelNumber, classes, testOpacity, trainingOpacity, ballSize
+  model, parameters, modelNumber, classes, testOpacity, trainingOpacity, ballSize,
+  darkMode
 }) => {
   const [metricsType, setMetricsType] = useState('MAE');
   const [iteration, setInteration] = useState(0);
@@ -49,6 +50,7 @@ const ModelComponent = ({
         scalarField={scalarField}
         nIterations={Object.keys(metrics).length}
         onChange={(iteration) => {setInteration(iteration)}}
+        darkMode={darkMode}
       />
       <ControlsGrid>
         <SelectControlComponent
@@ -89,6 +91,7 @@ const ModelComponent = ({
           selectedSampleKeys={new Set()}
           showLegend={true}
           camera={camera}
+          darkMode={darkMode}
         />
       </Fragment>
       }
@@ -114,6 +117,7 @@ const ModelComponent = ({
           selectedSampleKeys={new Set()}
           showLegend={true}
           camera={camera}
+          darkMode={darkMode}
         />
       </Fragment>
       }

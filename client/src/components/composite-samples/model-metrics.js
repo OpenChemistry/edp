@@ -30,7 +30,7 @@ class ModelMetricsComponent extends Component {
   }
 
   updatePlot() {
-    const {metrics, mlModelMetric, scalarField, nIterations} = this.props;
+    const {metrics, mlModelMetric, scalarField, nIterations, darkMode} = this.props;
 
     const x = [];
     const y = [];
@@ -49,6 +49,8 @@ class ModelMetricsComponent extends Component {
     dp.setLabel('x', 'Iteration');
     dp.setLabel('y', mlModelMetric);
 
+    const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    this.plot.setTextColor(textColor);
     this.plot.setOnSelect(this.onSelect);
     this.plot.setSpectra([{spectrum: dp, sample: null}]);
     this.plot.setAxes('x', 'y');

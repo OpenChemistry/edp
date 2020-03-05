@@ -109,6 +109,7 @@ class QuaternaryPlotComponent extends Component {
   onDarkModeChange() {
     const { darkMode } = this.props;
     const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    console.log("SET TEXT COLOR", textColor);
     this.quaternaryPlot.setTextColor(textColor);
   }
 
