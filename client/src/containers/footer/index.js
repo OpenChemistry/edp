@@ -6,15 +6,22 @@ import girderClient from '@openchemistry/girder-client';
 
 import FooterComponent from '../../components/footer';
 import { getServerSettings } from '../../redux/ducks/settings';
+import { getDarkMode, enableDarkMode } from '../../redux/ducks/theme';
 
 class FooterContainer extends Component {
+  onEnableDarkMode = (enable) => {
+    const { dispatch } = this.props;
+    dispatch(enableDarkMode(enable));
+  }
+
   render() {
-    return (<FooterComponent {...this.props}></FooterComponent>);
+    return (<FooterComponent {...this.props} onEnableDarkMode={this.onEnableDarkMode}></FooterComponent>);
   }
 }
 
 function mapStateToProps(state, ownProps) {
   const { privacy, license, footerLogoFileId, footerLogoUrl } = getServerSettings(state);
+  const darkMode = getDarkMode(state);
 
   let footerLogoImageUrl = null;
   if (!isNil(footerLogoFileId)) {
@@ -22,7 +29,7 @@ function mapStateToProps(state, ownProps) {
     footerLogoImageUrl = `${baseUrl}/file/${footerLogoFileId}/download`
   }
 
-  return { privacy, license, footerLogoImageUrl, footerLogoUrl };
+  return { privacy, license, footerLogoImageUrl, footerLogoUrl, darkMode };
 }
 
 export default connect(mapStateToProps)(FooterContainer);

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import './App.css';
 
+import { connect } from 'react-redux';
 import { Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router'
 
@@ -31,6 +32,7 @@ import MultidimensionLearningContainer from './containers/composite-samples/8d-a
 
 import Footer from './containers/footer';
 import Head from './containers/head';
+import { getDarkMode } from './redux/ducks/theme';
 
 const appStyles = theme => ({
   root: {
@@ -53,6 +55,8 @@ const appStyles = theme => ({
   }
 });
 
+const ligthTheme = createMuiTheme();
+
 const darkTheme = createMuiTheme({
   palette: {
     type: 'dark'
@@ -65,9 +69,9 @@ class App extends Component {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       development = true;
     }
-    const {classes} = this.props;
+    const {classes, darkMode} = this.props;
     return (
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={darkMode ? darkTheme : ligthTheme}>
         <div className={classes.root}>
           <Head />
           <CssBaseline />
@@ -115,4 +119,12 @@ class App extends Component {
   }
 }
 
-export default withStyles(appStyles)(App);
+function mapStateToProps(state) {
+  const darkMode = getDarkMode(state);
+  return {darkMode};
+}
+
+App = withStyles(appStyles)(App);
+App = connect(mapStateToProps)(App);
+
+export default App;

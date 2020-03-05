@@ -33,6 +33,10 @@ class SpectrumComponent extends Component {
   componentDidUpdate(prevProps) {
     let doUpdate = false;
 
+    if (this.props.darkMode !== prevProps.darkMode) {
+      doUpdate = true;
+    }
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
       doUpdate = true;
     }
@@ -47,8 +51,10 @@ class SpectrumComponent extends Component {
   }
 
   updateSpectra() {
-    const { timeseries, onParamChanged } = this.props;
+    const { timeseries, onParamChanged, darkMode } = this.props;
     let { xAxisS, yAxisS } = this.props;
+    const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    this.spectraPlot.setTextColor(textColor);
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;

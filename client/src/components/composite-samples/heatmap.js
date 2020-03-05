@@ -35,6 +35,10 @@ class HeatMapComponent extends Component {
   componentDidUpdate(prevProps) {
     let doUpdate = false;
 
+    if (this.props.darkMode !== prevProps.darkMode) {
+      doUpdate = true;
+    }
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
       doUpdate = true;
     }
@@ -74,7 +78,7 @@ class HeatMapComponent extends Component {
   }
 
   refreshHeatMap() {
-    const { yAxisH, zAxisH,reduceFnH, separateSlopeH, selectionH } = this.props;
+    const { yAxisH, zAxisH,reduceFnH, separateSlopeH, selectionH, darkMode } = this.props;
     const { nY } = this.state;
     this.dp.setNumY(nY);
     this.dp.setActiveScalars([yAxisH, zAxisH]);
@@ -82,6 +86,8 @@ class HeatMapComponent extends Component {
     this.dp.selectSegments(selectionH);
     this.dp.setReduceFn(reduceFnH);
     this.dp.computeMaps();
+    const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    this.heatMap.setTextColor(textColor);
     this.heatMap.dataUpdated();
   }
 
