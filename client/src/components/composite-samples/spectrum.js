@@ -13,6 +13,12 @@ import {
   TableHead
 } from '@material-ui/core';
 
+import { schemeCategory10, schemePastel1 } from 'd3-scale-chromatic';
+import { colors as colorUtils } from 'composition-plot';
+
+const lightCategoryColors = schemeCategory10.map(color => colorUtils.hexTorgb(color.slice(1)));
+const darkCategoryColors = schemePastel1.map(color => colorUtils.hexTorgb(color.slice(1)));
+
 class SpectrumComponent extends Component {
   spectraElement;
 
@@ -55,6 +61,7 @@ class SpectrumComponent extends Component {
     let { xAxisS, yAxisS } = this.props;
     const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
     this.spectraPlot.setTextColor(textColor);
+    this.spectraPlot.setLineColors(darkMode ? darkCategoryColors : lightCategoryColors)
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
