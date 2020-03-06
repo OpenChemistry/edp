@@ -33,6 +33,9 @@ import MultidimensionLearningContainer from './containers/composite-samples/8d-a
 import Footer from './containers/footer';
 import Head from './containers/head';
 import { getDarkMode } from './redux/ducks/theme';
+import { getServerSettings }  from './redux/ducks/settings';
+
+import { isEmpty, isNil } from 'lodash-es';
 
 const appStyles = theme => ({
   root: {
@@ -55,7 +58,7 @@ const appStyles = theme => ({
   }
 });
 
-const ligthTheme = createMuiTheme();
+const lightTheme = createMuiTheme();
 
 const darkTheme = createMuiTheme({
   palette: {
@@ -69,9 +72,11 @@ class App extends Component {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       development = true;
     }
-    const {classes, darkMode} = this.props;
+    const {classes, darkMode, title} = this.props;
+    document.title = title;
+
     return (
-      <ThemeProvider theme={darkMode ? darkTheme : ligthTheme}>
+      <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
         <div className={classes.root}>
           <Head />
           <CssBaseline />
@@ -121,7 +126,21 @@ class App extends Component {
 
 function mapStateToProps(state) {
   const darkMode = getDarkMode(state);
-  return {darkMode};
+  const settings = getServerSettings(state);
+  let title = '';
+
+  // We want the title to be '' until the settings have been fetch, then we
+  // can decide what todo
+  if (!isEmpty(settings)) {
+    if (!isNil(settings.title)) {
+      title = settings.title;
+    }
+    else {
+      title = 'Experimental Data Platform'
+    }
+  }
+
+  return {darkMode, title};
 }
 
 App = withStyles(appStyles)(App);
