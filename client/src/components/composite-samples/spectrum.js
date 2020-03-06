@@ -164,7 +164,7 @@ class SpectrumComponent extends Component {
                     {yOffsetS.toFixed(3)}
                   </div>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
-                    <Slider 
+                    <Slider
                       min={0} max={10} step={0.1}
                       value={yOffsetS}
                       onChange={(e, val) => {this.onOffsetChange(val)}}
