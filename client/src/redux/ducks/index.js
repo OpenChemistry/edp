@@ -6,3 +6,4 @@ export {default as apiKeys} from './apiKeys';
 export {default as composites} from './composites';
 export {default as settings} from './settings';
 export {default as learning} from './learning';
+export {default as theme} from './theme';

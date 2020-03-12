@@ -41,7 +41,12 @@ class MultidimensionPlotComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {samples, scalarField, activeMap, invertMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize, compositionSpace, compositionToPosition} = this.props;
+    const {samples, scalarField, activeMap, invertMap, colorMapRange, filterRange, camera, trainingOpacity, testOpacity, ballSize, compositionSpace, compositionToPosition, darkMode, theme} = this.props;
+
+    if (darkMode !== prevProps.darkMode) {
+      const bgColor = get(theme, 'palette.background.default', '#efefef');
+      this.multidimensionalPlot.setBackground(bgColor);
+    }
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);

@@ -31,6 +31,7 @@ import {
 } from '../../utils/url-props';
 import { combinations } from '../../utils/combinations';
 import CompositionSpaceComponent from '../../components/composite-samples/controls/composition-space';
+import { getDarkMode } from '../../redux/ducks/theme';
 
 const URL_PARAMS = {
   display: {
@@ -248,14 +249,15 @@ class CompositeSamplesContainer extends Component {
       showDetails,
       ballSize,
       compositionSpaceSize,
-      showDownload
+      showDownload,
+      darkMode
     } = this.props;
 
     let {
       onSampleSelect,
       onSampleDeselect,
       onSampleSelectById,
-      onClearSelection
+      onClearSelection,
     } = this.props;
 
     const noOp = () => {};
@@ -379,6 +381,7 @@ class CompositeSamplesContainer extends Component {
           showLegend={true}
           onSampleSelect={_onSampleSelect}
           onSampleDeselect={onSampleDeselect}
+          darkMode={darkMode}
         />
 
         {showDetails &&
@@ -402,6 +405,7 @@ class CompositeSamplesContainer extends Component {
             separateSlopeH={separateSlopeH}
             selectionH={selectionH}
             plots={plots}
+            darkMode={darkMode}
           />
         </Fragment>
         }
@@ -411,7 +415,10 @@ class CompositeSamplesContainer extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
+  const darkMode = getDarkMode(state);
+
   const props = {
+    darkMode
   }
   const searchParams = new URLSearchParams(ownProps.location.search);
 

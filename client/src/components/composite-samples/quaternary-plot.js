@@ -22,7 +22,7 @@ class QuaternaryPlotComponent extends Component {
     this.dp = new DataProvider(4);
     this.quaternaryPlot = new QuaternaryPlot(this.compositionElement, this.dp);
     this.quaternaryPlot.setCallBacks(onSampleSelect, onSampleDeselect);
-
+    this.onDarkModeChange();
     this.onNewSamples();
   }
 
@@ -30,11 +30,16 @@ class QuaternaryPlotComponent extends Component {
     const {
       samples, compositionSpace, selectedSampleKeys,
       scalarField, activeMap, invertMap, colorMapRange,
-      trainingOpacity, testOpacity
+      trainingOpacity, testOpacity, darkMode
     } = this.props;
     this.quaternaryPlot.setSelectedSamples( selectedSampleKeys );
 
     let redraw = false;
+
+    if (darkMode !== prevProps.darkMode) {
+      this.onDarkModeChange();
+      redraw = true;
+    }
 
     if (samples !== prevProps.samples) {
       this.dp.setData(samples);
@@ -99,6 +104,13 @@ class QuaternaryPlotComponent extends Component {
     this.onOpacityChange();
 
     this.quaternaryPlot.dataUpdated();
+  }
+
+  onDarkModeChange() {
+    const { darkMode } = this.props;
+    const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    console.log("SET TEXT COLOR", textColor);
+    this.quaternaryPlot.setTextColor(textColor);
   }
 
   onScalarChange() {

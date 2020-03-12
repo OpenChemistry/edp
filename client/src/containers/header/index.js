@@ -13,6 +13,7 @@ import { getServerSettings } from '../../redux/ducks/settings';
 import { SOW10 } from '../../nodes';
 import { isNil, isEmpty } from 'lodash-es';
 import logo from '../../assets/logo.svg';
+import { getDarkMode } from '../../redux/ducks/theme';
 
 class HeaderContainer extends Component {
 
@@ -38,12 +39,14 @@ class HeaderContainer extends Component {
 function mapStateToProps(state) {
   const loggedIn = auth.selectors.isAuthenticated(state);
   const settings = getServerSettings(state);
+  const darkMode = getDarkMode(state);
   const { deployment, showMenu, showSearch, headerLeftLogoFileId,
-          headerRightLogoFileId, headerRightLogoUrl } = settings;
+          headerRightLogoFileId, headerRightLogoUrl, headerLeftLogoDarkFileId } = settings;
 
   const props = {
       loggedIn,
-      headerRightLogoUrl
+      headerRightLogoUrl,
+      darkMode
   };
 
   if (!isNil(settings)) {
@@ -51,9 +54,10 @@ function mapStateToProps(state) {
     props.showSearch = showSearch;
   }
 
-  if (!isNil(headerLeftLogoFileId)) {
+  const leftLogoId = darkMode ? headerLeftLogoDarkFileId || headerLeftLogoFileId : headerLeftLogoFileId;
+  if (!isNil(leftLogoId)) {
     const baseUrl = girderClient().getBaseURL();
-    props.leftLogo = `${baseUrl}/file/${headerLeftLogoFileId}/download`
+    props.leftLogo = `${baseUrl}/file/${leftLogoId}/download`
   }
   else if (!isEmpty(settings)) {
     props.leftLogo = logo;

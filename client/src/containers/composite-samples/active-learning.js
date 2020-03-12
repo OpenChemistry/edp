@@ -36,6 +36,7 @@ import CompositionSpaceComponent from '../../components/composite-samples/contro
 import { fetchModelMetadata, getModelMetadata, runModel } from '../../redux/ducks/learning';
 import ActiveLearningParametersComponent from '../../components/composite-samples/controls/active-learning';
 import { getServerSettings } from '../../redux/ducks/settings';
+import { getDarkMode } from '../../redux/ducks/theme';
 
 const URL_PARAMS = {
   compositionPlot: {
@@ -250,7 +251,8 @@ class ActiveLearningContainer extends Component {
       ballSize,
       compositionSpaceSize,
       deployment,
-      onDownload
+      onDownload,
+      darkMode
     } = this.props;
 
     const {
@@ -374,6 +376,7 @@ class ActiveLearningContainer extends Component {
           selectedSampleKeys={new Set()}
           showLegend={true}
           camera={this.camera}
+          darkMode={darkMode}
         />
 
         { deployment === ACE_1 &&
@@ -450,6 +453,7 @@ class ActiveLearningContainer extends Component {
             scalarField={scalarField}
             trainingOpacity={trainingOpacity}
             testOpacity={testOpacity}
+            darkMode={darkMode}
           />
         </Fragment>
         }
@@ -461,7 +465,9 @@ class ActiveLearningContainer extends Component {
 function mapStateToProps(state, ownProps) {
   const ancestors = parseUrlMatch(ownProps.match);
   const item = ancestors.pop();
+  const darkMode = getDarkMode(state);
   const props = {
+    darkMode,
     ancestors,
     item
   }

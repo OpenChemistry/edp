@@ -13,6 +13,12 @@ import {
   TableHead
 } from '@material-ui/core';
 
+import { schemeCategory10, schemePastel1 } from 'd3-scale-chromatic';
+import { colors as colorUtils } from 'composition-plot';
+
+const lightCategoryColors = schemeCategory10.map(color => colorUtils.hexTorgb(color.slice(1)));
+const darkCategoryColors = schemePastel1.map(color => colorUtils.hexTorgb(color.slice(1)));
+
 class SpectrumComponent extends Component {
   spectraElement;
 
@@ -33,6 +39,10 @@ class SpectrumComponent extends Component {
   componentDidUpdate(prevProps) {
     let doUpdate = false;
 
+    if (this.props.darkMode !== prevProps.darkMode) {
+      doUpdate = true;
+    }
+
     if (this.props.timeseries.length !== prevProps.timeseries.length) {
       doUpdate = true;
     }
@@ -47,8 +57,11 @@ class SpectrumComponent extends Component {
   }
 
   updateSpectra() {
-    const { timeseries, onParamChanged } = this.props;
+    const { timeseries, onParamChanged, darkMode } = this.props;
     let { xAxisS, yAxisS } = this.props;
+    const textColor = darkMode ? [1, 1, 1] : [0, 0, 0];
+    this.spectraPlot.setTextColor(textColor);
+    this.spectraPlot.setLineColors(darkMode ? darkCategoryColors : lightCategoryColors)
     this.spectraPlot.setSpectra(this.props.timeseries);
     if (timeseries.length > 0) {
       const spectrum = timeseries[0].spectrum;
@@ -151,7 +164,7 @@ class SpectrumComponent extends Component {
                     {yOffsetS.toFixed(3)}
                   </div>
                   <div style={{flexGrow: 1, paddingRight: 16}}>
-                    <Slider 
+                    <Slider
                       min={0} max={10} step={0.1}
                       value={yOffsetS}
                       onChange={(e, val) => {this.onOffsetChange(val)}}
