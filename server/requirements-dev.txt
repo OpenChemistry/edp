@@ -5,48 +5,146 @@
 #    pip-compile --output-file requirements-dev.txt requirements-dev.in
 #
 -e git+https://github.com/girder/girder.git@2.x-maintenance#egg=pytest_girder&subdirectory=pytest_girder
-atomicwrites==1.1.5       # via pytest
-attrs==18.1.0             # via pytest
-backports.functools-lru-cache==1.5  # via cheroot
-bcrypt==3.1.4             # via girder
-boto3==1.7.77             # via girder
-botocore==1.10.77         # via boto3, s3transfer
-certifi==2018.8.13        # via requests
-cffi==1.11.5              # via bcrypt
-chardet==3.0.4            # via requests
-cheroot==6.4.0            # via cherrypy
-cherrypy==11.0.0          # via girder
-click-plugins==1.0.3      # via girder
-click==6.7                # via click-plugins, girder
-coverage==4.5.1           # via pytest-cov
-docutils==0.14            # via botocore
-dogpile.cache==0.6.7      # via girder
-filelock==3.0.4           # via girder
+    # via -r requirements-dev.in
+atomicwrites==1.1.5
+    # via pytest
+attrs==18.1.0
+    # via pytest
+backports.functools-lru-cache==1.5
+    # via
+    #   cheroot
+    #   jaraco.functools
+bcrypt==3.1.4
+    # via girder
+boto3==1.7.77
+    # via girder
+botocore==1.10.77
+    # via
+    #   boto3
+    #   s3transfer
+certifi==2018.8.13
+    # via requests
+cffi==1.11.5
+    # via bcrypt
+chardet==3.0.4
+    # via requests
+cheroot==6.4.0
+    # via cherrypy
+cherrypy==11.0.0
+    # via girder
+click-plugins==1.0.3
+    # via girder
+click==6.7
+    # via
+    #   click-plugins
+    #   girder
+coverage==4.5.1
+    # via pytest-cov
+docutils==0.14
+    # via botocore
+dogpile.cache==0.6.7
+    # via girder
+filelock==3.0.4
+    # via girder
+funcsigs==1.0.2
+    # via
+    #   girder
+    #   mock
+    #   pytest
+functools32==3.2.3.post2
+    # via jsonschema
+futures==3.3.0
+    # via s3transfer
 girder==2.5.0
-idna==2.7                 # via requests
-jaraco.functools==1.20    # via tempora
-jmespath==0.9.3           # via boto3, botocore
-jsonschema==2.6.0         # via girder
-mako==1.0.7               # via girder
-markupsafe==1.0           # via mako
-mock==2.0.0               # via mongomock
+    # via pytest-girder
+idna==2.7
+    # via requests
+jaraco.functools==1.20
+    # via tempora
+jmespath==0.9.3
+    # via
+    #   boto3
+    #   botocore
+jsonschema==2.6.0
+    # via girder
+mako==1.0.7
+    # via girder
+markupsafe==1.0
+    # via mako
+mock==2.0.0
+    # via mongomock
 mongomock==3.10.0
-more-itertools==4.3.0     # via cheroot, jaraco.functools, pytest
-pbr==4.2.0                # via mock
-pluggy==0.7.1             # via pytest
-portend==2.3              # via cherrypy
-psutil==5.4.7             # via girder
-py==1.5.4                 # via pytest
-pycparser==2.18           # via cffi
-pymongo==3.7.1            # via girder
+    # via pytest-girder
+more-itertools==4.3.0
+    # via
+    #   cheroot
+    #   jaraco.functools
+    #   pytest
+numpy==1.16.6
+    # via scipy
+pathlib2==2.3.5
+    # via pytest
+pbr==4.2.0
+    # via mock
+pluggy==0.7.1
+    # via pytest
+portend==2.3
+    # via cherrypy
+psutil==5.4.7
+    # via girder
+py==1.5.4
+    # via pytest
+pycparser==2.18
+    # via cffi
+pymongo==3.7.1
+    # via
+    #   girder
+    #   pytest-girder
 pytest-cov==2.5.1
+    # via pytest-girder
 pytest==3.7.1
-python-dateutil==2.6.1    # via botocore, girder
-pytz==2018.5              # via girder, tempora
-pyyaml==3.13              # via girder
+    # via
+    #   -r requirements-dev.in
+    #   pytest-cov
+    #   pytest-girder
+python-dateutil==2.6.1
+    # via
+    #   botocore
+    #   girder
+pytz==2018.5
+    # via
+    #   girder
+    #   tempora
+pyyaml==5.4
+    # via girder
 requests==2.20.0
-s3transfer==0.1.13        # via boto3
-sentinels==1.0.0          # via mongomock
-six==1.11.0               # via bcrypt, cheroot, cherrypy, girder, mock, mongomock, more-itertools, pytest, python-dateutil, tempora
-tempora==1.13             # via portend
-urllib3==1.23             # via requests
+    # via
+    #   -r requirements-dev.in
+    #   girder
+s3transfer==0.1.13
+    # via boto3
+scandir==1.10.0
+    # via pathlib2
+scipy==1.2.3
+    # via -r requirements-dev.in
+sentinels==1.0.0
+    # via mongomock
+shutilwhich==1.1.0
+    # via girder
+six==1.11.0
+    # via
+    #   bcrypt
+    #   cheroot
+    #   cherrypy
+    #   girder
+    #   mock
+    #   mongomock
+    #   more-itertools
+    #   pathlib2
+    #   pytest
+    #   python-dateutil
+    #   tempora
+tempora==1.13
+    # via portend
+urllib3==1.23
+    # via requests
